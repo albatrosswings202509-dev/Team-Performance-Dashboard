@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Albatross Wings - Enterprise Performance Dashboard</title>
+  <title>Albatross Wings - Enterprise SaaS Dashboard</title>
 
-  <!-- Google Fonts: Outfit (Headings) & Plus Jakarta Sans (Body Data) -->
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,15 +14,12 @@
 
   <style>
     :root {
-      --sidebar-width: 260px;
+      --sidebar-width: 270px;
       --bg-midnight: #0b0f19;
       --bg-surface: #f8fafc;
       --card-bg: #ffffff;
       --accent-indigo: #6366f1;
       --accent-hover: #4f46e5;
-      --accent-emerald: #10b981;
-      --accent-rose: #f43f5e;
-      --accent-amber: #f59e0b;
       --text-main: #0f172a;
       --text-sub: #64748b;
       --border-subtle: #e2e8f0;
@@ -38,6 +35,7 @@
       display: flex;
       min-height: 100vh;
       overflow-x: hidden;
+      text-align: center !important; /* GLOBAL CENTERED TEXT */
     }
 
     /* Left Sidebar */
@@ -49,177 +47,127 @@
       flex-direction: column;
       flex-shrink: 0;
       position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
+      top: 0; bottom: 0; left: 0;
       z-index: 1050;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s ease;
+      text-align: center;
     }
 
     .brand-box {
       padding: 24px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      gap: 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 44px; height: 44px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #6366f1, #3b82f6);
       color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.2rem;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
     }
 
     .brand-name {
       font-family: 'Outfit', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-      letter-spacing: -0.01em;
-      color: #ffffff;
+      font-weight: 700; font-size: 1.1rem; color: #ffffff;
     }
 
-    .sidebar-menu {
-      list-style: none;
-      padding: 20px 14px;
-      margin: 0;
-      flex-grow: 1;
-      overflow-y: auto;
-    }
+    .sidebar-menu { list-style: none; padding: 18px 12px; margin: 0; flex-grow: 1; overflow-y: auto; }
 
     .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      border-radius: 12px;
-      margin-bottom: 6px;
-      transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 11px 14px; color: #94a3b8;
+      text-decoration: none; font-size: 0.86rem; font-weight: 600;
+      border-radius: 12px; margin-bottom: 6px; transition: all 0.2s ease;
     }
 
     .sidebar-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
     .sidebar-link.active {
-      background: var(--accent-indigo);
-      color: #ffffff;
-      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+      background: var(--accent-indigo); color: #ffffff;
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
     }
 
     /* Main Area */
     .main-wrapper {
       margin-left: var(--sidebar-width);
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      transition: margin-left 0.3s ease;
+      flex-grow: 1; display: flex; flex-direction: column;
+      min-width: 0; width: 100%; text-align: center !important;
     }
 
     .top-header {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-subtle);
       padding: 18px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: sticky; top: 0; z-index: 1000; gap: 6px;
     }
 
     .page-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin: 0;
+      font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin: 0;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
 
-    .page-sub { font-size: 0.8rem; color: var(--text-sub); margin: 0; }
+    .page-sub { font-size: 0.82rem; color: var(--text-sub); margin: 0; }
 
     .live-badge {
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      color: #047857;
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 6px 16px;
-      border-radius: 25px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857;
+      font-size: 0.76rem; font-weight: 700; padding: 5px 14px; border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
     }
 
-    .live-dot {
-      width: 8px; height: 8px; background: #10b981; border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
-    }
-
-    .content-area { padding: 28px 32px; overflow-y: auto; flex-grow: 1; }
+    .content-area { padding: 28px 32px; overflow-y: auto; flex-grow: 1; text-align: center !important; }
 
     /* KPI Cards */
     .kpi-card {
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 16px; padding: 20px;
       box-shadow: var(--shadow-premium);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      height: 100%;
+      height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center !important;
     }
 
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.08);
+    .kpi-title {
+      font-size: 0.76rem; font-weight: 700; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
 
-    .kpi-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; }
-    .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 800; color: var(--text-main); margin: 6px 0 2px 0; }
+    .kpi-value {
+      font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 800;
+      color: var(--text-main); margin: 6px 0 2px 0; text-align: center;
+    }
 
+    /* Container Box Wrappers */
     .table-box {
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: var(--shadow-premium);
-      margin-top: 24px;
+      border-radius: 18px; padding: 24px;
+      box-shadow: var(--shadow-premium); margin-top: 24px;
+      text-align: center !important;
     }
 
-    .custom-table { width: 100%; font-size: 0.85rem; border-collapse: separate; border-spacing: 0; }
+    .custom-table { width: 100%; font-size: 0.85rem; border-collapse: separate; border-spacing: 0; margin: 0 auto; }
     .custom-table th {
-      color: var(--text-sub);
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      padding: 12px 16px;
-      border-bottom: 2px solid var(--border-subtle);
-      background: #f8fafc;
+      color: var(--text-sub); font-size: 0.74rem; font-weight: 700;
+      text-transform: uppercase; padding: 12px 16px; border-bottom: 2px solid var(--border-subtle);
+      background: #f8fafc; text-align: center !important;
     }
 
-    .custom-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); font-weight: 500; }
+    .custom-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); font-weight: 500; text-align: center !important; }
     .custom-table tr:hover td { background: #f8fafc; }
 
-    /* Mobile Drawer Toggle */
     .mobile-toggle {
-      display: none;
-      background: #f1f5f9;
-      border: 1px solid var(--border-subtle);
-      padding: 8px 12px;
-      border-radius: 10px;
-      color: var(--text-main);
+      display: none; background: #f1f5f9; border: 1px solid var(--border-subtle);
+      padding: 8px 12px; border-radius: 10px; color: var(--text-main); margin-bottom: 8px;
     }
 
     @media (max-width: 991px) {
@@ -227,42 +175,38 @@
       .sidebar.show { transform: translateX(0); }
       .main-wrapper { margin-left: 0; }
       .mobile-toggle { display: inline-flex; }
-      .top-header { padding: 16px 20px; }
-      .content-area { padding: 20px 16px; }
+      .content-area { padding: 18px 14px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Menu -->
+  <!-- Left Sidebar Navigation -->
   <div class="sidebar" id="sidebar">
     <div class="brand-box">
-      <div class="brand-logo">AW</div>
+      <div class="brand-logo"><i class="bi bi-shield-check"></i></div>
       <div class="brand-name">Albatross Wings</div>
     </div>
     <ul class="sidebar-menu" id="sidebarMenu">
-      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-vcard-fill"></i> Performance Card</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Audit Details')"><i class="bi bi-card-checklist"></i> Audit Details</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill"></i> Parameter Empathy</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('FCR & Service Delivery')"><i class="bi bi-layers-fill"></i> FCR & Service Delivery</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Lag Adherence & Over Break')"><i class="bi bi-clock-history"></i> Lag & Adherence</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('AHT & CFS')"><i class="bi bi-pie-chart-fill"></i> AHT & CFS</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Audited Call Details')"><i class="bi bi-telephone-fill"></i> Audited Call Details</a></li>
+      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-fill text-indigo"></i> Dashboard</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-badge-fill text-primary"></i> Performance Card</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Audit Details')"><i class="bi bi-card-checklist text-info"></i> Audit Details</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill text-danger"></i> Parameter Empathy</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('FCR & Service Delivery')"><i class="bi bi-layers-fill text-success"></i> FCR & Service Delivery</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Complaint Escalation and DKB %')"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Complaint & DKB %</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Lag Adherence & Over Break')"><i class="bi bi-clock-history text-secondary"></i> Lag & Adherence</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('AHT & CFS')"><i class="bi bi-pie-chart-fill text-indigo"></i> AHT & CFS</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Audited Call Details')"><i class="bi bi-telephone-fill text-primary"></i> Audited Call Details</a></li>
     </ul>
   </div>
 
-  <!-- Main Body Wrapper -->
+  <!-- Main Content Wrapper -->
   <div class="main-wrapper">
     <div class="top-header">
-      <div class="d-flex align-items-center gap-3">
-        <button class="mobile-toggle" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
-        <div>
-          <h1 class="page-title" id="pageTitle">Dashboard</h1>
-          <p class="page-sub" id="pageSub">Team performance summary</p>
-        </div>
-      </div>
-      <div class="live-badge" id="liveBadge"><span class="live-dot"></span> Live Sync</div>
+      <button class="mobile-toggle" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i> Menu</button>
+      <h1 class="page-title" id="pageTitle"><i class="bi bi-speedometer2 text-indigo"></i> Dashboard</h1>
+      <p class="page-sub" id="pageSub">Team performance summary</p>
+      <div class="live-badge" id="liveBadge">● Live Data</div>
     </div>
 
     <div class="content-area" id="mainView">
@@ -277,9 +221,7 @@
     let appData = null;
     let currentTab = 'Dashboard';
 
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('show');
-    }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
 
     async function loadData() {
       try {
@@ -288,7 +230,7 @@
         
         if (appData.lastUpdated) {
           const dt = new Date(appData.lastUpdated);
-          document.getElementById('liveBadge').innerHTML = `<span class="live-dot"></span> Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
+          document.getElementById('liveBadge').innerHTML = `● Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
         }
 
         render(currentTab);
@@ -314,35 +256,97 @@
 
       if (!appData) return;
 
-      // 1. DASHBOARD
+      // 1. DASHBOARD OVERVIEW WITH LEADERBOARDS
       if (tab === 'Dashboard') {
-        title.innerText = "TL Performance Overview";
+        title.innerHTML = `<i class="bi bi-speedometer2 text-primary"></i> TL Performance Overview`;
         sub.innerText = "Supervisor: Mohammad Imam Hossain";
         const tl = appData.tlSummary || {};
+        const lb = appData.leaderboards || {};
 
         view.innerHTML = `
-          <div class="row g-3">
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Audits</div><div class="kpi-value">${tl.totalAudit || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Pass / Pass %</div><div class="kpi-value text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Fail</div><div class="kpi-value text-danger">${tl.totalFail || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Empathy Pass</div><div class="kpi-value text-info">${tl.totalEmpathyPass || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team CFS %</div><div class="kpi-value">${tl.teamCfs || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team AHT</div><div class="kpi-value">${tl.aht || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team FCR %</div><div class="kpi-value">${tl.fcr || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Complaints / SD</div><div class="kpi-value">${tl.complaintEscalation || 0} / ${tl.sdCount || 0}</div></div></div>
+          <!-- Top TL KPI Cards Grid -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-hash text-indigo"></i> Total Audits</div><div class="kpi-value">${tl.totalAudit || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check-circle-fill text-success"></i> Pass / Pass %</div><div class="kpi-value text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-x-circle-fill text-danger"></i> Total Fail</div><div class="kpi-value text-danger">${tl.totalFail || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-heart-fill text-info"></i> Total Empathy Pass</div><div class="kpi-value text-info">${tl.totalEmpathyPass || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-pie-chart-fill text-primary"></i> Team CFS %</div><div class="kpi-value">${tl.teamCfs || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-clock-fill text-warning"></i> Team AHT</div><div class="kpi-value">${tl.aht || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-graph-up-arrow text-success"></i> Team FCR %</div><div class="kpi-value">${tl.fcr || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Complaints / SD</div><div class="kpi-value">${tl.complaintEscalation || 0} / ${tl.sdCount || 0}</div></div></div>
+          </div>
+
+          <!-- Agent Leaderboards Section -->
+          <div class="table-box">
+            <h4 class="fw-bold fs-5 mb-4 text-center"><i class="bi bi-trophy-fill text-warning me-2"></i> Agent Leaderboard (Top 05 Highlights)</h4>
+            <div class="row g-3">
+              
+              <!-- Top 5 CFS -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="kpi-card p-3">
+                  <div class="fw-bold text-primary mb-2"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
+                  <table class="custom-table">
+                    <thead><tr><th>#</th><th>AGENT</th><th>CFS %</th></tr></thead>
+                    <tbody>
+                      ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-success">${a.cfsDisplay}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Top 5 AHT (Fastest) -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="kpi-card p-3">
+                  <div class="fw-bold text-info mb-2"><i class="bi bi-lightning-charge-fill text-warning"></i> TOP 05 AHT</div>
+                  <table class="custom-table">
+                    <thead><tr><th>#</th><th>AGENT</th><th>AHT</th></tr></thead>
+                    <tbody>
+                      ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-info">${a.ahtDisplay}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Top 5 Empathy -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="kpi-card p-3">
+                  <div class="fw-bold text-danger mb-2"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
+                  <table class="custom-table">
+                    <thead><tr><th>#</th><th>AGENT</th><th>EMPATHY%</th></tr></thead>
+                    <tbody>
+                      ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-danger">${a.empathyDisplay}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Top 5 CE -->
+              <div class="col-12 col-md-6 col-lg-3">
+                <div class="kpi-card p-3">
+                  <div class="fw-bold text-warning mb-2"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
+                  <table class="custom-table">
+                    <thead><tr><th>#</th><th>AGENT</th><th>CE FAILS</th></tr></thead>
+                    <tbody>
+                      ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-danger">${a.ceCount}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
           </div>`;
         return;
       }
 
       // 2. PERFORMANCE CARD
       if (tab === 'Performance Card') {
-        title.innerText = "Active Agent Performance Card";
-        sub.innerText = "Select active agent from alignment to view card";
+        title.innerHTML = `<i class="bi bi-person-badge-fill text-primary"></i> Active Agent Performance Card`;
+        sub.innerText = "Select active agent to view detailed card";
         const list = appData.sheets['Performance Card'] || [];
 
-        let selectHtml = `<div class="mb-4">
-          <label class="fw-bold mb-2 small text-muted">SEARCH / SELECT ACTIVE AGENT:</label>
-          <select class="form-select w-auto fw-bold" onchange="renderAgentCard(this.value)">
+        let selectHtml = `<div class="table-box mb-4">
+          <label class="fw-bold mb-2 small text-muted"><i class="bi bi-filter text-indigo"></i> SELECT ACTIVE AGENT:</label>
+          <select class="form-select w-auto fw-bold mx-auto text-center" onchange="renderAgentCard(this.value)">
             ${list.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
           </select>
         </div><div id="cardBox"></div>`;
@@ -354,19 +358,17 @@
 
       // 3. AUDIT DETAILS
       if (tab === 'Audit Details') {
-        title.innerText = "Audit Details";
-        sub.innerText = "Active Agents Audit Performance Metrics & Sums";
+        title.innerHTML = `<i class="bi bi-card-checklist text-info"></i> Audit Details`;
+        sub.innerText = "Active Agents Audit Performance & Empathy Sums";
         const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
 
         view.innerHTML = `
           <div class="row g-3 mb-4">
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Agents with Audit Fail</div><div class="kpi-value text-danger">${details.summary.failAgentCount || 0}</div></div></div>
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Empathy Target Not Met (<87.50%)</div><div class="kpi-value text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-x-circle-fill text-danger"></i> Agents with Audit Fail</div><div class="kpi-value text-danger">${details.summary.failAgentCount || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-exclamation-circle-fill text-warning"></i> Empathy Target Not Met (<87.50%)</div><div class="kpi-value text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div></div>
           </div>
           <div class="table-box">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="fw-bold fs-6">Active Agent Audit Summary</span>
-            </div>
+            <h5 class="fw-bold fs-6 mb-3"><i class="bi bi-table text-indigo"></i> Active Agent Audit Summary</h5>
             <div class="table-responsive">
               <table class="custom-table">
                 <thead><tr><th>AGENT NAME</th><th>TOTAL AUDIT</th><th>PASS</th><th>FAIL</th><th>CE% (FAIL RATE)</th><th>EMPATHY PASS (SUM)</th><th>EMPATHY FAIL (SUM)</th><th>EMPATHY PASS%</th></tr></thead>
@@ -391,17 +393,17 @@
 
       // 4. PARAMETER WISE EMPATHY
       if (tab === 'Parameter wise Empathy') {
-        title.innerText = "Parameter wise Empathy";
+        title.innerHTML = `<i class="bi bi-heart-pulse-fill text-danger"></i> Parameter wise Empathy`;
         sub.innerText = "Team Average 8 Empathy Parameters & Active Agents Breakdown";
         const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
 
         let kpiHtml = `<div class="row g-2 mb-4">`;
         Object.keys(emp.teamAvg).forEach(p => {
-          kpiHtml += `<div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">${p}</div><div class="kpi-value text-primary">${emp.teamAvg[p]}</div></div></div>`;
+          kpiHtml += `<div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check2-square text-indigo"></i> ${p}</div><div class="kpi-value text-primary">${emp.teamAvg[p]}</div></div></div>`;
         });
         kpiHtml += `</div>`;
 
-        let tableHtml = `<div class="table-box"><div class="fw-bold fs-6 mb-3">Active Agent Empathy Scores</div><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th>`;
+        let tableHtml = `<div class="table-box"><h5 class="fw-bold fs-6 mb-3"><i class="bi bi-grid-3x3 text-indigo"></i> Active Agent Empathy Scores</h5><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th>`;
         const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity / Communication', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
         headers.forEach(h => tableHtml += `<th>${h}</th>`);
         tableHtml += `</tr></thead><tbody>`;
@@ -419,14 +421,14 @@
 
       // 5. FCR & SERVICE DELIVERY
       if (tab === 'FCR & Service Delivery') {
-        title.innerText = "FCR & Service Delivery";
+        title.innerHTML = `<i class="bi bi-layers-fill text-success"></i> FCR & Service Delivery`;
         sub.innerText = "Empathy Target >=92% & Service Delivery Counts";
         const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
 
         view.innerHTML = `
           <div class="row g-3 mb-4">
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Empathy Target Met (>= 92%)</div><div class="kpi-value text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div></div>
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Agents with Service Delivery</div><div class="kpi-value text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-award-fill text-success"></i> Empathy Target Met (>= 92%)</div><div class="kpi-value text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-truck text-info"></i> Agents with Service Delivery</div><div class="kpi-value text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div></div>
           </div>
           <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>VDI ID</th><th>FCR %</th><th>SERVICE DELIVERY COUNT</th></tr></thead><tbody>
           ${fcrSd.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.vdiId}</td><td>${a.fcrPercent}</td><td>${a.serviceDeliveryCount}</td></tr>`).join('')}
@@ -434,17 +436,56 @@
         return;
       }
 
-      // 6. LAG ADHERENCE & OVER BREAK
+      // 6. NEW SHEET: COMPLAINT ESCALATION AND DKB %
+      if (tab === 'Complaint Escalation and DKB %') {
+        title.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-warning"></i> Complaint Escalation & DKB %`;
+        sub.innerText = "Active Agents Complaint Escalation & Attendance DKB %";
+        const list = appData.sheets['Complaint Escalation and DKB %'] || [];
+
+        view.innerHTML = `
+          <div class="row g-3">
+            <div class="col-12 col-lg-6">
+              <div class="table-box">
+                <h5 class="fw-bold fs-6 mb-3 text-warning"><i class="bi bi-file-earmark-text-fill me-2"></i> Complaint Escalation Table</h5>
+                <div class="table-responsive">
+                  <table class="custom-table">
+                    <thead><tr><th>AGENT NAME</th><th>VALID</th><th>INVALID</th><th>TOTAL</th><th>ESCALATION %</th></tr></thead>
+                    <tbody>
+                      ${list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td class="text-success fw-bold">${a.valid}</td><td class="text-danger fw-bold">${a.invalid}</td><td>${a.totalComplaints}</td><td class="fw-bold text-primary">${a.escalationPercent}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="table-box">
+                <h5 class="fw-bold fs-6 mb-3 text-info"><i class="bi bi-calendar-check-fill me-2"></i> DKB % Attendance Table</h5>
+                <div class="table-responsive">
+                  <table class="custom-table">
+                    <thead><tr><th>AGENT NAME</th><th>PRESENT</th><th>ABSENT</th><th>DKB % (PRESENT%)</th><th>HEALTH</th></tr></thead>
+                    <tbody>
+                      ${list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td class="text-success fw-bold">${a.present}</td><td class="text-danger fw-bold">${a.absent}</td><td class="fw-bold text-info">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // 7. LAG ADHERENCE & OVER BREAK
       if (tab === 'Lag Adherence & Over Break') {
-        title.innerText = "Lag Adherence & Over Break";
+        title.innerHTML = `<i class="bi bi-clock-history text-secondary"></i> Lag Adherence & Over Break`;
         sub.innerText = "Adherence Target = 100%";
         const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
 
         view.innerHTML = `
           <div class="row g-3 mb-4">
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Over Break</div><div class="kpi-value text-warning">${lagAdh.summary.overBreakCount || 0}</div></div></div>
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Lag Count</div><div class="kpi-value text-danger">${lagAdh.summary.lagCount || 0}</div></div></div>
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Adherence < 100%</div><div class="kpi-value text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div></div>
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-cup-hot-fill text-warning"></i> Over Break</div><div class="kpi-value text-warning">${lagAdh.summary.overBreakCount || 0}</div></div></div>
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-hourglass-split text-danger"></i> Lag Count</div><div class="kpi-value text-danger">${lagAdh.summary.lagCount || 0}</div></div></div>
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-slash-circle-fill text-danger"></i> Adherence < 100%</div><div class="kpi-value text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div></div>
           </div>
           <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>ADHERENCE %</th><th>EXTRA BREAK</th><th>LAG TIME</th><th>READY TIME</th></tr></thead><tbody>
           ${lagAdh.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.adherence}</td><td>${a.extraBreak}</td><td>${a.lagTime}</td><td>${a.readyTime}</td></tr>`).join('')}
@@ -452,16 +493,16 @@
         return;
       }
 
-      // 7. AHT & CFS
+      // 8. AHT & CFS
       if (tab === 'AHT & CFS') {
-        title.innerText = "AHT & CFS";
+        title.innerHTML = `<i class="bi bi-pie-chart-fill text-indigo"></i> AHT & CFS`;
         sub.innerText = "AHT Target <=170s | CFS Target >=90%";
         const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
 
         view.innerHTML = `
           <div class="row g-3 mb-4">
-            <div class="col-6"><div class="kpi-card"><div class="kpi-title">AHT Target Met (<=170s)</div><div class="kpi-value text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div></div>
-            <div class="col-6"><div class="kpi-card"><div class="kpi-title">CFS Target Met (>=90%)</div><div class="kpi-value text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div></div>
+            <div class="col-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-speedometer text-success"></i> AHT Target Met (<=170s)</div><div class="kpi-value text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div></div>
+            <div class="col-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check-all text-success"></i> CFS Target Met (>=90%)</div><div class="kpi-value text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div></div>
           </div>
           <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>AHT (SEC)</th><th>AHT STATUS</th><th>CFS %</th><th>CFS STATUS</th></tr></thead><tbody>
           ${ahtCfs.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.ahtSec}</td><td><span class="badge ${a.ahtStatus === 'Target Met' ? 'bg-success' : 'bg-warning'}">${a.ahtStatus}</span></td><td>${a.cfsPercent}</td><td><span class="badge ${a.cfsStatus === 'Target Met' ? 'bg-success' : 'bg-secondary'}">${a.cfsStatus}</span></td></tr>`).join('')}
@@ -469,18 +510,18 @@
         return;
       }
 
-      // 8. AUDITED CALL DETAILS
+      // 9. AUDITED CALL DETAILS
       if (tab === 'Audited Call Details') {
-        title.innerText = "Audited Call Details";
+        title.innerHTML = `<i class="bi bi-telephone-fill text-primary"></i> Audited Call Details`;
         sub.innerText = "Raw Call Audit Records for Active Agents";
         const calls = appData.sheets['Audited Call Details'] || [];
 
         view.innerHTML = `
           <div class="table-box">
             <div class="row g-2 mb-3">
-              <div class="col-12 col-md-6"><input type="text" id="callSearch" class="form-control form-control-sm" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
+              <div class="col-12 col-md-6"><input type="text" id="callSearch" class="form-control form-control-sm text-center" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
               <div class="col-12 col-md-6">
-                <select id="resultFilter" class="form-select form-select-sm" onchange="filterCalls()">
+                <select id="resultFilter" class="form-select form-select-sm text-center" onchange="filterCalls()">
                   <option value="">All Results (Pass & Fail)</option>
                   <option value="pass">Pass Only</option>
                   <option value="fail">Fail Only</option>
@@ -508,13 +549,11 @@
       if (!agent) { box.innerHTML = ''; return; }
 
       box.innerHTML = `
-        <div class="kpi-card p-4">
-          <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
-            <div>
-              <h3 class="fw-extrabold text-primary mb-1">${agent.name}</h3>
-              <div class="text-muted small fw-bold">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor}</div>
-            </div>
-            <span class="badge bg-success fs-6">Active</span>
+        <div class="kpi-card p-4 mx-auto" style="max-width: 800px;">
+          <div class="border-bottom pb-3 mb-3">
+            <h3 class="fw-extrabold text-primary mb-1">${agent.name}</h3>
+            <div class="text-muted small fw-bold">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor}</div>
+            <span class="badge bg-success mt-2">Active Agent</span>
           </div>
           <div class="row g-3">
             <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">AHT</small><span class="fw-bold fs-6">${agent.aht}</span></div></div>
