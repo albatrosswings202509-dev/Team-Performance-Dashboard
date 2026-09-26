@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Albatross Wings - Dashboard</title>
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --sidebar-width: 250px;
+      --primary-accent: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-main: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #0f172a;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .brand-box {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 16px 12px;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
+    .sidebar-link.active { background: var(--primary-accent); color: #ffffff; }
+
+    /* Main Area */
+    .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .top-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title { font-size: 1.25rem; font-weight: 800; margin: 0; }
+    .page-sub { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+    .live-badge {
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .content-area { padding: 24px 28px; overflow-y: auto; flex-grow: 1; }
+
+    /* KPI Cards */
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      height: 100%;
+    }
+
+    .kpi-title { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 4px 0; }
+
+    .table-box {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .custom-table { width: 100%; font-size: 0.84rem; }
+    .custom-table th { color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; padding: 12px; border-bottom: 1px solid var(--border-light); }
+    .custom-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+
+    /* Modal / Popup Card */
+    .modal-card-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border: 1px solid var(--border-light);
+    }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .content-area { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand-box">
+      <span class="brand-badge">AW</span>
+      <span class="fw-bold">Albatross Wings</span>
+    </div>
+    <ul class="sidebar-menu" id="sidebarMenu">
+      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-badge-fill"></i> Performance Card</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Audit Details')"><i class="bi bi-card-checklist"></i> Audit Details</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill"></i> Parameter Empathy</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('FCR & Service Delivery')"><i class="bi bi-layers-fill"></i> FCR & Service Delivery</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Lag Adherence & Over Break')"><i class="bi bi-clock-history"></i> Lag & Adherence</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('AHT & CFS')"><i class="bi bi-pie-chart-fill"></i> AHT & CFS</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Audited Call Details')"><i class="bi bi-telephone-fill"></i> Audited Call Details</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Area -->
+  <div class="main-wrapper">
+    <div class="top-header">
+      <div>
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+        <p class="page-sub" id="pageSub">Team performance summary</p>
+      </div>
+      <div class="live-badge" id="liveBadge">● Live Data</div>
+    </div>
+
+    <div class="content-area" id="mainView">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted small">Loading data.json...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let appData = null;
+    let currentTab = 'Dashboard';
+
+    async function loadData() {
+      try {
+        const res = await fetch('./data.json?t=' + new Date().getTime());
+        appData = await res.json();
+        
+        if (appData.lastUpdated) {
+          const dt = new Date(appData.lastUpdated);
+          document.getElementById('liveBadge').innerText = `● Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
+        }
+
+        render(currentTab);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('mainView').innerHTML = `<div class="alert alert-danger">Failed to load data.json. Ensure Apps Script sync has executed.</div>`;
+      }
+    }
+
+    function nav(tabName) {
+      currentTab = tabName;
+      document.querySelectorAll('#sidebarMenu .sidebar-link').forEach(l => {
+        l.classList.toggle('active', l.innerText.includes(tabName));
+      });
+      render(tabName);
+    }
+
+    function render(tab) {
+      const view = document.getElementById('mainView');
+      const title = document.getElementById('pageTitle');
+      const sub = document.getElementById('pageSub');
+
+      if (!appData) return;
+
+      // 1. DASHBOARD
+      if (tab === 'Dashboard') {
+        title.innerText = "TL Performance Overview";
+        sub.innerText = "Supervisor: Mohammad Imam Hossain";
+        const tl = appData.tlSummary || {};
+
+        view.innerHTML = `
+          <div class="row g-3">
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Audits</div><div class="kpi-value">${tl.totalAudit || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Pass / Pass %</div><div class="kpi-value text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Fail</div><div class="kpi-value text-danger">${tl.totalFail || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Total Empathy Pass</div><div class="kpi-value text-info">${tl.totalEmpathyPass || 0}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team CFS %</div><div class="kpi-value">${tl.teamCfs || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team AHT</div><div class="kpi-value">${tl.aht || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Team FCR %</div><div class="kpi-value">${tl.fcr || 'N/A'}</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">Complaints / SD</div><div class="kpi-value">${tl.complaintEscalation || 0} / ${tl.sdCount || 0}</div></div></div>
+          </div>`;
+        return;
+      }
+
+      // 2. PERFORMANCE CARD
+      if (tab === 'Performance Card') {
+        title.innerText = "Active Agent Performance Card";
+        sub.innerText = "Filter active agents to view individual card";
+        const list = appData.sheets['Performance Card'] || [];
+
+        let selectHtml = `<div class="mb-4">
+          <label class="fw-bold mb-1 small text-muted">SELECT ACTIVE AGENT:</label>
+          <select class="form-select w-auto" onchange="renderAgentCard(this.value)">
+            ${list.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
+          </select>
+        </div><div id="cardBox"></div>`;
+
+        view.innerHTML = selectHtml;
+        if (list.length > 0) renderAgentCard(list[0].name);
+        return;
+      }
+
+      // 3. AUDIT DETAILS
+      if (tab === 'Audit Details') {
+        title.innerText = "Audit Details";
+        sub.innerText = "Active Agents Audit Performance & Party Filter";
+        const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
+
+        view.innerHTML = `
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Agents with Audit Fail</div><div class="kpi-value text-danger">${details.summary.failAgentCount || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Empathy Target Not Met (<87.50%)</div><div class="kpi-value text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div></div>
+          </div>
+          <div class="table-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold fs-6">Active Agent Audit Summary</span>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead><tr><th>AGENT NAME</th><th>TOTAL AUDIT</th><th>PASS</th><th>FAIL</th><th>CE%</th><th>EMPATHY PASS</th><th>EMPATHY FAIL</th><th>EMPATHY PASS%</th></tr></thead>
+                <tbody>
+                  ${details.list.map(a => `
+                    <tr>
+                      <td class="fw-bold">${a.agentName}</td>
+                      <td>${a.totalAudits}</td>
+                      <td class="text-success fw-bold">${a.totalPass}</td>
+                      <td class="text-danger fw-bold">${a.totalFail}</td>
+                      <td>${a.cePercent}</td>
+                      <td>${a.empathyPass}</td>
+                      <td>${a.empathyFail}</td>
+                      <td class="${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // 4. PARAMETER WISE EMPATHY
+      if (tab === 'Parameter wise Empathy') {
+        title.innerText = "Parameter wise Empathy";
+        sub.innerText = "Team Average 8 Empathy Parameters & Active Agents Breakdown";
+        const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
+
+        let kpiHtml = `<div class="row g-2 mb-4">`;
+        Object.keys(emp.teamAvg).forEach(p => {
+          kpiHtml += `<div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title">${p}</div><div class="kpi-value text-primary">${emp.teamAvg[p]}</div></div></div>`;
+        });
+        kpiHtml += `</div>`;
+
+        let tableHtml = `<div class="table-box"><div class="fw-bold fs-6 mb-3">Active Agent Empathy Scores</div><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th>`;
+        const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity / Communication', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
+        headers.forEach(h => tableHtml += `<th>${h}</th>`);
+        tableHtml += `</tr></thead><tbody>`;
+
+        emp.agentList.forEach(a => {
+          tableHtml += `<tr><td class="fw-bold">${a.agentName}</td>`;
+          headers.forEach(h => tableHtml += `<td>${a[h] || 'N/A'}</td>`);
+          tableHtml += `</tr>`;
+        });
+        tableHtml += `</tbody></table></div></div>`;
+
+        view.innerHTML = kpiHtml + tableHtml;
+        return;
+      }
+
+      // 5. FCR & SERVICE DELIVERY
+      if (tab === 'FCR & Service Delivery') {
+        title.innerText = "FCR & Service Delivery";
+        sub.innerText = "Empathy Target >=92% & Service Delivery Counts";
+        const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
+
+        view.innerHTML = `
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Empathy Target Met (>= 92%)</div><div class="kpi-value text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div></div>
+            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title">Agents with Service Delivery</div><div class="kpi-value text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div></div>
+          </div>
+          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>VDI ID</th><th>FCR %</th><th>SERVICE DELIVERY COUNT</th></tr></thead><tbody>
+          ${fcrSd.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.vdiId}</td><td>${a.fcrPercent}</td><td>${a.serviceDeliveryCount}</td></tr>`).join('')}
+          </tbody></table></div></div>`;
+        return;
+      }
+
+      // 6. LAG ADHERENCE & OVER BREAK
+      if (tab === 'Lag Adherence & Over Break') {
+        title.innerText = "Lag Adherence & Over Break";
+        sub.innerText = "Adherence Target = 100%";
+        const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
+
+        view.innerHTML = `
+          <div class="row g-3 mb-4">
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Over Break</div><div class="kpi-value text-warning">${lagAdh.summary.overBreakCount || 0}</div></div></div>
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Lag Count</div><div class="kpi-value text-danger">${lagAdh.summary.lagCount || 0}</div></div></div>
+            <div class="col-4"><div class="kpi-card"><div class="kpi-title">Adherence < 100%</div><div class="kpi-value text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div></div>
+          </div>
+          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>ADHERENCE %</th><th>EXTRA BREAK</th><th>LAG TIME</th><th>READY TIME</th></tr></thead><tbody>
+          ${lagAdh.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.adherence}</td><td>${a.extraBreak}</td><td>${a.lagTime}</td><td>${a.readyTime}</td></tr>`).join('')}
+          </tbody></table></div></div>`;
+        return;
+      }
+
+      // 7. AHT & CFS
+      if (tab === 'AHT & CFS') {
+        title.innerText = "AHT & CFS";
+        sub.innerText = "AHT Target <=170s | CFS Target >=90%";
+        const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
+
+        view.innerHTML = `
+          <div class="row g-3 mb-4">
+            <div class="col-6"><div class="kpi-card"><div class="kpi-title">AHT Target Met (<=170s)</div><div class="kpi-value text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div></div>
+            <div class="col-6"><div class="kpi-card"><div class="kpi-title">CFS Target Met (>=90%)</div><div class="kpi-value text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div></div>
+          </div>
+          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>AHT (SEC)</th><th>AHT STATUS</th><th>CFS %</th><th>CFS STATUS</th></tr></thead><tbody>
+          ${ahtCfs.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.ahtSec}</td><td><span class="badge ${a.ahtStatus === 'Target Met' ? 'bg-success' : 'bg-warning'}">${a.ahtStatus}</span></td><td>${a.cfsPercent}</td><td><span class="badge ${a.cfsStatus === 'Target Met' ? 'bg-success' : 'bg-secondary'}">${a.cfsStatus}</span></td></tr>`).join('')}
+          </tbody></table></div></div>`;
+        return;
+      }
+
+      // 8. AUDITED CALL DETAILS
+      if (tab === 'Audited Call Details') {
+        title.innerText = "Audited Call Details";
+        sub.innerText = "Raw Call Audit Records for Active Agents";
+        const calls = appData.sheets['Audited Call Details'] || [];
+
+        view.innerHTML = `
+          <div class="table-box">
+            <div class="row g-2 mb-3">
+              <div class="col-12 col-md-6"><input type="text" id="callSearch" class="form-control form-control-sm" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
+              <div class="col-12 col-md-6">
+                <select id="resultFilter" class="form-select form-select-sm" onchange="filterCalls()">
+                  <option value="">All Results (Pass & Fail)</option>
+                  <option value="pass">Pass Only</option>
+                  <option value="fail">Fail Only</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="callTable">
+                <thead><tr><th>AGENT NAME</th><th>CONTACT DATE</th><th>AUDIT PARTY</th><th>ANI</th><th>TOPIC</th><th>FAIL REMARKS</th><th>RESULT</th></tr></thead>
+                <tbody id="callBody">
+                  ${renderCallRows(calls)}
+                </tbody>
+              </table>
+            </div>
+          </div>`;
+        return;
+      }
+    }
+
+    function renderAgentCard(agentName) {
+      const list = appData.sheets['Performance Card'] || [];
+      const agent = list.find(a => a.name === agentName);
+      const box = document.getElementById('cardBox');
+
+      if (!agent) { box.innerHTML = ''; return; }
+
+      box.innerHTML = `
+        <div class="modal-card-box">
+          <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+            <div>
+              <h3 class="fw-extrabold text-primary mb-1">${agent.name}</h3>
+              <div class="text-muted small fw-bold">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor}</div>
+            </div>
+            <span class="badge bg-success fs-6">Active</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">AHT</small><span class="fw-bold">${agent.aht}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">ADHERENCE %</small><span class="fw-bold">${agent.adherence}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">LOGIN COMPLIANCE</small><span class="fw-bold">${agent.loginCompliance}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">FCR %</small><span class="fw-bold">${agent.fcr}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">EMPATHY PASS</small><span class="fw-bold">${agent.empathyPass}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">GP SCORE</small><span class="fw-bold">${agent.gpScore}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">PRESENT % (DKB)</small><span class="fw-bold">${agent.presentPercent}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">HEALTH</small><span class="fw-bold">${agent.health}</span></div></div>
+            <div class="col-6 col-md-6"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">SERVICE DELIVERY COUNT</small><span class="fw-bold text-info">${agent.sdCount}</span></div></div>
+            <div class="col-6 col-md-6"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">COMPLAINT TICKETS</small><span class="fw-bold text-danger">${agent.complaintCount}</span></div></div>
+          </div>
+        </div>`;
+    }
+
+    function renderCallRows(calls) {
+      return calls.map(c => `
+        <tr>
+          <td class="fw-bold">${c.agentName}</td>
+          <td>${c.contactDate}</td>
+          <td>${c.auditParty}</td>
+          <td>${c.ani}</td>
+          <td>${c.callTopic}</td>
+          <td class="text-danger">${c.failTopic}</td>
+          <td><span class="badge ${String(c.result).toLowerCase() === 'pass' ? 'bg-success' : 'bg-danger'}">${c.result}</span></td>
+        </tr>`).join('');
+    }
+
+    function filterCalls() {
+      const q = document.getElementById('callSearch').value.toLowerCase();
+      const resFilter = document.getElementById('resultFilter').value.toLowerCase();
+      const calls = appData.sheets['Audited Call Details'] || [];
+
+      const filtered = calls.filter(c => {
+        const matchQ = JSON.stringify(c).toLowerCase().includes(q);
+        const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
+        return matchQ && matchRes;
+      });
+
+      document.getElementById('callBody').innerHTML = renderCallRows(filtered);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>
