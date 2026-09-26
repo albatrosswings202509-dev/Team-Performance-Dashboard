@@ -122,7 +122,7 @@
     border-radius: 7px; padding: 7.5px 10px; font-family: var(--sans); font-size: 12px; min-width: 200px;
   }
 
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   .kpi-card {
     background: var(--card); border: 1px solid var(--line); border-radius: 10px;
     padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; text-align: center; align-items: center;
@@ -135,13 +135,12 @@
   .kpi-icon.warn { background: var(--warn-dim); color: var(--warn); }
   .kpi-icon.purple { background: #efe9fc; color: var(--purple); }
   .kpi-card .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-  .kpi-card .kpi-num { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .kpi-card .kpi-num { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-  /* Empathy Parameter Cards (Image Match) */
+  /* Empathy Parameter Cards */
   .empathy-param-card {
     border-radius: 10px; padding: 14px; border: 1px solid var(--line);
     text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -154,7 +153,11 @@
   .empathy-param-card.red .pval { color: var(--bad); }
   .empathy-param-card .ptarget { font-size: 10px; color: var(--muted-dim); margin-top: 2px; }
 
-  /* PERFORMANCE CARD PDF CONTAINER (PDF Sample Match) */
+  /* Leaderboard Cards */
+  .lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+
+  /* PERFORMANCE CARD PDF CONTAINER */
   .pdf-card-wrapper {
     background: #f8fafc; border-radius: 14px; padding: 20px; border: 1px solid var(--line); max-width: 1000px; margin: 0 auto;
   }
@@ -198,6 +201,10 @@
   .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
   .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
 
+  /* Red Highlight Class for Over Break */
+  tr.row-overbreak { background-color: #fdecea !important; }
+  .text-overbreak { color: #e0503f !important; font-weight: 700; }
+
   .btn-pdf {
     background: #101d34; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   }
@@ -205,17 +212,16 @@
 
   footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted-dim); font-family: var(--mono); }
 
-  @media (max-width: 1280px) { .kpi-row, .pdf-grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 1280px) { .grid-4, .pdf-grid-3 { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 820px) {
     .mobile-menu-btn { display: inline-block; }
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 240px; }
     body.sidebar-open .sidebar { transform: translateX(0); }
     body.sidebar-open .sidebar-overlay { display: block; }
-    #sidebarToggle { display: none; }
     .topbar { padding: 10px 14px; }
     main { padding: 12px 10px 30px; }
     .grid-2, .grid-4, .pdf-grid-3 { grid-template-columns: 1fr; }
-    .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   }
 </style>
 </head>
@@ -262,7 +268,7 @@
     <!-- 1. DASHBOARD OVERVIEW -->
     <div class="page active" id="page-Dashboard">
       <section>
-        <div class="section-head"><h2>TL Performance Summary (Mohammad Imam Hossain)</h2></div>
+        <div class="section-head"><h2>Team Performance Summary</h2></div>
         <div class="kpi-row" id="tlKpiGrid"></div>
       </section>
       <section>
@@ -332,26 +338,28 @@
 
     <!-- 6. COMPLAINT ESCALATION AND DKB % -->
     <div class="page" id="page-Complaint Escalation and DKB %">
-      <div class="grid-2">
-        <section>
-          <div class="section-head"><h2>Complaint Escalation Table</h2></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total</th><th>Escalation %</th></tr></thead>
-              <tbody id="complaintTable"></tbody>
-            </table>
-          </div>
-        </section>
-        <section>
-          <div class="section-head"><h2>DKB % Attendance Table</h2></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health</th></tr></thead>
-              <tbody id="dkbTable"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
+      <section><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
+      
+      <!-- STACKED TABLES (Upore-Niche) -->
+      <section>
+        <div class="section-head"><h2>Complaint Escalation Table</h2></div>
+        <div class="table-wrap mb-4">
+          <table>
+            <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total Complaints</th><th>Escalation Accuracy %</th></tr></thead>
+            <tbody id="complaintTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head"><h2>DKB % Attendance Table</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health Status</th></tr></thead>
+            <tbody id="dkbTable"></tbody>
+          </table>
+        </div>
+      </section>
     </div>
 
     <!-- 7. LAG ADHERENCE & OVER BREAK -->
@@ -375,7 +383,7 @@
         <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>AHT (Sec)</th><th>AHT Status</th><th>CFS %</th><th>CFS Status</th></tr></thead>
+            <thead><tr><th>Agent Name</th><th>AHT (Sec)</th><th>AHT Status / Reduction Required</th><th>CFS %</th><th>CFS Status</th></tr></thead>
             <tbody id="ahtCfsTable"></tbody>
           </table>
         </div>
@@ -474,33 +482,36 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${tl.totalFail || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Total Empathy Pass</span></div><div class="kpi-num">${tl.totalEmpathyPass || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div><span class="kpi-label">Total CE %</span></div><div class="kpi-num text-danger">${tl.cePercent || '0.0%'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">GP Call Empathy %</span></div><div class="kpi-num text-purple">${tl.gpEmpathyPercent || '0.0%'}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${tl.teamCfs || 'N/A'}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${tl.aht || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num">${tl.fcr || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-triangle-fill"></i></div><span class="kpi-label">Complaints Valid % / SD</span></div><div class="kpi-num">${tl.complaintEscalationPct || '0%'} / ${tl.sdCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num text-success">${tl.fcr || 'N/A'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${tl.complaintEscalationPct || '0%'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${tl.sdCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">Team DKB %</span></div><div class="kpi-num text-info">${tl.dkbPercent || 'N/A'}</div></div>
       `;
 
       document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="param-card">
+        <div class="lb-card">
           <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
           ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
-        <div class="param-card">
+        <div class="lb-card">
           <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
           ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
-        <div class="param-card">
+        <div class="lb-card">
           <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
           ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
-        <div class="param-card red">
+        <div class="lb-card">
           <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
           ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
@@ -541,7 +552,7 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (Image Match Layout)
+    // 4. PARAMETER WISE EMPATHY
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       let kpiHtml = '';
@@ -570,7 +581,7 @@
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY (FCR Target Met >= 92%)
+    // 5. FCR & SERVICE DELIVERY
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
       document.getElementById('fcrSdKpis').innerHTML = `
@@ -584,43 +595,65 @@
       return;
     }
 
-    // 6. COMPLAINT ESCALATION AND DKB %
+    // 6. COMPLAINT ESCALATION AND DKB % (Stacked Tables + Meet KPI)
     if (tab === 'Complaint Escalation and DKB %') {
-      const list = appData.sheets['Complaint Escalation and DKB %'] || [];
+      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
+      const sum = compDkb.summary || {};
+      const list = compDkb.list || [];
+
+      document.getElementById('compDkbKpis').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target Met (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target Met (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+      `;
+
       document.getElementById('complaintTable').innerHTML = list.map(a => `
-        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary">${a.escalationPercent}</td></tr>
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>
       `).join('');
 
       document.getElementById('dkbTable').innerHTML = list.map(a => `
-        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info">${a.dkbPercent}</td><td>${a.health}</td></tr>
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>
       `).join('');
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK
+    // 7. LAG ADHERENCE & OVER BREAK (Red Highlight Over Break)
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
+      const sum = lagAdh.summary || {};
+      const list = lagAdh.list || [];
+
       document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Count</span></div><div class="kpi-num text-warning">${lagAdh.summary.overBreakCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-hourglass-split"></i></div><span class="kpi-label">Lag Count</span></div><div class="kpi-num text-danger">${lagAdh.summary.lagCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-slash-circle-fill"></i></div><span class="kpi-label">Adherence < 100%</span></div><div class="kpi-num text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Met</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Met</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Met</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
       `;
 
-      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `
-        <tr><td class="fw-bold">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num">${a.extraBreak}</td><td class="num">${a.lagTime}</td><td class="num">${a.readyTime}</td></tr>
-      `).join('');
+      document.getElementById('lagAdhTable').innerHTML = list.map(a => {
+        const isOver = a.hasOverBreak;
+        return `
+        <tr class="${isOver ? 'row-overbreak' : ''}">
+          <td class="fw-bold">${a.agentName}</td>
+          <td class="num">${a.adherence}</td>
+          <td class="num ${isOver ? 'text-overbreak' : ''}">${a.extraBreak}</td>
+          <td class="num">${a.lagTime}</td>
+          <td class="num">${a.readyTime}</td>
+        </tr>`;
+      }).join('');
       return;
     }
 
-    // 8. AHT & CFS
+    // 8. AHT & CFS (Seconds To Reduce Added)
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
+      const sum = ahtCfs.summary || {};
+      const list = ahtCfs.list || [];
+
       document.getElementById('ahtCfsKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
       `;
 
-      document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `
+      document.getElementById('ahtCfsTable').innerHTML = list.map(a => `
         <tr>
           <td class="fw-bold">${a.agentName}</td>
           <td class="num">${a.ahtSec}</td>
@@ -639,7 +672,7 @@
     }
   }
 
-  // 1-PAGE COLORFUL PERFORMANCE CARD (PDF Sample Match)
+  // PERFORMANCE CARD
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
     const list = appData.sheets['Performance Card'] || [];
@@ -736,7 +769,7 @@
       </div>`;
   }
 
-  // DOWNLOAD 1-PAGE PDF
+  // DOWNLOAD PDF
   function downloadPerformanceCardPdf() {
     const element = document.getElementById('pdfCardTarget');
     if (!element) { alert('Performance Card not found.'); return; }
