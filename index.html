@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Albatross Wings - Dashboard</title>
 
-  <!-- Google Fonts (Inter), Bootstrap 5 & Bootstrap Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +17,6 @@
       --sidebar-active: #2563eb;
       --sidebar-text: #94a3b8;
       --body-bg: #f8fafc;
-      --card-bg: #ffffff;
       --border-color: #e2e8f0;
       --text-dark: #0f172a;
       --text-muted: #64748b;
@@ -34,7 +32,6 @@
       min-height: 100vh;
     }
 
-    /* Left Dark Sidebar */
     .sidebar {
       width: 240px;
       background-color: var(--sidebar-bg);
@@ -61,11 +58,7 @@
       border-radius: 6px;
     }
 
-    .brand-name {
-      font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: -0.01em;
-    }
+    .brand-name { font-weight: 700; font-size: 0.95rem; }
 
     .sidebar-menu {
       list-style: none;
@@ -86,36 +79,13 @@
       font-size: 0.85rem;
       font-weight: 500;
       border-radius: 8px;
-      transition: all 0.15s ease;
     }
 
-    .sidebar-link:hover {
-      color: #ffffff;
-      background: rgba(255,255,255,0.05);
-    }
+    .sidebar-link:hover { color: #ffffff; background: rgba(255,255,255,0.05); }
+    .sidebar-link.active { background: var(--sidebar-active); color: #ffffff; font-weight: 600; }
 
-    .sidebar-link.active {
-      background: var(--sidebar-active);
-      color: #ffffff;
-      font-weight: 600;
-    }
+    .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
 
-    .sidebar-footer {
-      padding: 16px 20px;
-      font-size: 0.72rem;
-      color: #64748b;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    /* Main Area */
-    .main-wrapper {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    /* Top Header Bar */
     .top-bar {
       background: #ffffff;
       border-bottom: 1px solid var(--border-color);
@@ -127,24 +97,8 @@
       gap: 12px;
     }
 
-    .page-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin: 0;
-      color: var(--text-dark);
-    }
-
-    .page-subtitle {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .page-title { font-size: 1.2rem; font-weight: 700; margin: 0; }
+    .page-subtitle { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
 
     .pill-live {
       background: #dcfce7;
@@ -158,224 +112,73 @@
       gap: 6px;
     }
 
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      background: #22c55e;
-      border-radius: 50%;
-    }
+    .pill-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; }
 
-    .btn-export {
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      color: var(--text-dark);
-      font-size: 0.82rem;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 6px;
-    }
+    .content-area { padding: 24px 28px; flex-grow: 1; overflow-y: auto; }
 
-    .btn-refresh {
-      background: #2563eb;
-      border: none;
-      color: #ffffff;
-      font-size: 0.82rem;
-      font-weight: 600;
-      padding: 6px 16px;
-      border-radius: 6px;
-    }
-
-    /* Content Area */
-    .content-area {
-      padding: 24px 28px;
-      flex-grow: 1;
-      overflow-y: auto;
-    }
-
-    /* Stat Cards Grid */
     .stat-card {
       background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 18px 20px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
       height: 100%;
     }
 
-    .stat-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .stat-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+    .stat-subtext { font-size: 0.72rem; color: var(--text-muted); }
 
-    .stat-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-    }
-
-    .icon-purple { background: #f3e8ff; color: #a855f7; }
-    .icon-green { background: #dcfce7; color: #16a34a; }
-    .icon-red { background: #fee2e2; color: #ef4444; }
-    .icon-pink { background: #fce7f3; color: #ec4899; }
-    .icon-orange { background: #ffedd5; color: #f97316; }
-    .icon-blue { background: #dbeafe; color: #2563eb; }
-
-    .stat-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .stat-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 4px;
-    }
-
-    .stat-subtext {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    /* Tables */
     .card-table-box {
       background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
       margin-top: 20px;
     }
 
-    .table-title {
-      font-size: 0.92rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--text-dark);
-    }
+    .table-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 16px; }
 
-    .custom-table {
-      width: 100%;
-      font-size: 0.82rem;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-
-    .custom-table th {
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .custom-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #f1f5f9;
-      color: var(--text-dark);
-    }
-
-    .custom-table tbody tr:last-child td { border-bottom: none; }
-
-    /* Dark Agent Highlight Card */
-    .agent-dark-card {
-      background: #0f172a;
-      color: #ffffff;
-      border-radius: 12px;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .agent-dark-title { font-size: 1.25rem; font-weight: 700; }
-    .agent-dark-sub { font-size: 0.78rem; color: #94a3b8; }
-
-    .agent-metrics-row {
-      display: flex;
-      gap: 24px;
-    }
-
-    .agent-m-val { font-size: 1.1rem; font-weight: 700; }
-    .agent-m-lbl { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; }
+    .custom-table { width: 100%; font-size: 0.82rem; border-collapse: separate; border-spacing: 0; }
+    .custom-table th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--border-color); }
+    .custom-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
 
     @media (max-width: 768px) {
       body { flex-direction: column; }
       .sidebar { width: 100%; }
-      .agent-metrics-row { flex-wrap: wrap; gap: 12px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon">AW</span>
       <span class="brand-name">Albatross Wings</span>
     </div>
     <ul class="sidebar-menu" id="sidebarMenu">
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link active" onclick="navTo('Dashboard')"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('Performance Card')"><i class="bi bi-person-vcard-fill"></i> Performance Card</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('FCR & service delivery')"><i class="bi bi-layers-fill"></i> FCR & service delivery</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('Agent Performance')"><i class="bi bi-person-badge-fill"></i> Agent Performance</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('Empathy Analysis')"><i class="bi bi-heart-pulse-fill"></i> Empathy Analysis</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('Adherence & Break')"><i class="bi bi-clock-history"></i> Adherence & Break</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('AHT & CFS')"><i class="bi bi-pie-chart-fill"></i> AHT & CFS</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" onclick="navTo('Audit Log')"><i class="bi bi-table"></i> Audit Log</a>
-      </li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link active" onclick="navTo('Dashboard')"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('Performance Card')"><i class="bi bi-person-vcard-fill"></i> Performance Card</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('FCR & service delivery')"><i class="bi bi-layers-fill"></i> FCR & service delivery</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('Agent Performance')"><i class="bi bi-person-badge-fill"></i> Agent Performance</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('Empathy Analysis')"><i class="bi bi-heart-pulse-fill"></i> Empathy Analysis</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('Adherence & Break')"><i class="bi bi-clock-history"></i> Adherence & Break</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('AHT & CFS')"><i class="bi bi-pie-chart-fill"></i> AHT & CFS</a></li>
+      <li class="sidebar-item"><a href="#" class="sidebar-link" onclick="navTo('Audit Log')"><i class="bi bi-table"></i> Audit Log</a></li>
     </ul>
-    <div class="sidebar-footer">
-      Better Quality<br>Stronger Performance
-    </div>
   </div>
 
-  <!-- Main Content Wrapper -->
   <div class="main-wrapper">
-    <!-- Top Header Bar -->
     <div class="top-bar">
       <div>
         <h1 class="page-title" id="hdrTitle">Dashboard Overview</h1>
         <p class="page-subtitle" id="hdrSub">Team performance summary</p>
       </div>
-      <div class="top-actions">
-        <div class="pill-live">
-          <span class="pill-dot"></span>
-          <span id="liveMeta">Live - updated 11:52:23 AM · 20 roster agents</span>
-        </div>
-        <button class="btn-export" onclick="exportDataCSV()"><i class="bi bi-download me-1"></i> Export CSV</button>
-        <button class="btn-refresh" onclick="loadDashboard()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh now</button>
+      <div class="pill-live">
+        <span class="pill-dot"></span>
+        <span id="liveMeta">Live - loading...</span>
       </div>
     </div>
 
-    <!-- Page Body -->
     <div class="content-area" id="mainContent">
       <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
@@ -400,11 +203,8 @@
 
         renderView(activeTab);
       } catch (err) {
-        console.error("Data load failed:", err);
-        document.getElementById('mainContent').innerHTML = `
-          <div class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> Failed to load data.json. Ensure Apps Script sync has executed.
-          </div>`;
+        console.error(err);
+        document.getElementById('mainContent').innerHTML = `<div class="alert alert-danger">Failed to load data.json</div>`;
       }
     }
 
@@ -423,177 +223,85 @@
 
       if (!appData || !appData.sheets) return;
 
-      // 1. DASHBOARD OVERVIEW PAGE
+      // 1. DASHBOARD
       if (tabName === 'Dashboard') {
         hdrTitle.innerText = "Dashboard Overview";
         hdrSub.innerText = "Team performance summary";
-
-        const totalAudits = appData.metrics?.totalAudits || 190;
-        const passRate = appData.metrics?.passRate || '85.3%';
-        const failRate = appData.metrics?.failRate || '14.7%';
-        const empathyPass = appData.metrics?.empathyPass || '85.4%';
-        const ceFree = appData.metrics?.ceFree || '86.3%';
-        const agentsAudited = appData.activeAgentsCount || 23;
-
         container.innerHTML = `
-          <div class="mb-3 fw-bold fs-6">Team Performance Overview</div>
           <div class="row g-3 mb-4">
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-purple"><i class="bi bi-hash"></i></div> <span class="stat-title">Total Audits</span></div>
-                <div class="stat-value">${totalAudits}</div>
-                <div class="stat-subtext">includes all agents</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-green"><i class="bi bi-check-lg"></i></div> <span class="stat-title">Pass Rate</span></div>
-                <div class="stat-value">${passRate}</div>
-                <div class="stat-subtext text-success">162 passed</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-red"><i class="bi bi-x-lg"></i></div> <span class="stat-title">Fail Rate</span></div>
-                <div class="stat-value">${failRate}</div>
-                <div class="stat-subtext text-danger">28 failed</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-pink"><i class="bi bi-heart-fill"></i></div> <span class="stat-title">Empathy Pass %</span></div>
-                <div class="stat-value">${empathyPass}</div>
-                <div class="stat-subtext text-danger">Below 88% target</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-orange"><i class="bi bi-flag-fill"></i></div> <span class="stat-title">Critical Error Free</span></div>
-                <div class="stat-value">${ceFree}</div>
-                <div class="stat-subtext">quality target met</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="stat-card">
-                <div class="stat-header"><div class="stat-icon icon-blue"><i class="bi bi-people-fill"></i></div> <span class="stat-title">Total Agents Audited</span></div>
-                <div class="stat-value">${agentsAudited}</div>
-                <div class="stat-subtext">active roster</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row g-3">
-            <div class="col-12 col-lg-6">
-              <div class="card-table-box">
-                <div class="table-title">Top CE Holders</div>
-                <table class="custom-table">
-                  <thead><tr><th>#</th><th>AGENT</th><th>CE COUNT</th><th>AUDITS</th></tr></thead>
-                  <tbody>
-                    <tr><td>1</td><td class="fw-semibold">MD Nobab Sharif</td><td class="text-danger fw-bold">4</td><td>9</td></tr>
-                    <tr><td>2</td><td class="fw-semibold">Karisma Das</td><td class="text-danger fw-bold">2</td><td>15</td></tr>
-                    <tr><td>3</td><td class="fw-semibold">Sajib dev nath</td><td class="text-danger fw-bold">1</td><td>12</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="col-12 col-lg-6">
-              <div class="card-table-box">
-                <div class="table-title">Needs Attention (below empathy target)</div>
-                <table class="custom-table">
-                  <thead><tr><th>#</th><th>AGENT</th><th>EMPATHY%</th><th>SHORTFALL</th></tr></thead>
-                  <tbody>
-                    <tr><td>1</td><td class="fw-semibold">Mahim Azad</td><td>56.3%</td><td class="text-danger">-31.8%</td></tr>
-                    <tr><td>2</td><td class="fw-semibold">Karisma Das</td><td>82.5%</td><td class="text-danger">-5.5%</td></tr>
-                    <tr><td>3</td><td class="fw-semibold">Shibom Ghosh</td><td>83.3%</td><td class="text-danger">-4.7%</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Total Audits</div><div class="stat-value">190</div></div></div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Pass Rate</div><div class="stat-value text-success">85.3%</div></div></div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Fail Rate</div><div class="stat-value text-danger">14.7%</div></div></div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Empathy Pass</div><div class="stat-value">85.4%</div></div></div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Critical Free</div><div class="stat-value">86.3%</div></div></div>
+            <div class="col-6 col-md-2"><div class="stat-card"><div class="stat-title">Audited Agents</div><div class="stat-value">${appData.activeAgentsCount || 20}</div></div></div>
           </div>`;
         return;
       }
 
-      // 2. AGENT PERFORMANCE PAGE
-      if (tabName === 'Agent Performance') {
-        hdrTitle.innerText = "Agent Performance";
-        hdrSub.innerText = "From IB Agent Wise — team summary includes all, table shows roster only";
-
-        const agentsList = (appData.sheets['Alignment'] || []).map(a => a['Name'] || a['Agent Name'] || 'Agent');
-
+      // 2. ADHERENCE & BREAK (ORT Data Source)
+      if (tabName === 'Adherence & Break') {
+        hdrTitle.innerText = "Adherence & Break";
+        hdrSub.innerText = "From ORT — team adherence includes all, table shows roster only";
+        
         container.innerHTML = `
-          <div class="mb-3">
-            <label class="form-label small text-muted">Agent</label>
-            <select class="form-select w-auto" id="agentSelect" onchange="updateAgentCard(this.value)">
-              ${agentsList.map(a => `<option value="${a}">${a}</option>`).join('')}
-            </select>
-          </div>
-
-          <div class="agent-dark-card" id="agentDarkCard">
-            <div>
-              <div class="agent-dark-title" id="darkAgentName">${agentsList[0] || 'Karisma Das'}</div>
-              <div class="agent-dark-sub">15 audits evaluated</div>
-            </div>
-            <div class="agent-metrics-row">
-              <div><div class="agent-m-val">14</div><div class="agent-m-lbl">PASS</div></div>
-              <div><div class="agent-m-val text-danger">1</div><div class="agent-m-lbl">FAIL</div></div>
-              <div><div class="agent-m-val">6.7%</div><div class="agent-m-lbl">FAIL %</div></div>
-              <div><div class="agent-m-val text-info">82.5%</div><div class="agent-m-lbl">EMPATHY %</div></div>
-              <div><div class="agent-m-val text-danger">-5.5%</div><div class="agent-m-lbl">VS 88% TARGET</div></div>
-            </div>
-          </div>
-
-          <div class="card-table-box">
-            <div class="table-title">Agent Performance Table</div>
-            <div class="table-responsive">
-              ${renderGenericTable(appData.sheets['IB agent wise'] || [])}
-            </div>
-          </div>`;
-        return;
-      }
-
-      // 3. EMPATHY ANALYSIS PAGE
-      if (tabName === 'Empathy Analysis') {
-        hdrTitle.innerText = "Empathy Analysis";
-        hdrSub.innerText = "From Empathywise — parameter pass % includes all, matrix shows roster only";
-
-        container.innerHTML = `
-          <div class="mb-3 fw-bold fs-6">Empathy Parameter — Overall Pass %</div>
           <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Warm Greetings</div><div class="stat-value text-success">92.6%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Acknowledgment & Understanding</div><div class="stat-value text-danger">73.0%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Speech Clarity</div><div class="stat-value text-danger">65.6%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Proper Listening</div><div class="stat-value text-danger">86.1%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Personalization</div><div class="stat-value text-danger">86.9%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Time / Hold Management</div><div class="stat-value text-danger">78.7%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Emotional Tone with Courtesy</div><div class="stat-value text-danger">81.1%</div><div class="stat-subtext">target 87.5%</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Closing Courtesy</div><div class="stat-value text-success">90.2%</div><div class="stat-subtext">target 87.5%</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Team Avg Adherence</div><div class="stat-value">91.9%</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Agents with Over Break</div><div class="stat-value text-warning">7</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Agents with Lag</div><div class="stat-value text-danger">23</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Total Lag Hours</div><div class="stat-value">142.9h</div></div></div>
           </div>
-
           <div class="card-table-box">
-            <div class="table-title">Agent x Parameter Matrix</div>
-            <div class="table-responsive">
-              ${renderGenericTable(appData.sheets['empathyWise'] || [])}
-            </div>
+            <div class="table-title">Agent-wise Adherence, Over Break & Lag Hour</div>
+            <div class="table-responsive">${renderGenericTable(appData.sheets['Adherence & Break'] || [])}</div>
           </div>`;
         return;
       }
 
-      // 4. GENERAL TAB RENDER
+      // 3. AHT & CFS (ORT Data Source)
+      if (tabName === 'AHT & CFS') {
+        hdrTitle.innerText = "AHT & CFS";
+        hdrSub.innerText = "From ORT — team AHT/CFS includes all";
+        
+        container.innerHTML = `
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Team Avg AHT</div><div class="stat-value">202.7s</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">AHT Target Met</div><div class="stat-value">3/26</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">Team Avg CFS</div><div class="stat-value text-success">90.6%</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-title">CFS Target Met</div><div class="stat-value">10/14</div></div></div>
+          </div>
+          <div class="card-table-box">
+            <div class="table-title">Agent-wise AHT & CFS</div>
+            <div class="table-responsive">${renderGenericTable(appData.sheets['AHT & CFS'] || [])}</div>
+          </div>`;
+        return;
+      }
+
+      // 4. AUDIT LOG (IB Agent Wise Raw Data)
+      if (tabName === 'Audit Log') {
+        hdrTitle.innerText = "Audit Log";
+        hdrSub.innerText = "Raw call-level audit records";
+        
+        container.innerHTML = `
+          <div class="card-table-box">
+            <div class="table-title">Call Audits Log</div>
+            <div class="table-responsive">${renderGenericTable(appData.sheets['Audit Log'] || [])}</div>
+          </div>`;
+        return;
+      }
+
+      // DEFAULT TAB RENDER
       hdrTitle.innerText = tabName;
-      hdrSub.innerText = `Data table and summary view for ${tabName}`;
-
-      const sheetData = appData.sheets[tabName] || [];
+      hdrSub.innerText = `Data table for ${tabName}`;
       container.innerHTML = `
         <div class="card-table-box">
-          <div class="table-title">${tabName} Data Table</div>
-          <div class="table-responsive">
-            ${renderGenericTable(sheetData)}
-          </div>
+          <div class="table-title">${tabName} Table</div>
+          <div class="table-responsive">${renderGenericTable(appData.sheets[tabName] || [])}</div>
         </div>`;
     }
 
     function renderGenericTable(data) {
-      if (!data || data.length === 0) return '<div class="text-muted p-3">No records found</div>';
+      if (!data || data.length === 0) return '<div class="text-muted p-3">No records found. Please run Apps Script sync.</div>';
       const keys = Object.keys(data[0]);
       let html = `<table class="custom-table"><thead><tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr></thead><tbody>`;
       data.forEach(row => {
@@ -601,10 +309,6 @@
       });
       html += `</tbody></table>`;
       return html;
-    }
-
-    function exportDataCSV() {
-      alert("Exporting CSV file...");
     }
 
     document.addEventListener('DOMContentLoaded', loadDashboard);
