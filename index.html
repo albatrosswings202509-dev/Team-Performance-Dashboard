@@ -11,6 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
+<!-- html2pdf Library for 1-Page PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
   :root {
     --navy: #101d34;
@@ -80,13 +83,7 @@
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
   .nav-item:hover { background: #1c2c4c; color: #fff; }
   .nav-item.active { background: var(--blue); color: #fff; font-weight: 600; }
-  .sidebar-foot { padding: 14px 16px; font-size: 11px; color: #6d768c; border-top: 1px solid var(--navy-line); text-align: center; }
-
-  #sidebarToggle {
-    background: none; border: 1px solid var(--navy-line); color: #aab2c5;
-    width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
-    flex-shrink: 0; font-size: 13px; margin-left: auto; display: flex; align-items: center; justify-content: center;
-  }
+  .sidebar-foot { padding: 14px 16px; font-size: 11px; color: #6d768c; border-top: 1px solid var(--navy-line); white-space: nowrap; text-align: center; }
 
   /* MAIN WORKSPACE */
   .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -96,10 +93,7 @@
     position: sticky; top: 0; z-index: 40;
   }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .mobile-menu-btn {
-    display: none; background: none; border: 1px solid var(--line); padding: 6px 10px;
-    border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--ink);
-  }
+  .mobile-menu-btn { display: none; background: none; border: 1px solid var(--line); padding: 6px 10px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--ink); }
   .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--ink); }
   .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 
@@ -107,13 +101,9 @@
     display: flex; align-items: center; gap: 6px; background: var(--good-dim); color: var(--good);
     padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 11px;
   }
-  .live-chip.stale { background: var(--warn-dim); color: var(--warn); }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  #refreshBtn {
-    background: var(--blue); color: #fff; border: none; padding: 7px 14px;
-    font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer;
-  }
+  #refreshBtn { background: var(--blue); color: #fff; border: none; padding: 7px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; }
 
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
   .page { display: none; }
@@ -125,55 +115,75 @@
   .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--ink); }
 
   .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+  .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; }
   .filterbar label { font-size: 10.5px; color: var(--muted-dim); font-weight: 600; text-transform: uppercase; }
   .filterbar select, .filterbar input[type=text] {
     background: #fff; color: var(--ink); border: 1px solid var(--line);
-    border-radius: 7px; padding: 7.5px 10px; font-family: var(--sans); font-size: 12px; min-width: 180px;
+    border-radius: 7px; padding: 7.5px 10px; font-family: var(--sans); font-size: 12px; min-width: 200px;
   }
 
-  /* KPI GRID LAYOUT (RESPONSIVE) */
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .kpi-card {
     background: var(--card); border: 1px solid var(--line); border-radius: 10px;
     padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; text-align: center; align-items: center;
   }
   .kpi-card .kpi-top { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
-  .kpi-icon {
-    width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 13px;
-  }
+  .kpi-icon { width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
   .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
   .kpi-icon.good { background: var(--good-dim); color: var(--good); }
   .kpi-icon.bad { background: var(--bad-dim); color: var(--bad); }
   .kpi-icon.warn { background: var(--warn-dim); color: var(--warn); }
   .kpi-icon.purple { background: #efe9fc; color: var(--purple); }
-  .kpi-card .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; line-height: 1.2; text-transform: uppercase; }
-  .kpi-card .kpi-num { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .kpi-card .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  .kpi-card .kpi-num { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .leaderboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-  /* PDF PERFORMANCE CARD STYLING */
-  .perf-header {
-    background: linear-gradient(135deg, #16243f, #24345f);
-    border-radius: 10px; padding: 16px 20px; color: #fff; margin-bottom: 14px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; text-align: left;
+  /* Empathy Parameter Cards (Image Match) */
+  .empathy-param-card {
+    border-radius: 10px; padding: 14px; border: 1px solid var(--line);
+    text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
-  .perf-header .ph-title { font-size: 18px; font-weight: 800; color: #fff; }
-  .perf-header .ph-meta { font-size: 11px; color: #aab2c5; margin-top: 2px; }
+  .empathy-param-card.green { background: var(--good-dim); border-color: #b7ebd3; }
+  .empathy-param-card.red { background: var(--bad-dim); border-color: #f3c7c1; }
+  .empathy-param-card .pname { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .empathy-param-card .pval { font-size: 22px; font-weight: 800; }
+  .empathy-param-card.green .pval { color: var(--good); }
+  .empathy-param-card.red .pval { color: var(--bad); }
+  .empathy-param-card .ptarget { font-size: 10px; color: var(--muted-dim); margin-top: 2px; }
 
-  .perf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .perf-item {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px;
-    display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+  /* PERFORMANCE CARD PDF CONTAINER (PDF Sample Match) */
+  .pdf-card-wrapper {
+    background: #f8fafc; border-radius: 14px; padding: 20px; border: 1px solid var(--line); max-width: 1000px; margin: 0 auto;
   }
-  .perf-item .pi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  .perf-item .pi-lbl { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-  .perf-item .pi-val { font-size: 22px; font-weight: 800; color: var(--ink); font-family: var(--mono); margin: 4px 0; }
-  .perf-item .pi-sub { font-size: 10px; color: var(--muted-dim); }
+  .pdf-header-bar {
+    background: #101d34; color: #ffffff; padding: 16px 20px; border-radius: 10px; margin-bottom: 16px;
+    display: flex; flex-direction: column; gap: 4px; text-align: left;
+  }
+  .pdf-agent-name { font-size: 20px; font-weight: 800; color: #ffffff; }
+  .pdf-agent-sub { font-size: 11px; color: #aab2c5; }
 
-  /* TABLES */
+  .pdf-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .pdf-kpi-card {
+    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; position: relative;
+    display: flex; flex-direction: column; justify-content: space-between; height: 110px;
+  }
+  .pdf-kpi-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+  .pdf-kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0; }
+  .pdf-kpi-sub { font-size: 10px; color: #94a3b8; }
+  .pdf-badge {
+    position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 4px; font-size: 9.5px; font-weight: 700;
+  }
+  .pdf-badge.missed { background: #fdecea; color: #e0503f; }
+  .pdf-badge.found { background: #fdecea; color: #e0503f; }
+  .pdf-badge.recorded { background: #fdf3e0; color: #e0a021; }
+  .pdf-badge.needs { background: #fdf3e0; color: #e0a021; }
+  .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
+  .pdf-badge.review { background: #fdf3e0; color: #e0a021; }
+
+  /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
   thead th {
     text-align: center; font-size: 10px; color: var(--muted); font-weight: 700;
@@ -182,21 +192,20 @@
   }
   tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; text-align: center; }
   tbody tr:hover { background: #fafbfd; }
-  .table-wrap {
-    max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--line);
-    border-radius: 10px; background: var(--card);
-  }
+  .table-wrap { max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .pill.good { background: var(--good-dim); color: var(--good); }
-  .pill.bad { background: var(--bad-dim); color: var(--bad); }
-  .pill.warn { background: var(--warn-dim); color: var(--warn); }
-  .cell-red { color: var(--bad); font-weight: 700; background: var(--bad-dim); }
-  .cell-green { color: var(--good); font-weight: 700; background: var(--good-dim); }
+  .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
+  .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
+
+  .btn-pdf {
+    background: #101d34; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-pdf:hover { background: #16243f; }
 
   footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted-dim); font-family: var(--mono); }
 
-  /* MOBILE RESPONSIVE FIXES (MUST BE 2 COLUMNS FOR KPI ON MOBILE) */
+  @media (max-width: 1280px) { .kpi-row, .pdf-grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 820px) {
     .mobile-menu-btn { display: inline-block; }
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 240px; }
@@ -205,7 +214,7 @@
     #sidebarToggle { display: none; }
     .topbar { padding: 10px 14px; }
     main { padding: 12px 10px 30px; }
-    .grid-2, .grid-4, .leaderboard-grid, .perf-grid { grid-template-columns: 1fr; }
+    .grid-2, .grid-4, .pdf-grid-3 { grid-template-columns: 1fr; }
     .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
   }
 </style>
@@ -220,7 +229,6 @@
     <div class="sidebar-brand">
       <div class="logo">AW</div>
       <div class="name">Albatross Wings</div>
-      <button id="sidebarToggle" onclick="toggleSidebar()" title="Collapse sidebar">☰</button>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
@@ -259,17 +267,18 @@
       </section>
       <section>
         <div class="section-head"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div>
-        <div class="leaderboard-grid" id="leaderboardGrid"></div>
+        <div class="grid-4" id="leaderboardGrid"></div>
       </section>
     </div>
 
-    <!-- 2. PERFORMANCE CARD -->
+    <!-- 2. PERFORMANCE CARD WITH PDF DOWNLOAD -->
     <div class="page" id="page-Performance Card">
-      <div class="filterbar">
+      <div class="filterbar d-flex justify-content-between align-items-end">
         <div class="fgroup">
           <label>Select Active Agent</label>
           <select id="agentSelect" onchange="renderAgentCard(this.value)"></select>
         </div>
+        <button class="btn-pdf" onclick="downloadPerformanceCardPdf()"><i class="bi bi-download"></i> Download Performance Card PDF</button>
       </div>
       <div id="perfCardBox"></div>
     </div>
@@ -282,10 +291,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Agent Name</th><th>Total Audit</th><th>Pass</th><th>Fail</th>
-                <th>CE% (Fail Rate)</th><th>Empathy Pass (Sum)</th><th>Empathy Fail (Sum)</th><th>Empathy Pass%</th>
-              </tr>
+              <tr><th>Agent Name</th><th>Total Audit</th><th>Pass</th><th>Fail</th><th>CE% (Fail Rate)</th><th>Empathy Pass (Sum)</th><th>Empathy Fail (Sum)</th><th>Empathy Pass%</th></tr>
             </thead>
             <tbody id="auditDetailsTable"></tbody>
           </table>
@@ -296,11 +302,11 @@
     <!-- 4. PARAMETER WISE EMPATHY -->
     <div class="page" id="page-Parameter wise Empathy">
       <section>
-        <div class="section-head"><h2>Team Average (8 Empathy Parameters)</h2></div>
+        <div class="section-head"><h2>Empathy Parameter — Overall Pass % (Team Average)</h2></div>
         <div class="grid-4 mb-3" id="empathyTeamKpis"></div>
       </section>
       <section>
-        <div class="section-head"><h2>Active Agent Empathy Matrix</h2></div>
+        <div class="section-head"><h2>Agent x Parameter Matrix</h2></div>
         <div class="table-wrap">
           <table>
             <thead id="empathyHeader"></thead>
@@ -326,25 +332,26 @@
 
     <!-- 6. COMPLAINT ESCALATION AND DKB % -->
     <div class="page" id="page-Complaint Escalation and DKB %">
-      <section><div class="kpi-row mb-3" id="complaintDkbKpis"></div></section>
-      <section>
-        <div class="section-head"><h2>1. Complaint Escalation Table</h2></div>
-        <div class="table-wrap mb-4">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total</th><th>Escalation %</th></tr></thead>
-            <tbody id="complaintTable"></tbody>
-          </table>
-        </div>
-      </section>
-      <section>
-        <div class="section-head"><h2>2. DKB % Attendance Table</h2></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th></tr></thead>
-            <tbody id="dkbTable"></tbody>
-          </table>
-        </div>
-      </section>
+      <div class="grid-2">
+        <section>
+          <div class="section-head"><h2>Complaint Escalation Table</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total</th><th>Escalation %</th></tr></thead>
+              <tbody id="complaintTable"></tbody>
+            </table>
+          </div>
+        </section>
+        <section>
+          <div class="section-head"><h2>DKB % Attendance Table</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health</th></tr></thead>
+              <tbody id="dkbTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
 
     <!-- 7. LAG ADHERENCE & OVER BREAK -->
@@ -354,7 +361,7 @@
         <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>Adherence %</th><th>Extra Break</th><th>Lag Time</th></tr></thead>
+            <thead><tr><th>Agent Name</th><th>Adherence %</th><th>Extra Break</th><th>Lag Time</th><th>Ready Time</th></tr></thead>
             <tbody id="lagAdhTable"></tbody>
           </table>
         </div>
@@ -408,8 +415,8 @@
 <script>
   let appData = null;
   let activeTab = 'Dashboard';
+  let currentCardAgentName = '';
 
-  function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
 
   async function loadDashboard(manual = false) {
@@ -467,14 +474,11 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${tl.totalFail || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-percent"></i></div><span class="kpi-label">Total Fail %</span></div><div class="kpi-num text-danger">${tl.failPercent || '0%'}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Total Empathy Pass</span></div><div class="kpi-num">${tl.totalEmpathyPass || 0}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${tl.teamCfs || 'N/A'}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${tl.aht || 'N/A'}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num">${tl.fcr || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-triangle-fill"></i></div><span class="kpi-label">TL Complaint %</span></div><div class="kpi-num text-danger">${tl.tlComplaintPercent || '0%'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">TL SD Count</span></div><div class="kpi-num text-info">${tl.tlSdCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-calendar-check"></i></div><span class="kpi-label">TL DKB %</span></div><div class="kpi-num text-success">${tl.tlDkbPercent || 'N/A'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-triangle-fill"></i></div><span class="kpi-label">Complaints Valid % / SD</span></div><div class="kpi-num">${tl.complaintEscalationPct || '0%'} / ${tl.sdCount || 0}</div></div>
       `;
 
       document.getElementById('leaderboardGrid').innerHTML = `
@@ -529,47 +533,48 @@
           <td class="num">${a.totalAudits}</td>
           <td class="num text-success">${a.totalPass}</td>
           <td class="num text-danger">${a.totalFail}</td>
-          <td><span class="pill ${parseFloat(a.cePercent) === 0 ? 'good' : 'bad'}">${a.cePercent}</span></td>
-          <td class="num text-primary fw-bold">${a.empathyPass}</td>
-          <td class="num text-muted">${a.empathyFail}</td>
-          <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'cell-green' : 'cell-red'}">${a.empathyPassPercent}</td>
+          <td class="num cell-red">${a.cePercent}</td>
+          <td class="num text-primary">${a.empathyPass}</td>
+          <td class="num text-danger">${a.empathyFail}</td>
+          <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
         </tr>`).join('');
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY
+    // 4. PARAMETER WISE EMPATHY (Image Match Layout)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       let kpiHtml = '';
       Object.keys(emp.teamAvg).forEach(p => {
-        let val = parseFloat(emp.teamAvg[p]);
-        kpiHtml += `<div class="param-card ${val < 87.5 ? 'red' : ''}">
-          <div class="pname">${p}</div>
-          <div class="pval">${emp.teamAvg[p]}</div>
-          <div class="ptarget">target 87.5%</div>
-        </div>`;
+        let valStr = emp.teamAvg[p];
+        let valNum = parseFloat(String(valStr).replace('%', ''));
+        let isGood = !isNaN(valNum) && valNum >= 87.5;
+
+        kpiHtml += `
+          <div class="empathy-param-card ${isGood ? 'green' : 'red'}">
+            <div class="pname">${p}</div>
+            <div class="pval">${valStr}</div>
+            <div class="ptarget">target 87.5%</div>
+          </div>`;
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-      const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity / Communication', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
+      const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
       document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
       document.getElementById('empathyBody').innerHTML = emp.agentList.map(a => `
         <tr>
           <td class="fw-bold">${a.agentName}</td>
-          ${headers.map(h => {
-            let v = parseFloat(a[h]);
-            return `<td class="num ${!isNaN(v) && v < 87.5 ? 'cell-red' : 'cell-green'}">${a[h] || 'N/A'}</td>`;
-          }).join('')}
+          ${headers.map(h => `<td class="num">${a[h] || 'N/A'}</td>`).join('')}
         </tr>`).join('');
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY
+    // 5. FCR & SERVICE DELIVERY (FCR Target Met >= 92%)
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
       document.getElementById('fcrSdKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">Empathy Target Met (>= 92%)</span></div><div class="kpi-num text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target Met (>= 92%)</span></div><div class="kpi-num text-success">${fcrSd.summary.fcrMeet92Count || 0}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">Agents with Service Delivery</span></div><div class="kpi-num text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div>
       `;
 
@@ -581,20 +586,13 @@
 
     // 6. COMPLAINT ESCALATION AND DKB %
     if (tab === 'Complaint Escalation and DKB %') {
-      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const total = compDkb.summary.totalAgents || compDkb.list.length || 1;
-
-      document.getElementById('complaintDkbKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Complaint Target Met (95% Target)</span></div><div class="kpi-num text-success">${compDkb.summary.complaintMetCount || 0} / ${total}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target Met (95% Target)</span></div><div class="kpi-num text-info">${compDkb.summary.dkbMetCount || 0} / ${total}</div></div>
-      `;
-
-      document.getElementById('complaintTable').innerHTML = compDkb.list.map(a => `
+      const list = appData.sheets['Complaint Escalation and DKB %'] || [];
+      document.getElementById('complaintTable').innerHTML = list.map(a => `
         <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary">${a.escalationPercent}</td></tr>
       `).join('');
 
-      document.getElementById('dkbTable').innerHTML = compDkb.list.map(a => `
-        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info">${a.dkbPercent}</td></tr>
+      document.getElementById('dkbTable').innerHTML = list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info">${a.dkbPercent}</td><td>${a.health}</td></tr>
       `).join('');
       return;
     }
@@ -602,29 +600,24 @@
     // 7. LAG ADHERENCE & OVER BREAK
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const total = lagAdh.summary.totalAgents || lagAdh.list.length || 1;
-
       document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Count</span></div><div class="kpi-num text-warning">${lagAdh.summary.overBreakCount || 0} / ${total}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-hourglass-split"></i></div><span class="kpi-label">Lag Count</span></div><div class="kpi-num text-danger">${lagAdh.summary.lagCount || 0} / ${total}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">Adherence 100% Met</span></div><div class="kpi-num text-success">${lagAdh.summary.adhMetCount || 0} / ${total}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Count</span></div><div class="kpi-num text-warning">${lagAdh.summary.overBreakCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-hourglass-split"></i></div><span class="kpi-label">Lag Count</span></div><div class="kpi-num text-danger">${lagAdh.summary.lagCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-slash-circle-fill"></i></div><span class="kpi-label">Adherence < 100%</span></div><div class="kpi-num text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div>
       `;
 
-      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => {
-        let isOver = parseFloat(a.extraBreak) > 0;
-        return `<tr><td class="fw-bold">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${isOver ? 'cell-red' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`;
-      }).join('');
+      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num">${a.extraBreak}</td><td class="num">${a.lagTime}</td><td class="num">${a.readyTime}</td></tr>
+      `).join('');
       return;
     }
 
     // 8. AHT & CFS
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const total = ahtCfs.summary.totalAgents || ahtCfs.list.length || 1;
-
       document.getElementById('ahtCfsKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${ahtCfs.summary.ahtMetCount || 0} / ${total}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${ahtCfs.summary.cfsMetCount || 0} / ${total}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div>
       `;
 
       document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `
@@ -646,102 +639,118 @@
     }
   }
 
-  // EXACT PDF REPLICA PERFORMANCE CARD (11 METRIC BOXES)
+  // 1-PAGE COLORFUL PERFORMANCE CARD (PDF Sample Match)
   function renderAgentCard(agentName) {
+    currentCardAgentName = agentName;
     const list = appData.sheets['Performance Card'] || [];
-    const a = list.find(x => x.name === agentName);
+    const agent = list.find(a => a.name === agentName);
     const box = document.getElementById('perfCardBox');
 
-    if (!a) { box.innerHTML = ''; return; }
+    if (!agent) { box.innerHTML = ''; return; }
 
     box.innerHTML = `
-      <div class="perf-header">
-        <div>
-          <div class="ph-title">${a.name}</div>
-          <div class="ph-meta">ID: ${a.id} | VDI ID: ${a.vdiId} | Team Leader: ${a.supervisor} | Total Audits: ${a.totalAudits}</div>
-        </div>
-        <span class="pill good">Active Agent</span>
-      </div>
-
-      <div class="perf-grid">
-        <!-- 1. AUDIT FAIL % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">AUDIT FAIL %</span><span class="pill ${a.auditFailStatus === 'Target Met' ? 'good' : 'bad'}">${a.auditFailStatus}</span></div>
-          <div class="pi-val">${a.auditFailPercent}</div>
-          <div class="pi-sub">Target: 0.00% | Pass: ${a.auditPassCount} / Fail: ${a.auditFailCount}</div>
+      <div class="pdf-card-wrapper" id="pdfCardTarget">
+        <div class="pdf-header-bar">
+          <div class="pdf-agent-name">${agent.name}</div>
+          <div class="pdf-agent-sub">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Team Leader: ${agent.supervisor} | Total Audits: ${agent.totalAudits}</div>
         </div>
 
-        <!-- 2. EMPATHY % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">EMPATHY %</span><span class="pill ${a.empathyStatus === 'Target Met' ? 'good' : 'bad'}">${a.empathyStatus}</span></div>
-          <div class="pi-val">${a.empathyPercent}</div>
-          <div class="pi-sub">Target: 88.0% | Pass: ${a.empathyPassCount} / Fail: ${a.empathyFailCount}</div>
-        </div>
+        <div class="pdf-grid-3">
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge missed">Target Missed</span>
+            <div class="pdf-kpi-title">AUDIT FAIL %</div>
+            <div class="pdf-kpi-value text-danger">${agent.auditFailPct}</div>
+            <div class="pdf-kpi-sub">Target: 0.00% | Pass: ${agent.passCount} / Fail: ${agent.failCount}</div>
+          </div>
 
-        <!-- 3. AVERAGE AHT -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">AVERAGE AHT</span><span class="pill ${a.ahtStatus === 'Target Met' ? 'good' : 'bad'}">${a.ahtStatus}</span></div>
-          <div class="pi-val">${a.avgAht}</div>
-          <div class="pi-sub">Target: 170s ${a.ahtDiff}</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge missed">Target Missed</span>
+            <div class="pdf-kpi-title">EMPATHY %</div>
+            <div class="pdf-kpi-value">${agent.empathyPct}</div>
+            <div class="pdf-kpi-sub">Target: 88.0% | Pass: ${agent.empathyPassSum} / Fail: ${agent.empathyFailSum}</div>
+          </div>
 
-        <!-- 4. ESCALATION ACCURACY % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">ESCALATION ACCURACY %</span><span class="pill ${a.escalationStatus === 'Target Met' ? 'good' : 'bad'}">${a.escalationStatus}</span></div>
-          <div class="pi-val">${a.escalationAccuracy}</div>
-          <div class="pi-sub">Target: 95.0% | Valid: ${a.validEscalationCount} / Total: ${a.totalEscalationCount}</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge missed">Target Missed</span>
+            <div class="pdf-kpi-title">AVERAGE AHT</div>
+            <div class="pdf-kpi-value">${agent.aht}</div>
+            <div class="pdf-kpi-sub">Target: 170s</div>
+          </div>
 
-        <!-- 5. OVER BREAK -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">OVER BREAK</span><span class="pill ${a.overBreakStatus === 'Target Met' ? 'good' : 'warn'}">${a.overBreakStatus}</span></div>
-          <div class="pi-val">${a.overBreak}</div>
-          <div class="pi-sub">Extra Break Duration</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge missed">Target Missed</span>
+            <div class="pdf-kpi-title">ESCALATION ACCURACY %</div>
+            <div class="pdf-kpi-value">${agent.escalationAccuracyPct}</div>
+            <div class="pdf-kpi-sub">Target: 95.0% | Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
+          </div>
 
-        <!-- 6. LAG HOUR -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">LAG HOUR</span><span class="pill ${a.lagStatus === 'Target Met' ? 'good' : 'warn'}">${a.lagStatus}</span></div>
-          <div class="pi-val">${a.lagHour}</div>
-          <div class="pi-sub">Total Lag Time</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge recorded">Over Break Recorded</span>
+            <div class="pdf-kpi-title">OVER BREAK</div>
+            <div class="pdf-kpi-value text-warning">${agent.overBreak}</div>
+            <div class="pdf-kpi-sub">Extra Break Duration</div>
+          </div>
 
-        <!-- 7. ADHERENCE % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">ADHERENCE %</span><span class="pill ${a.adherenceStatus === 'Target Met' ? 'good' : 'warn'}">${a.adherenceStatus}</span></div>
-          <div class="pi-val">${a.adherencePercent}</div>
-          <div class="pi-sub">Target: 100%</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge recorded">Lag Hours Recorded</span>
+            <div class="pdf-kpi-title">LAG HOUR</div>
+            <div class="pdf-kpi-value text-danger">${agent.lagHour}</div>
+            <div class="pdf-kpi-sub">Total Lag Time</div>
+          </div>
 
-        <!-- 8. DKB % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">DKB %</span><span class="pill ${a.dkbStatus === 'Target Met' ? 'good' : 'warn'}">${a.dkbStatus}</span></div>
-          <div class="pi-val">${a.dkbPercent}</div>
-          <div class="pi-sub">Target: 95%</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge needs">Needs Improvement</span>
+            <div class="pdf-kpi-title">ADHERENCE %</div>
+            <div class="pdf-kpi-value">${agent.adherencePct}</div>
+            <div class="pdf-kpi-sub">Target: 100%</div>
+          </div>
 
-        <!-- 9. SERVICE DELIVERY (SD) -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">SERVICE DELIVERY (SD)</span><span class="pill good">Total Delivered</span></div>
-          <div class="pi-val text-info">${a.sdCount}</div>
-          <div class="pi-sub">Total SD Count</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge needs">Needs Improvement</span>
+            <div class="pdf-kpi-title">DKB %</div>
+            <div class="pdf-kpi-value">${agent.dkbPct}</div>
+            <div class="pdf-kpi-sub">Target: 95%</div>
+          </div>
 
-        <!-- 10. CRITICAL ERROR (CE) COUNT -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">CRITICAL ERROR (CE) COUNT</span><span class="pill ${a.ceCount === 0 ? 'good' : 'bad'}">${a.ceStatus}</span></div>
-          <div class="pi-val text-danger">${a.ceCount}</div>
-          <div class="pi-sub">Target: 0 Critical Errors</div>
-        </div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge delivered">Total Delivered</span>
+            <div class="pdf-kpi-title">SERVICE DELIVERY (SD)</div>
+            <div class="pdf-kpi-value text-success">${agent.sdCount}</div>
+            <div class="pdf-kpi-sub">Total SD Count</div>
+          </div>
 
-        <!-- 11. RTC ACCURACY % -->
-        <div class="perf-item">
-          <div class="pi-top"><span class="pi-lbl">RTC ACCURACY %</span><span class="pill warn">${a.rtcStatus}</span></div>
-          <div class="pi-val">${a.rtcAccuracy}</div>
-          <div class="pi-sub">RTC Verification Status</div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge found">CE Found</span>
+            <div class="pdf-kpi-title">CRITICAL ERROR (CE) COUNT</div>
+            <div class="pdf-kpi-value text-danger">${agent.ceCount}</div>
+            <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge review">Review</span>
+            <div class="pdf-kpi-title">RTC ACCURACY %</div>
+            <div class="pdf-kpi-value">${agent.rtcAccuracyPct}</div>
+            <div class="pdf-kpi-sub">RTC Verification Status</div>
+          </div>
         </div>
-      </div>
-    `;
+      </div>`;
+  }
+
+  // DOWNLOAD 1-PAGE PDF
+  function downloadPerformanceCardPdf() {
+    const element = document.getElementById('pdfCardTarget');
+    if (!element) { alert('Performance Card not found.'); return; }
+
+    const filename = `${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}_Performance_Card.pdf`;
+    const opt = {
+      margin:       0.3,
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(element).save();
   }
 
   function filterCalls() {
