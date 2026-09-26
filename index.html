@@ -3,46 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Albatross Wings - Dashboard</title>
+  <title>Albatross Wings - Enterprise Performance Dashboard</title>
 
-  <!-- Google Fonts & Icons -->
+  <!-- Google Fonts: Outfit (Headings) & Plus Jakarta Sans (Body Data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
     :root {
-      --sidebar-width: 250px;
-      --primary-accent: #6366f1;
-      --primary-hover: #4f46e5;
-      --bg-main: #f8fafc;
+      --sidebar-width: 260px;
+      --bg-midnight: #0b0f19;
+      --bg-surface: #f8fafc;
       --card-bg: #ffffff;
-      --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --border-light: #e2e8f0;
+      --accent-indigo: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border-subtle: #e2e8f0;
+      --shadow-premium: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.01);
     }
 
     * { box-sizing: border-box; }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg-main);
-      color: var(--text-dark);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
       margin: 0;
       display: flex;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* Left Sidebar */
     .sidebar {
       width: var(--sidebar-width);
-      background: #0f172a;
+      background: var(--bg-midnight);
       color: #ffffff;
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      transition: all 0.2s ease;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1050;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .brand-box {
@@ -53,116 +64,185 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .brand-badge {
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
-      color: #fff;
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      padding: 6px 12px;
-      border-radius: 8px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+      color: #ffffff;
     }
 
     .sidebar-menu {
       list-style: none;
-      padding: 16px 12px;
+      padding: 20px 14px;
       margin: 0;
       flex-grow: 1;
+      overflow-y: auto;
     }
 
     .sidebar-link {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 16px;
+      padding: 12px 16px;
       color: #94a3b8;
       text-decoration: none;
       font-size: 0.88rem;
       font-weight: 600;
-      border-radius: 10px;
-      margin-bottom: 4px;
-      transition: all 0.15s ease;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
     }
 
     .sidebar-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
-    .sidebar-link.active { background: var(--primary-accent); color: #ffffff; }
+    .sidebar-link.active {
+      background: var(--accent-indigo);
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+    }
 
     /* Main Area */
-    .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; }
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: margin-left 0.3s ease;
+    }
 
     .top-header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--border-light);
-      padding: 16px 28px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 18px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
-    .page-title { font-size: 1.25rem; font-weight: 800; margin: 0; }
-    .page-sub { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .page-sub { font-size: 0.8rem; color: var(--text-sub); margin: 0; }
 
     .live-badge {
       background: #ecfdf5;
+      border: 1px solid #a7f3d0;
       color: #047857;
-      font-size: 0.75rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 20px;
+      padding: 6px 16px;
+      border-radius: 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .content-area { padding: 24px 28px; overflow-y: auto; flex-grow: 1; }
+    .live-dot {
+      width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    }
+
+    .content-area { padding: 28px 32px; overflow-y: auto; flex-grow: 1; }
 
     /* KPI Cards */
     .kpi-card {
-      background: #ffffff;
-      border: 1px solid var(--border-light);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-premium);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       height: 100%;
     }
 
-    .kpi-title { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-    .kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 4px 0; }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    .kpi-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 800; color: var(--text-main); margin: 6px 0 2px 0; }
 
     .table-box {
-      background: #ffffff;
-      border: 1px solid var(--border-light);
-      border-radius: 14px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-
-    .custom-table { width: 100%; font-size: 0.84rem; }
-    .custom-table th { color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; padding: 12px; border-bottom: 1px solid var(--border-light); }
-    .custom-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-
-    /* Modal / Popup Card */
-    .modal-card-box {
-      background: #ffffff;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-premium);
+      margin-top: 24px;
     }
 
-    @media (max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; }
-      .content-area { padding: 16px; }
+    .custom-table { width: 100%; font-size: 0.85rem; border-collapse: separate; border-spacing: 0; }
+    .custom-table th {
+      color: var(--text-sub);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-subtle);
+      background: #f8fafc;
+    }
+
+    .custom-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); font-weight: 500; }
+    .custom-table tr:hover td { background: #f8fafc; }
+
+    /* Mobile Drawer Toggle */
+    .mobile-toggle {
+      display: none;
+      background: #f1f5f9;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: var(--text-main);
+    }
+
+    @media (max-width: 991px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.show { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .mobile-toggle { display: inline-flex; }
+      .top-header { padding: 16px 20px; }
+      .content-area { padding: 20px 16px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
+  <!-- Sidebar Menu -->
+  <div class="sidebar" id="sidebar">
     <div class="brand-box">
-      <span class="brand-badge">AW</span>
-      <span class="fw-bold">Albatross Wings</span>
+      <div class="brand-logo">AW</div>
+      <div class="brand-name">Albatross Wings</div>
     </div>
     <ul class="sidebar-menu" id="sidebarMenu">
-      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-fill"></i> Dashboard</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-badge-fill"></i> Performance Card</a></li>
+      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-vcard-fill"></i> Performance Card</a></li>
       <li><a href="#" class="sidebar-link" onclick="nav('Audit Details')"><i class="bi bi-card-checklist"></i> Audit Details</a></li>
       <li><a href="#" class="sidebar-link" onclick="nav('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill"></i> Parameter Empathy</a></li>
       <li><a href="#" class="sidebar-link" onclick="nav('FCR & Service Delivery')"><i class="bi bi-layers-fill"></i> FCR & Service Delivery</a></li>
@@ -172,20 +252,23 @@
     </ul>
   </div>
 
-  <!-- Main Area -->
+  <!-- Main Body Wrapper -->
   <div class="main-wrapper">
     <div class="top-header">
-      <div>
-        <h1 class="page-title" id="pageTitle">Dashboard</h1>
-        <p class="page-sub" id="pageSub">Team performance summary</p>
+      <div class="d-flex align-items-center gap-3">
+        <button class="mobile-toggle" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+        <div>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <p class="page-sub" id="pageSub">Team performance summary</p>
+        </div>
       </div>
-      <div class="live-badge" id="liveBadge">● Live Data</div>
+      <div class="live-badge" id="liveBadge"><span class="live-dot"></span> Live Sync</div>
     </div>
 
     <div class="content-area" id="mainView">
       <div class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted small">Loading data.json...</p>
+        <p class="mt-2 text-muted small fw-bold">Loading enterprise data.json...</p>
       </div>
     </div>
   </div>
@@ -194,6 +277,10 @@
     let appData = null;
     let currentTab = 'Dashboard';
 
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('show');
+    }
+
     async function loadData() {
       try {
         const res = await fetch('./data.json?t=' + new Date().getTime());
@@ -201,7 +288,7 @@
         
         if (appData.lastUpdated) {
           const dt = new Date(appData.lastUpdated);
-          document.getElementById('liveBadge').innerText = `● Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
+          document.getElementById('liveBadge').innerHTML = `<span class="live-dot"></span> Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
         }
 
         render(currentTab);
@@ -216,6 +303,7 @@
       document.querySelectorAll('#sidebarMenu .sidebar-link').forEach(l => {
         l.classList.toggle('active', l.innerText.includes(tabName));
       });
+      document.getElementById('sidebar').classList.remove('show');
       render(tabName);
     }
 
@@ -249,12 +337,12 @@
       // 2. PERFORMANCE CARD
       if (tab === 'Performance Card') {
         title.innerText = "Active Agent Performance Card";
-        sub.innerText = "Filter active agents to view individual card";
+        sub.innerText = "Select active agent from alignment to view card";
         const list = appData.sheets['Performance Card'] || [];
 
         let selectHtml = `<div class="mb-4">
-          <label class="fw-bold mb-1 small text-muted">SELECT ACTIVE AGENT:</label>
-          <select class="form-select w-auto" onchange="renderAgentCard(this.value)">
+          <label class="fw-bold mb-2 small text-muted">SEARCH / SELECT ACTIVE AGENT:</label>
+          <select class="form-select w-auto fw-bold" onchange="renderAgentCard(this.value)">
             ${list.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
           </select>
         </div><div id="cardBox"></div>`;
@@ -267,7 +355,7 @@
       // 3. AUDIT DETAILS
       if (tab === 'Audit Details') {
         title.innerText = "Audit Details";
-        sub.innerText = "Active Agents Audit Performance & Party Filter";
+        sub.innerText = "Active Agents Audit Performance Metrics & Sums";
         const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
 
         view.innerHTML = `
@@ -281,7 +369,7 @@
             </div>
             <div class="table-responsive">
               <table class="custom-table">
-                <thead><tr><th>AGENT NAME</th><th>TOTAL AUDIT</th><th>PASS</th><th>FAIL</th><th>CE%</th><th>EMPATHY PASS</th><th>EMPATHY FAIL</th><th>EMPATHY PASS%</th></tr></thead>
+                <thead><tr><th>AGENT NAME</th><th>TOTAL AUDIT</th><th>PASS</th><th>FAIL</th><th>CE% (FAIL RATE)</th><th>EMPATHY PASS (SUM)</th><th>EMPATHY FAIL (SUM)</th><th>EMPATHY PASS%</th></tr></thead>
                 <tbody>
                   ${details.list.map(a => `
                     <tr>
@@ -289,9 +377,9 @@
                       <td>${a.totalAudits}</td>
                       <td class="text-success fw-bold">${a.totalPass}</td>
                       <td class="text-danger fw-bold">${a.totalFail}</td>
-                      <td>${a.cePercent}</td>
-                      <td>${a.empathyPass}</td>
-                      <td>${a.empathyFail}</td>
+                      <td class="text-danger fw-bold">${a.cePercent}</td>
+                      <td class="text-primary fw-bold">${a.empathyPass}</td>
+                      <td class="text-secondary">${a.empathyFail}</td>
                       <td class="${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
                     </tr>`).join('')}
                 </tbody>
@@ -420,7 +508,7 @@
       if (!agent) { box.innerHTML = ''; return; }
 
       box.innerHTML = `
-        <div class="modal-card-box">
+        <div class="kpi-card p-4">
           <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
             <div>
               <h3 class="fw-extrabold text-primary mb-1">${agent.name}</h3>
@@ -429,16 +517,16 @@
             <span class="badge bg-success fs-6">Active</span>
           </div>
           <div class="row g-3">
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">AHT</small><span class="fw-bold">${agent.aht}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">ADHERENCE %</small><span class="fw-bold">${agent.adherence}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">LOGIN COMPLIANCE</small><span class="fw-bold">${agent.loginCompliance}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">FCR %</small><span class="fw-bold">${agent.fcr}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">EMPATHY PASS</small><span class="fw-bold">${agent.empathyPass}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">GP SCORE</small><span class="fw-bold">${agent.gpScore}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">PRESENT % (DKB)</small><span class="fw-bold">${agent.presentPercent}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">HEALTH</small><span class="fw-bold">${agent.health}</span></div></div>
-            <div class="col-6 col-md-6"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">SERVICE DELIVERY COUNT</small><span class="fw-bold text-info">${agent.sdCount}</span></div></div>
-            <div class="col-6 col-md-6"><div class="p-2 bg-light rounded"><small class="text-muted d-block fw-bold">COMPLAINT TICKETS</small><span class="fw-bold text-danger">${agent.complaintCount}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">AHT</small><span class="fw-bold fs-6">${agent.aht}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">ADHERENCE %</small><span class="fw-bold fs-6">${agent.adherence}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">LOGIN COMPLIANCE</small><span class="fw-bold fs-6">${agent.loginCompliance}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">FCR %</small><span class="fw-bold fs-6">${agent.fcr}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">EMPATHY PASS</small><span class="fw-bold fs-6 text-success">${agent.empathyPass}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">GP SCORE</small><span class="fw-bold fs-6">${agent.gpScore}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">PRESENT % (DKB)</small><span class="fw-bold fs-6">${agent.presentPercent}</span></div></div>
+            <div class="col-6 col-md-3"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">HEALTH</small><span class="fw-bold fs-6">${agent.health}</span></div></div>
+            <div class="col-6 col-md-6"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">SERVICE DELIVERY COUNT</small><span class="fw-bold fs-6 text-info">${agent.sdCount}</span></div></div>
+            <div class="col-6 col-md-6"><div class="p-3 bg-light rounded-3"><small class="text-muted d-block fw-bold">COMPLAINT TICKETS</small><span class="fw-bold fs-6 text-danger">${agent.complaintCount}</span></div></div>
           </div>
         </div>`;
     }
