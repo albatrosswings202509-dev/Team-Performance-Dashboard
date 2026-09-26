@@ -1,0 +1,24 @@
+{
+  "lastUpdated": "2026-09-27T00:00:00.000Z",
+  "activeAgentsCount": 20,
+  "metrics": {
+    "totalAudits": 190,
+    "passRate": "85.3%",
+    "failRate": "14.7%",
+    "empathyPass": "85.4%",
+    "ceFree": "86.3%"
+  },
+  "sheets": {
+    "Alignment": [],
+    "Performance Card": [],
+    "FCR & service delivery": [],
+    "IB agent wise": [],
+    "empathyWise": [],
+    "ORT": [],
+    "TL ORT": [],
+    "Service Delivery": [],
+    "Complaint": [],
+    "DKB": [],
+    "FCR": []
+  }
+}
