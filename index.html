@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- html2pdf Library for 1-Page PDF Export -->
+<!-- html2pdf Library for PDF Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
@@ -180,11 +180,7 @@
     position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 4px; font-size: 9.5px; font-weight: 700;
   }
   .pdf-badge.missed { background: #fdecea; color: #e0503f; }
-  .pdf-badge.found { background: #fdecea; color: #e0503f; }
-  .pdf-badge.recorded { background: #fdf3e0; color: #e0a021; }
-  .pdf-badge.needs { background: #fdf3e0; color: #e0a021; }
   .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
-  .pdf-badge.review { background: #fdf3e0; color: #e0a021; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
@@ -201,7 +197,6 @@
   .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
   .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
 
-  /* Red Highlight Class for Over Break */
   tr.row-overbreak { background-color: #fdecea !important; }
   .text-overbreak { color: #e0503f !important; font-weight: 700; }
 
@@ -277,7 +272,7 @@
       </section>
     </div>
 
-    <!-- 2. PERFORMANCE CARD WITH PDF DOWNLOAD -->
+    <!-- 2. PERFORMANCE CARD -->
     <div class="page" id="page-Performance Card">
       <div class="filterbar d-flex justify-content-between align-items-end">
         <div class="fgroup">
@@ -339,8 +334,7 @@
     <!-- 6. COMPLAINT ESCALATION AND DKB % -->
     <div class="page" id="page-Complaint Escalation and DKB %">
       <section><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
-      
-      <!-- STACKED TABLES (Upore-Niche) -->
+
       <section>
         <div class="section-head"><h2>Complaint Escalation Table</h2></div>
         <div class="table-wrap mb-4">
@@ -521,7 +515,7 @@
       return;
     }
 
-    // 2. PERFORMANCE CARD
+    // 2. PERFORMANCE CARD (DYNAMIC TARGET BADGE LOGIC FIXED)
     if (tab === 'Performance Card') {
       const list = appData.sheets['Performance Card'] || [];
       const select = document.getElementById('agentSelect');
@@ -530,29 +524,39 @@
       return;
     }
 
-    // 3. AUDIT DETAILS
+    // 3. AUDIT DETAILS (0% CE Green + Fail Free / Empathy Meet KPI)
     if (tab === 'Audit Details') {
       const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
+      const sum = details.summary || {};
+      const tot = sum.totalAgents || details.list.length;
+
       document.getElementById('auditSummaryKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Agents with Audit Fail</span></div><div class="kpi-num text-danger">${details.summary.failAgentCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Target Not Met (<87.50%)</span></div><div class="kpi-num text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${sum.failFreeCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${sum.failAgentCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target Met (>=87.5%)</span></div><div class="kpi-num text-success">${sum.empathyMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${sum.empathyTargetBelowCount || 0} / ${tot}</div></div>
       `;
 
-      document.getElementById('auditDetailsTable').innerHTML = details.list.map(a => `
+      document.getElementById('auditDetailsTable').innerHTML = details.list.map(a => {
+        const ceNum = parseFloat(String(a.cePercent).replace('%', ''));
+        const isCeZero = isNaN(ceNum) || ceNum === 0;
+
+        return `
         <tr>
           <td class="fw-bold">${a.agentName}</td>
           <td class="num">${a.totalAudits}</td>
           <td class="num text-success">${a.totalPass}</td>
           <td class="num text-danger">${a.totalFail}</td>
-          <td class="num cell-red">${a.cePercent}</td>
+          <td class="num ${isCeZero ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.cePercent}</td>
           <td class="num text-primary">${a.empathyPass}</td>
           <td class="num text-danger">${a.empathyFail}</td>
           <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY
+    // 4. PARAMETER WISE EMPATHY (>=87.5% Green, <87.5% Red)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       let kpiHtml = '';
@@ -576,17 +580,28 @@
       document.getElementById('empathyBody').innerHTML = emp.agentList.map(a => `
         <tr>
           <td class="fw-bold">${a.agentName}</td>
-          ${headers.map(h => `<td class="num">${a[h] || 'N/A'}</td>`).join('')}
+          ${headers.map(h => {
+            let cellVal = a[h] || 'N/A';
+            let numVal = parseFloat(String(cellVal).replace('%', ''));
+            let colorClass = '';
+            if (!isNaN(numVal)) {
+              colorClass = numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold';
+            }
+            return `<td class="num ${colorClass}">${cellVal}</td>`;
+          }).join('')}
         </tr>`).join('');
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY
+    // 5. FCR & SERVICE DELIVERY (X / Y Format)
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
+      const sum = fcrSd.summary || {};
+      const tot = sum.totalAgents || fcrSd.list.length;
+
       document.getElementById('fcrSdKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target Met (>= 92%)</span></div><div class="kpi-num text-success">${fcrSd.summary.fcrMeet92Count || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">Agents with Service Delivery</span></div><div class="kpi-num text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target Met (>= 92%)</span></div><div class="kpi-num text-success">${sum.fcrMeet92Count || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">With Service Delivery</span></div><div class="kpi-num text-info">${sum.agentsWithSdCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => `
@@ -595,15 +610,16 @@
       return;
     }
 
-    // 6. COMPLAINT ESCALATION AND DKB % (Stacked Tables + Meet KPI)
+    // 6. COMPLAINT ESCALATION AND DKB % (Clean KPI text without "Agents")
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
       const sum = compDkb.summary || {};
       const list = compDkb.list || [];
+      const tot = sum.totalAgents || list.length;
 
       document.getElementById('compDkbKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target Met (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target Met (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target Met (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target Met (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('complaintTable').innerHTML = list.map(a => `
@@ -616,16 +632,17 @@
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK (Red Highlight Over Break)
+    // 7. LAG ADHERENCE & OVER BREAK (Clean KPI text without "Agents")
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
       const sum = lagAdh.summary || {};
       const list = lagAdh.list || [];
+      const tot = sum.totalAgents || list.length;
 
       document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Met</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Met</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Met</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Met</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Met</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Met</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('lagAdhTable').innerHTML = list.map(a => {
@@ -642,15 +659,16 @@
       return;
     }
 
-    // 8. AHT & CFS (Seconds To Reduce Added)
+    // 8. AHT & CFS (Clean KPI text without "Agents")
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const sum = ahtCfs.summary || {};
       const list = ahtCfs.list || [];
+      const tot = sum.totalAgents || list.length;
 
       document.getElementById('ahtCfsKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${sum.totalAgents || list.length} Agents</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('ahtCfsTable').innerHTML = list.map(a => `
@@ -672,7 +690,7 @@
     }
   }
 
-  // PERFORMANCE CARD
+  // DYNAMIC PERFORMANCE CARD RENDER
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
     const list = appData.sheets['Performance Card'] || [];
@@ -680,6 +698,34 @@
     const box = document.getElementById('perfCardBox');
 
     if (!agent) { box.innerHTML = ''; return; }
+
+    // Dynamic Badge Calculations
+    const failPctNum = parseFloat(String(agent.auditFailPct).replace('%', ''));
+    const isFailMet = !isNaN(failPctNum) && failPctNum === 0;
+
+    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
+    const isEmpMet = !isNaN(empPctNum) && empPctNum >= 87.5;
+
+    const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
+    const isAhtMet = !isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0;
+
+    const escNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
+    const isEscMet = !isNaN(escNum) && escNum >= 95.0;
+
+    const obStr = String(agent.overBreak).toLowerCase();
+    const isObMet = obStr === '0m' || obStr === '0' || obStr === '0.0m';
+
+    const lagStr = String(agent.lagHour).toLowerCase();
+    const isLagMet = lagStr === '0h 0m' || lagStr === '0h' || lagStr === '0' || lagStr === '0m';
+
+    const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
+    const isAdhMet = !isNaN(adhNum) && adhNum >= 100.0;
+
+    const dkbNum = parseFloat(String(agent.dkbPct).replace('%', ''));
+    const isDkbMet = !isNaN(dkbNum) && dkbNum >= 95.0;
+
+    const ceNum = parseInt(agent.ceCount) || 0;
+    const isCeMet = ceNum === 0;
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
@@ -690,77 +736,77 @@
 
         <div class="pdf-grid-3">
           <div class="pdf-kpi-card">
-            <span class="pdf-badge missed">Target Missed</span>
+            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">AUDIT FAIL %</div>
-            <div class="pdf-kpi-value text-danger">${agent.auditFailPct}</div>
+            <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
             <div class="pdf-kpi-sub">Target: 0.00% | Pass: ${agent.passCount} / Fail: ${agent.failCount}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge missed">Target Missed</span>
+            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">EMPATHY %</div>
-            <div class="pdf-kpi-value">${agent.empathyPct}</div>
-            <div class="pdf-kpi-sub">Target: 88.0% | Pass: ${agent.empathyPassSum} / Fail: ${agent.empathyFailSum}</div>
+            <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
+            <div class="pdf-kpi-sub">Target: 87.5% | Pass: ${agent.empathyPassSum} / Fail: ${agent.empathyFailSum}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge missed">Target Missed</span>
+            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">AVERAGE AHT</div>
-            <div class="pdf-kpi-value">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: 170s</div>
+            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-danger'}">${agent.aht}</div>
+            <div class="pdf-kpi-sub">Target: <=170s</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge missed">Target Missed</span>
+            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">ESCALATION ACCURACY %</div>
-            <div class="pdf-kpi-value">${agent.escalationAccuracyPct}</div>
+            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
             <div class="pdf-kpi-sub">Target: 95.0% | Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge recorded">Over Break Recorded</span>
+            <span class="pdf-badge ${isObMet ? 'delivered' : 'missed'}">${isObMet ? 'Target Met' : 'Over Break'}</span>
             <div class="pdf-kpi-title">OVER BREAK</div>
-            <div class="pdf-kpi-value text-warning">${agent.overBreak}</div>
+            <div class="pdf-kpi-value ${isObMet ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
             <div class="pdf-kpi-sub">Extra Break Duration</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge recorded">Lag Hours Recorded</span>
+            <span class="pdf-badge ${isLagMet ? 'delivered' : 'missed'}">${isLagMet ? 'Target Met' : 'Lag Recorded'}</span>
             <div class="pdf-kpi-title">LAG HOUR</div>
-            <div class="pdf-kpi-value text-danger">${agent.lagHour}</div>
+            <div class="pdf-kpi-value ${isLagMet ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
             <div class="pdf-kpi-sub">Total Lag Time</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge needs">Needs Improvement</span>
+            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">ADHERENCE %</div>
-            <div class="pdf-kpi-value">${agent.adherencePct}</div>
+            <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-danger'}">${agent.adherencePct}</div>
             <div class="pdf-kpi-sub">Target: 100%</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge needs">Needs Improvement</span>
+            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target Met' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">DKB %</div>
-            <div class="pdf-kpi-value">${agent.dkbPct}</div>
+            <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
             <div class="pdf-kpi-sub">Target: 95%</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge delivered">Total Delivered</span>
+            <span class="pdf-badge delivered">Delivered</span>
             <div class="pdf-kpi-title">SERVICE DELIVERY (SD)</div>
             <div class="pdf-kpi-value text-success">${agent.sdCount}</div>
             <div class="pdf-kpi-sub">Total SD Count</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge found">CE Found</span>
+            <span class="pdf-badge ${isCeMet ? 'delivered' : 'missed'}">${isCeMet ? 'Target Met' : 'CE Found'}</span>
             <div class="pdf-kpi-title">CRITICAL ERROR (CE) COUNT</div>
-            <div class="pdf-kpi-value text-danger">${agent.ceCount}</div>
+            <div class="pdf-kpi-value ${isCeMet ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
             <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge review">Review</span>
+            <span class="pdf-badge delivered">Status</span>
             <div class="pdf-kpi-title">RTC ACCURACY %</div>
             <div class="pdf-kpi-value">${agent.rtcAccuracyPct}</div>
             <div class="pdf-kpi-sub">RTC Verification Status</div>
