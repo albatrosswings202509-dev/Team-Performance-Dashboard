@@ -1,0 +1,15 @@
+{
+  "lastUpdated": "2026-09-27T00:00:00.000Z",
+  "activeAgentsCount": 0,
+  "tlSummary": {},
+  "sheets": {
+    "Alignment": [],
+    "Performance Card": [],
+    "Audit Details": { "summary": {}, "list": [] },
+    "Parameter wise Empathy": { "teamAvg": {}, "agentList": [] },
+    "FCR & Service Delivery": { "summary": {}, "list": [] },
+    "Lag Adherence & Over Break": { "summary": {}, "list": [] },
+    "AHT & CFS": { "summary": {}, "list": [] },
+    "Audited Call Details": []
+  }
+}
