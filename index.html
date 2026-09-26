@@ -1,608 +1,751 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Albatross Wings - Modern Dark SaaS Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Albatross Wings — Enterprise Dashboard</title>
 
-  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Google Fonts: Inter & IBM Plex Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-  <style>
-    :root {
-      --sidebar-width: 260px;
-      --bg-gradient: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
-      --glass-bg: rgba(22, 28, 48, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.09);
-      --accent-purple: #a855f7;
-      --accent-indigo: #6366f1;
-      --text-white: #ffffff;
-      --text-muted: #94a3b8;
-      --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
-    }
+<style>
+  :root {
+    --navy: #101d34;
+    --navy-raised: #16243f;
+    --navy-line: rgba(36, 52, 84, 0.56);
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --line: #e4e8f0;
+    --ink: #182238;
+    --muted: #6b7488;
+    --muted-dim: #9aa2b2;
+    --blue: #3b6fd9;
+    --blue-dim: #e8eefd;
+    --good: #1fa971;
+    --good-dim: #e6f7ef;
+    --bad: #e0503f;
+    --bad-dim: #fdecea;
+    --warn: #e0a021;
+    --warn-dim: #fdf3e0;
+    --purple: #7c5fd6;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+  }
 
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
-      color: var(--text-white);
-      margin: 0;
-      display: flex;
-      min-height: 100vh;
-      overflow-x: hidden;
-      text-align: center !important;
-    }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    min-height: 100vh;
+  }
 
-    /* Left Sidebar */
-    .sidebar {
-      width: var(--sidebar-width);
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--glass-border);
-      display: flex; flex-direction: column; flex-shrink: 0;
-      position: fixed; top: 0; bottom: 0; left: 0;
-      z-index: 1050; transition: transform 0.3s ease;
-      text-align: center;
-    }
+  /* ================= SIDEBAR ================= */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(16, 29, 52, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 80;
+  }
+  .sidebar {
+    width: 240px;
+    background: var(--navy);
+    color: #dde3ef;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 90;
+    transition: transform 0.25s ease, width 0.25s ease;
+  }
+  body.sidebar-collapsed .sidebar {
+    width: 0;
+    min-width: 0;
+  }
+  .sidebar-inner { width: 240px; }
+  .sidebar-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 18px 16px;
+    border-bottom: 1px solid var(--navy-line);
+    white-space: nowrap;
+  }
+  .sidebar-brand .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, #3b6fd9, #7c5fd6);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0;
+  }
+  .sidebar-brand .name { font-size: 14px; font-weight: 700; color: #fff; }
+  .sidebar-nav { padding: 12px 8px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9.5px 12px; margin-bottom: 3px;
+    border-radius: 8px; cursor: pointer;
+    font-size: 12.5px; font-weight: 500; color: #aab2c5;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
+  .nav-item:hover { background: #1c2c4c; color: #fff; }
+  .nav-item.active { background: var(--blue); color: #fff; font-weight: 600; }
+  .sidebar-foot {
+    padding: 14px 16px; font-size: 11px; color: #6d768c;
+    border-top: 1px solid var(--navy-line);
+    white-space: nowrap; text-align: center;
+  }
 
-    .brand-box {
-      padding: 24px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 8px;
-      border-bottom: 1px solid var(--glass-border);
-    }
+  .sidebar-reopen {
+    position: fixed; top: 12px; left: 12px; z-index: 70;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--navy); color: #fff; border: none;
+    display: none; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+  }
+  body.sidebar-collapsed .sidebar-reopen { display: flex; }
 
-    .brand-logo {
-      width: 44px; height: 44px; border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
-      color: #ffffff; display: flex; align-items: center; justify-content: center;
-      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.25rem;
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
-    }
+  #sidebarToggle {
+    background: none; border: 1px solid var(--navy-line); color: #aab2c5;
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+    flex-shrink: 0; font-size: 13px; margin-left: auto;
+    display: flex; align-items: center; justify-content: center;
+  }
 
-    .brand-name { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.15rem; color: #ffffff; }
+  /* ================= MAIN ================= */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    position: sticky; top: 0; z-index: 40;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .mobile-menu-btn {
+    display: none; background: none; border: 1px solid var(--line);
+    padding: 6px 10px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--ink);
+  }
+  .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--ink); }
+  .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 
-    .sidebar-menu { list-style: none; padding: 18px 12px; margin: 0; flex-grow: 1; overflow-y: auto; }
+  .live-chip {
+    display: flex; align-items: center; gap: 6px; background: var(--good-dim); color: var(--good);
+    padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 11px;
+  }
+  .live-chip.stale { background: var(--warn-dim); color: var(--warn); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  #refreshBtn {
+    background: var(--blue); color: #fff; border: none; padding: 7px 14px;
+    font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; transition: background 0.15s;
+  }
+  #refreshBtn:hover { background: #2f5bc4; }
 
-    .sidebar-link {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 12px 14px; color: var(--text-muted);
-      text-decoration: none; font-size: 0.88rem; font-weight: 600;
-      border-radius: 12px; margin-bottom: 6px; transition: all 0.25s ease;
-    }
+  main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
-    .sidebar-link:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
-    .sidebar-link.active {
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
-      color: #ffffff;
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-    }
+  section { margin-bottom: 24px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
+  .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--ink); }
 
-    /* Main Area */
-    .main-wrapper {
-      margin-left: var(--sidebar-width); flex-grow: 1;
-      display: flex; flex-direction: column; min-width: 0; width: 100%;
-      text-align: center !important;
-    }
+  .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+  .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; }
+  .filterbar label { font-size: 10.5px; color: var(--muted-dim); font-weight: 600; text-transform: uppercase; }
+  .filterbar select, .filterbar input[type=text] {
+    background: #fff; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7.5px 10px; font-family: var(--sans); font-size: 12px; min-width: 180px;
+  }
 
-    .top-header {
-      background: rgba(11, 15, 25, 0.7);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-      padding: 18px 32px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      position: sticky; top: 0; z-index: 1000; gap: 6px;
-    }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; text-align: center; align-items: center;
+  }
+  .kpi-card .kpi-top { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+  .kpi-icon {
+    width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
+  .kpi-icon.good { background: var(--good-dim); color: var(--good); }
+  .kpi-icon.bad { background: var(--bad-dim); color: var(--bad); }
+  .kpi-icon.warn { background: var(--warn-dim); color: var(--warn); }
+  .kpi-icon.purple { background: #efe9fc; color: var(--purple); }
+  .kpi-card .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; line-height: 1.2; text-transform: uppercase; }
+  .kpi-card .kpi-num { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .kpi-card .kpi-sub { font-size: 10px; color: var(--muted-dim); }
 
-    .page-title {
-      font-family: 'Outfit', sans-serif; font-size: 1.45rem; font-weight: 800;
-      color: var(--text-white); margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-    .page-sub { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+  /* Leaderboard Grid */
+  .leaderboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
 
-    .live-badge {
-      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399; font-size: 0.76rem; font-weight: 700; padding: 5px 14px; border-radius: 20px;
-      display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
-    }
+  .param-card {
+    border-radius: 10px; padding: 12px 14px; border: 1px solid var(--line);
+    background: var(--card); text-align: center;
+  }
+  .param-card.red { background: var(--bad-dim); border-color: #f3c7c1; }
+  .param-card .pname { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .param-card .pval { font-size: 20px; font-weight: 800; }
+  .param-card.red .pval { color: var(--bad); }
+  .param-card:not(.red) .pval { color: var(--good); }
+  .param-card .ptarget { font-size: 10px; color: var(--muted-dim); margin-top: 2px; }
 
-    .content-area { padding: 28px 32px; overflow-y: auto; flex-grow: 1; text-align: center !important; }
+  /* Performance Card Container */
+  .perf-header {
+    background: linear-gradient(135deg, #16243f, #24345f);
+    border-radius: 10px; padding: 16px 20px; color: #fff; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; text-align: center;
+  }
+  .perf-header .ph-title { font-size: 18px; font-weight: 800; color: #fff; }
+  .perf-header .ph-meta { font-size: 11px; color: #aab2c5; margin-top: 2px; }
 
-    /* Glass KPI Cards */
-    .kpi-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px; padding: 20px;
-      box-shadow: var(--card-shadow);
-      height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center !important; transition: transform 0.25s ease, border-color 0.25s ease;
-    }
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
+  thead th {
+    text-align: center; font-size: 10px; color: var(--muted); font-weight: 700;
+    padding: 9.5px 10px; border-bottom: 1.5px solid var(--line); position: sticky; top: 0; background: var(--card);
+    text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;
+  }
+  tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; text-align: center; }
+  tbody tr:hover { background: #fafbfd; }
+  .table-wrap {
+    max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--line);
+    border-radius: 10px; -webkit-overflow-scrolling: touch; background: var(--card);
+  }
+  .num { font-family: var(--mono); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
+  .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
+  .pill.warn { background: var(--warn-dim); color: var(--warn); }
+  .cell-red { color: var(--bad); font-weight: 700; background: var(--bad-dim); }
 
-    .kpi-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(168, 85, 247, 0.4);
-    }
+  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted-dim); font-family: var(--mono); }
 
-    .kpi-title {
-      font-size: 0.76rem; font-weight: 700; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.04em;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-
-    .kpi-value {
-      font-family: 'Outfit', sans-serif; font-size: 1.7rem; font-weight: 800;
-      color: var(--text-white); margin: 6px 0 2px 0; text-align: center;
-    }
-
-    /* Container Box Wrappers */
-    .table-box {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px; padding: 24px;
-      box-shadow: var(--card-shadow); margin-top: 24px;
-      text-align: center !important;
-    }
-
-    .custom-table { width: 100%; font-size: 0.85rem; border-collapse: separate; border-spacing: 0; margin: 0 auto; }
-    .custom-table th {
-      color: var(--text-muted); font-size: 0.74rem; font-weight: 700;
-      text-transform: uppercase; padding: 12px 16px; border-bottom: 2px solid var(--glass-border);
-      background: rgba(255, 255, 255, 0.03); text-align: center !important;
-    }
-
-    .custom-table td {
-      padding: 14px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--text-white); font-weight: 500; text-align: center !important;
-    }
-
-    .custom-table tr:hover td { background: rgba(255, 255, 255, 0.04); }
-
-    .mobile-toggle {
-      display: none; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
-      padding: 8px 14px; border-radius: 12px; color: var(--text-white); margin-bottom: 8px;
-    }
-
-    .form-control, .form-select {
-      background: rgba(15, 23, 42, 0.7) !important;
-      border: 1px solid var(--glass-border) !important;
-      color: #ffffff !important; border-radius: 12px !important;
-    }
-
-    @media (max-width: 991px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.show { transform: translateX(0); }
-      .main-wrapper { margin-left: 0; }
-      .mobile-toggle { display: inline-flex; }
-      .content-area { padding: 18px 14px; }
-    }
-  </style>
+  @media (max-width: 1280px) {
+    .kpi-row, .leaderboard-grid, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .mobile-menu-btn { display: inline-block; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 240px; }
+    body.sidebar-open .sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-overlay { display: block; }
+    body.sidebar-collapsed .sidebar { width: 240px; }
+    #sidebarToggle { display: none; }
+    .topbar { padding: 10px 14px; }
+    main { padding: 12px 10px 30px; }
+    .grid-2, .grid-4, .leaderboard-grid { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  }
+</style>
 </head>
 <body>
 
-  <!-- Left Sidebar Navigation -->
-  <div class="sidebar" id="sidebar">
-    <div class="brand-box">
-      <div class="brand-logo"><i class="bi bi-shield-check"></i></div>
-      <div class="brand-name">Albatross Wings</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+<button class="sidebar-reopen" id="sidebarReopenBtn" onclick="toggleSidebar()" title="Open sidebar">☰</button>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <div class="sidebar-brand">
+      <div class="logo">AW</div>
+      <div class="name">Albatross Wings</div>
+      <button id="sidebarToggle" onclick="toggleSidebar()" title="Collapse sidebar">☰</button>
     </div>
-    <ul class="sidebar-menu" id="sidebarMenu">
-      <li><a href="#" class="sidebar-link active" onclick="nav('Dashboard')"><i class="bi bi-grid-fill text-purple"></i> Dashboard</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Performance Card')"><i class="bi bi-person-badge-fill text-info"></i> Performance Card</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Audit Details')"><i class="bi bi-card-checklist text-success"></i> Audit Details</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill text-danger"></i> Parameter Empathy</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('FCR & Service Delivery')"><i class="bi bi-layers-fill text-warning"></i> FCR & Service Delivery</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Complaint Escalation and DKB %')"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Complaint & DKB %</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Lag Adherence & Over Break')"><i class="bi bi-clock-history text-info"></i> Lag & Adherence</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('AHT & CFS')"><i class="bi bi-pie-chart-fill text-purple"></i> AHT & CFS</a></li>
-      <li><a href="#" class="sidebar-link" onclick="nav('Audited Call Details')"><i class="bi bi-telephone-fill text-primary"></i> Audited Call Details</a></li>
-    </ul>
+    <div class="sidebar-nav">
+      <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
+      <div class="nav-item" data-page="Performance Card" onclick="navTo('Performance Card')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>Performance Card</div>
+      <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
+      <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
+      <div class="nav-item" data-page="FCR & Service Delivery" onclick="navTo('FCR & Service Delivery')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR &amp; Service Delivery</div>
+      <div class="nav-item" data-page="Complaint Escalation and DKB %" onclick="navTo('Complaint Escalation and DKB %')"><span class="ic"><i class="bi bi-exclamation-triangle-fill"></i></span>Complaint &amp; DKB %</div>
+      <div class="nav-item" data-page="Lag Adherence & Over Break" onclick="navTo('Lag Adherence & Over Break')"><span class="ic"><i class="bi bi-clock-history"></i></span>Lag &amp; Adherence</div>
+      <div class="nav-item" data-page="AHT & CFS" onclick="navTo('AHT & CFS')"><span class="ic"><i class="bi bi-pie-chart-fill"></i></span>AHT &amp; CFS</div>
+      <div class="nav-item" data-page="Audited Call Details" onclick="navTo('Audited Call Details')"><span class="ic"><i class="bi bi-telephone-fill"></i></span>Audited Call Details</div>
+    </div>
+    <div class="sidebar-foot">Better Quality<br>Stronger Performance</div>
   </div>
+</div>
 
-  <!-- Main Content Wrapper -->
-  <div class="main-wrapper">
-    <div class="top-header">
-      <button class="mobile-toggle" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i> Menu</button>
-      <h1 class="page-title" id="pageTitle"><i class="bi bi-speedometer2 text-purple"></i> Dashboard</h1>
-      <p class="page-sub" id="pageSub">Team performance summary</p>
-      <div class="live-badge" id="liveBadge">● Live Sync Active</div>
-    </div>
-
-    <div class="content-area" id="mainView">
-      <div class="text-center py-5">
-        <div class="spinner-border text-light" role="status"></div>
-        <p class="mt-2 text-muted small fw-bold">Loading dark glassmorphism data.json...</p>
+<!-- MAIN WORKSPACE -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
+      <div>
+        <h1 id="pageTitle">Dashboard Overview</h1>
       </div>
     </div>
+    <div class="status-cluster">
+      <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
+      <button id="refreshBtn" onclick="loadDashboard(true)">Refresh now</button>
+    </div>
   </div>
 
-  <script>
-    let appData = null;
-    let currentTab = 'Dashboard';
+  <main>
+    <!-- 1. DASHBOARD OVERVIEW -->
+    <div class="page active" id="page-Dashboard">
+      <section>
+        <div class="section-head"><h2>TL Performance Summary (Mohammad Imam Hossain)</h2></div>
+        <div class="kpi-row" id="tlKpiGrid"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div>
+        <div class="leaderboard-grid" id="leaderboardGrid"></div>
+      </section>
+    </div>
 
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
+    <!-- 2. PERFORMANCE CARD -->
+    <div class="page" id="page-Performance Card">
+      <div class="filterbar">
+        <div class="fgroup">
+          <label>Select Active Agent</label>
+          <select id="agentSelect" onchange="renderAgentCard(this.value)"></select>
+        </div>
+      </div>
+      <div id="perfCardBox"></div>
+    </div>
 
-    async function loadData() {
-      try {
-        const res = await fetch('./data.json?t=' + new Date().getTime());
-        appData = await res.json();
-        
-        if (appData.lastUpdated) {
-          const dt = new Date(appData.lastUpdated);
-          document.getElementById('liveBadge').innerHTML = `● Live Sync: ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
-        }
+    <!-- 3. AUDIT DETAILS -->
+    <div class="page" id="page-Audit Details">
+      <section>
+        <div class="kpi-row mb-3" id="auditSummaryKpis"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Active Agent Audit Summary</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent Name</th><th>Total Audit</th><th>Pass</th><th>Fail</th>
+                <th>CE% (Fail Rate)</th><th>Empathy Pass (Sum)</th><th>Empathy Fail (Sum)</th><th>Empathy Pass%</th>
+              </tr>
+            </thead>
+            <tbody id="auditDetailsTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-        render(currentTab);
-      } catch (err) {
-        console.error(err);
-        document.getElementById('mainView').innerHTML = `<div class="alert alert-danger">Failed to load data.json. Ensure Apps Script sync has executed.</div>`;
-      }
-    }
+    <!-- 4. PARAMETER WISE EMPATHY -->
+    <div class="page" id="page-Parameter wise Empathy">
+      <section>
+        <div class="section-head"><h2>Team Average (8 Empathy Parameters)</h2></div>
+        <div class="grid-4 mb-3" id="empathyTeamKpis"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Active Agent Empathy Breakdown</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead id="empathyHeader"></thead>
+            <tbody id="empathyBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-    function nav(tabName) {
-      currentTab = tabName;
-      document.querySelectorAll('#sidebarMenu .sidebar-link').forEach(l => {
-        l.classList.toggle('active', l.innerText.includes(tabName));
-      });
-      document.getElementById('sidebar').classList.remove('show');
-      render(tabName);
-    }
+    <!-- 5. FCR & SERVICE DELIVERY -->
+    <div class="page" id="page-FCR & Service Delivery">
+      <section>
+        <div class="kpi-row mb-3" id="fcrSdKpis"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Agent FCR & Service Delivery Data</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Service Delivery Count</th></tr></thead>
+            <tbody id="fcrSdTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-    function render(tab) {
-      const view = document.getElementById('mainView');
-      const title = document.getElementById('pageTitle');
-      const sub = document.getElementById('pageSub');
-
-      if (!appData) return;
-
-      // 1. DASHBOARD OVERVIEW WITH LEADERBOARDS
-      if (tab === 'Dashboard') {
-        title.innerHTML = `<i class="bi bi-speedometer2 text-purple"></i> TL Performance Overview`;
-        sub.innerText = "Supervisor: Mohammad Imam Hossain";
-        const tl = appData.tlSummary || {};
-        const lb = appData.leaderboards || {};
-
-        view.innerHTML = `
-          <!-- Top TL KPI Cards Grid -->
-          <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-hash text-purple"></i> Total Audits</div><div class="kpi-value">${tl.totalAudit || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check-circle-fill text-success"></i> Pass / Pass %</div><div class="kpi-value text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-x-circle-fill text-danger"></i> Total Fail</div><div class="kpi-value text-danger">${tl.totalFail || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-heart-fill text-info"></i> Total Empathy Pass</div><div class="kpi-value text-info">${tl.totalEmpathyPass || 0}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-pie-chart-fill text-primary"></i> Team CFS %</div><div class="kpi-value">${tl.teamCfs || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-clock-fill text-warning"></i> Team AHT</div><div class="kpi-value">${tl.aht || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-graph-up-arrow text-success"></i> Team FCR %</div><div class="kpi-value">${tl.fcr || 'N/A'}</div></div></div>
-            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Complaints / SD</div><div class="kpi-value">${tl.complaintEscalation || 0} / ${tl.sdCount || 0}</div></div></div>
+    <!-- 6. COMPLAINT ESCALATION AND DKB % -->
+    <div class="page" id="page-Complaint Escalation and DKB %">
+      <div class="grid-2">
+        <section>
+          <div class="section-head"><h2>Complaint Escalation Table</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total</th><th>Escalation %</th></tr></thead>
+              <tbody id="complaintTable"></tbody>
+            </table>
           </div>
+        </section>
+        <section>
+          <div class="section-head"><h2>DKB % Attendance Table</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health</th></tr></thead>
+              <tbody id="dkbTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
 
-          <!-- Agent Leaderboards Section -->
-          <div class="table-box">
-            <h4 class="fw-bold fs-5 mb-4 text-center"><i class="bi bi-trophy-fill text-warning me-2"></i> Agent Leaderboard (Top 05 Highlights)</h4>
-            <div class="row g-3">
-              
-              <!-- Top 5 CFS -->
-              <div class="col-12 col-md-6 col-lg-3">
-                <div class="kpi-card p-3">
-                  <div class="fw-bold text-info mb-2"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
-                  <table class="custom-table">
-                    <thead><tr><th>#</th><th>AGENT</th><th>CFS %</th></tr></thead>
-                    <tbody>
-                      ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-success">${a.cfsDisplay}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+    <!-- 7. LAG ADHERENCE & OVER BREAK -->
+    <div class="page" id="page-Lag Adherence & Over Break">
+      <section>
+        <div class="kpi-row mb-3" id="lagAdhKpis"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Agent Name</th><th>Adherence %</th><th>Extra Break</th><th>Lag Time</th><th>Ready Time</th></tr></thead>
+            <tbody id="lagAdhTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-              <!-- Top 5 AHT -->
-              <div class="col-12 col-md-6 col-lg-3">
-                <div class="kpi-card p-3">
-                  <div class="fw-bold text-warning mb-2"><i class="bi bi-lightning-charge-fill text-warning"></i> TOP 05 AHT</div>
-                  <table class="custom-table">
-                    <thead><tr><th>#</th><th>AGENT</th><th>AHT</th></tr></thead>
-                    <tbody>
-                      ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-warning">${a.ahtDisplay}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+    <!-- 8. AHT & CFS -->
+    <div class="page" id="page-AHT & CFS">
+      <section>
+        <div class="kpi-row mb-3" id="ahtCfsKpis"></div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Agent Name</th><th>AHT (Sec)</th><th>AHT Status</th><th>CFS %</th><th>CFS Status</th></tr></thead>
+            <tbody id="ahtCfsTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-              <!-- Top 5 Empathy -->
-              <div class="col-12 col-md-6 col-lg-3">
-                <div class="kpi-card p-3">
-                  <div class="fw-bold text-danger mb-2"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
-                  <table class="custom-table">
-                    <thead><tr><th>#</th><th>AGENT</th><th>EMPATHY%</th></tr></thead>
-                    <tbody>
-                      ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-danger">${a.empathyDisplay}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- Top 5 CE -->
-              <div class="col-12 col-md-6 col-lg-3">
-                <div class="kpi-card p-3">
-                  <div class="fw-bold text-purple mb-2"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
-                  <table class="custom-table">
-                    <thead><tr><th>#</th><th>AGENT</th><th>CE FAILS</th></tr></thead>
-                    <tbody>
-                      ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="fw-bold text-danger">${a.ceCount}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-            </div>
-          </div>`;
-        return;
-      }
-
-      // 2. PERFORMANCE CARD
-      if (tab === 'Performance Card') {
-        title.innerHTML = `<i class="bi bi-person-badge-fill text-info"></i> Active Agent Performance Card`;
-        sub.innerText = "Select active agent to view detailed card";
-        const list = appData.sheets['Performance Card'] || [];
-
-        let selectHtml = `<div class="table-box mb-4">
-          <label class="fw-bold mb-2 small text-muted"><i class="bi bi-filter text-purple"></i> SELECT ACTIVE AGENT:</label>
-          <select class="form-select w-auto fw-bold mx-auto text-center" onchange="renderAgentCard(this.value)">
-            ${list.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
+    <!-- 9. AUDITED CALL DETAILS -->
+    <div class="page" id="page-Audited Call Details">
+      <div class="filterbar">
+        <div class="fgroup" style="max-width:280px;">
+          <label>Search Record</label>
+          <input type="text" id="callSearch" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()">
+        </div>
+        <div class="fgroup" style="min-width:160px;">
+          <label>Result Filter</label>
+          <select id="resultFilter" onchange="filterCalls()">
+            <option value="">All Results (Pass & Fail)</option>
+            <option value="pass">Pass Only</option>
+            <option value="fail">Fail Only</option>
           </select>
-        </div><div id="cardBox"></div>`;
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Agent Name</th><th>Contact Date</th><th>Audit Party</th><th>ANI</th><th>Call Topic</th><th>Fail Remarks</th><th>Result</th></tr>
+          </thead>
+          <tbody id="callTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 
-        view.innerHTML = selectHtml;
-        if (list.length > 0) renderAgentCard(list[0].name);
-        return;
+  <footer id="footerNote">—</footer>
+</div>
+
+<script>
+  let appData = null;
+  let activeTab = 'Dashboard';
+
+  function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
+  function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
+
+  async function loadDashboard(manual = false) {
+    const btn = document.getElementById('refreshBtn');
+    if (manual && btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+
+    try {
+      const res = await fetch('./data.json?t=' + new Date().getTime());
+      appData = await res.json();
+
+      const chip = document.getElementById('liveChip');
+      const liveMeta = document.getElementById('liveMeta');
+
+      if (appData.lastUpdated) {
+        const dt = new Date(appData.lastUpdated);
+        liveMeta.innerText = `Live · updated ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
+        chip.classList.remove('stale');
       }
 
-      // 3. AUDIT DETAILS
-      if (tab === 'Audit Details') {
-        title.innerHTML = `<i class="bi bi-card-checklist text-success"></i> Audit Details`;
-        sub.innerText = "Active Agents Audit Performance & Empathy Sums";
-        const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
+      renderView(activeTab);
+    } catch (err) {
+      console.error("Data load failed:", err);
+      document.getElementById('liveChip').classList.add('stale');
+      document.getElementById('liveMeta').innerText = 'Connection Error';
+    } finally {
+      if (manual && btn) { btn.disabled = false; btn.textContent = 'Refresh now'; }
+    }
+  }
 
-        view.innerHTML = `
-          <div class="row g-3 mb-4">
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-x-circle-fill text-danger"></i> Agents with Audit Fail</div><div class="kpi-value text-danger">${details.summary.failAgentCount || 0}</div></div></div>
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-exclamation-circle-fill text-warning"></i> Empathy Target Not Met (<87.50%)</div><div class="kpi-value text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div></div>
-          </div>
-          <div class="table-box">
-            <h5 class="fw-bold fs-6 mb-3"><i class="bi bi-table text-purple"></i> Active Agent Audit Summary</h5>
-            <div class="table-responsive">
-              <table class="custom-table">
-                <thead><tr><th>AGENT NAME</th><th>TOTAL AUDIT</th><th>PASS</th><th>FAIL</th><th>CE% (FAIL RATE)</th><th>EMPATHY PASS (SUM)</th><th>EMPATHY FAIL (SUM)</th><th>EMPATHY PASS%</th></tr></thead>
-                <tbody>
-                  ${details.list.map(a => `
-                    <tr>
-                      <td class="fw-bold">${a.agentName}</td>
-                      <td>${a.totalAudits}</td>
-                      <td class="text-success fw-bold">${a.totalPass}</td>
-                      <td class="text-danger fw-bold">${a.totalFail}</td>
-                      <td class="text-danger fw-bold">${a.cePercent}</td>
-                      <td class="text-info fw-bold">${a.empathyPass}</td>
-                      <td class="text-muted">${a.empathyFail}</td>
-                      <td class="${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
-                    </tr>`).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>`;
-        return;
-      }
+  function navTo(tabName) {
+    activeTab = tabName;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-      // 4. PARAMETER WISE EMPATHY
-      if (tab === 'Parameter wise Empathy') {
-        title.innerHTML = `<i class="bi bi-heart-pulse-fill text-danger"></i> Parameter wise Empathy`;
-        sub.innerText = "Team Average 8 Empathy Parameters & Active Agents Breakdown";
-        const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
+    const activePage = document.getElementById('page-' + tabName);
+    if (activePage) activePage.classList.add('active');
 
-        let kpiHtml = `<div class="row g-2 mb-4">`;
-        Object.keys(emp.teamAvg).forEach(p => {
-          kpiHtml += `<div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check2-square text-purple"></i> ${p}</div><div class="kpi-value text-info">${emp.teamAvg[p]}</div></div></div>`;
-        });
-        kpiHtml += `</div>`;
+    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
+    if (activeNav) activeNav.classList.add('active');
 
-        let tableHtml = `<div class="table-box"><h5 class="fw-bold fs-6 mb-3"><i class="bi bi-grid-3x3 text-purple"></i> Active Agent Empathy Scores</h5><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th>`;
-        const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity / Communication', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
-        headers.forEach(h => tableHtml += `<th>${h}</th>`);
-        tableHtml += `</tr></thead><tbody>`;
+    document.getElementById('pageTitle').innerText = tabName;
+    document.body.classList.remove('sidebar-open');
+    renderView(tabName);
+  }
 
-        emp.agentList.forEach(a => {
-          tableHtml += `<tr><td class="fw-bold">${a.agentName}</td>`;
-          headers.forEach(h => tableHtml += `<td>${a[h] || 'N/A'}</td>`);
-          tableHtml += `</tr>`;
-        });
-        tableHtml += `</tbody></table></div></div>`;
+  function renderView(tab) {
+    if (!appData) return;
 
-        view.innerHTML = kpiHtml + tableHtml;
-        return;
-      }
+    // 1. DASHBOARD
+    if (tab === 'Dashboard') {
+      const tl = appData.tlSummary || {};
+      const lb = appData.leaderboards || {};
 
-      // 5. FCR & SERVICE DELIVERY
-      if (tab === 'FCR & Service Delivery') {
-        title.innerHTML = `<i class="bi bi-layers-fill text-warning"></i> FCR & Service Delivery`;
-        sub.innerText = "Empathy Target >=92% & Service Delivery Counts";
-        const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
+      document.getElementById('tlKpiGrid').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${tl.totalFail || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Total Empathy Pass</span></div><div class="kpi-num">${tl.totalEmpathyPass || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${tl.teamCfs || 'N/A'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${tl.aht || 'N/A'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num">${tl.fcr || 'N/A'}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-triangle-fill"></i></div><span class="kpi-label">Complaints / SD</span></div><div class="kpi-num">${tl.complaintEscalation || 0} / ${tl.sdCount || 0}</div></div>
+      `;
 
-        view.innerHTML = `
-          <div class="row g-3 mb-4">
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-award-fill text-success"></i> Empathy Target Met (>= 92%)</div><div class="kpi-value text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div></div>
-            <div class="col-6 col-md-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-truck text-info"></i> Agents with Service Delivery</div><div class="kpi-value text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div></div>
-          </div>
-          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>VDI ID</th><th>FCR %</th><th>SERVICE DELIVERY COUNT</th></tr></thead><tbody>
-          ${fcrSd.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.vdiId}</td><td>${a.fcrPercent}</td><td>${a.serviceDeliveryCount}</td></tr>`).join('')}
-          </tbody></table></div></div>`;
-        return;
-      }
-
-      // 6. COMPLAINT ESCALATION AND DKB %
-      if (tab === 'Complaint Escalation and DKB %') {
-        title.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> Complaint Escalation & DKB %`;
-        sub.innerText = "Active Agents Complaint Escalation & Attendance DKB %";
-        const list = appData.sheets['Complaint Escalation and DKB %'] || [];
-
-        view.innerHTML = `
-          <div class="row g-3">
-            <div class="col-12 col-lg-6">
-              <div class="table-box">
-                <h5 class="fw-bold fs-6 mb-3 text-warning"><i class="bi bi-file-earmark-text-fill me-2"></i> Complaint Escalation Table</h5>
-                <div class="table-responsive">
-                  <table class="custom-table">
-                    <thead><tr><th>AGENT NAME</th><th>VALID</th><th>INVALID</th><th>TOTAL</th><th>ESCALATION %</th></tr></thead>
-                    <tbody>
-                      ${list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td class="text-success fw-bold">${a.valid}</td><td class="text-danger fw-bold">${a.invalid}</td><td>${a.totalComplaints}</td><td class="fw-bold text-info">${a.escalationPercent}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-              <div class="table-box">
-                <h5 class="fw-bold fs-6 mb-3 text-info"><i class="bi bi-calendar-check-fill me-2"></i> DKB % Attendance Table</h5>
-                <div class="table-responsive">
-                  <table class="custom-table">
-                    <thead><tr><th>AGENT NAME</th><th>PRESENT</th><th>ABSENT</th><th>DKB % (PRESENT%)</th><th>HEALTH</th></tr></thead>
-                    <tbody>
-                      ${list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td class="text-success fw-bold">${a.present}</td><td class="text-danger fw-bold">${a.absent}</td><td class="fw-bold text-info">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>`;
-        return;
-      }
-
-      // 7. LAG ADHERENCE & OVER BREAK
-      if (tab === 'Lag Adherence & Over Break') {
-        title.innerHTML = `<i class="bi bi-clock-history text-info"></i> Lag Adherence & Over Break`;
-        sub.innerText = "Adherence Target = 100%";
-        const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-
-        view.innerHTML = `
-          <div class="row g-3 mb-4">
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-cup-hot-fill text-warning"></i> Over Break</div><div class="kpi-value text-warning">${lagAdh.summary.overBreakCount || 0}</div></div></div>
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-hourglass-split text-danger"></i> Lag Count</div><div class="kpi-value text-danger">${lagAdh.summary.lagCount || 0}</div></div></div>
-            <div class="col-4"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-slash-circle-fill text-danger"></i> Adherence < 100%</div><div class="kpi-value text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div></div>
-          </div>
-          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>ADHERENCE %</th><th>EXTRA BREAK</th><th>LAG TIME</th><th>READY TIME</th></tr></thead><tbody>
-          ${lagAdh.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.adherence}</td><td>${a.extraBreak}</td><td>${a.lagTime}</td><td>${a.readyTime}</td></tr>`).join('')}
-          </tbody></table></div></div>`;
-        return;
-      }
-
-      // 8. AHT & CFS
-      if (tab === 'AHT & CFS') {
-        title.innerHTML = `<i class="bi bi-pie-chart-fill text-purple"></i> AHT & CFS`;
-        sub.innerText = "AHT Target <=170s | CFS Target >=90%";
-        const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-
-        view.innerHTML = `
-          <div class="row g-3 mb-4">
-            <div class="col-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-speedometer text-success"></i> AHT Target Met (<=170s)</div><div class="kpi-value text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div></div>
-            <div class="col-6"><div class="kpi-card"><div class="kpi-title"><i class="bi bi-check-all text-success"></i> CFS Target Met (>=90%)</div><div class="kpi-value text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div></div>
-          </div>
-          <div class="table-box"><div class="table-responsive"><table class="custom-table"><thead><tr><th>AGENT NAME</th><th>AHT (SEC)</th><th>AHT STATUS</th><th>CFS %</th><th>CFS STATUS</th></tr></thead><tbody>
-          ${ahtCfs.list.map(a => `<tr><td class="fw-bold">${a.agentName}</td><td>${a.ahtSec}</td><td><span class="badge ${a.ahtStatus === 'Target Met' ? 'bg-success' : 'bg-warning'}">${a.ahtStatus}</span></td><td>${a.cfsPercent}</td><td><span class="badge ${a.cfsStatus === 'Target Met' ? 'bg-success' : 'bg-secondary'}">${a.cfsStatus}</span></td></tr>`).join('')}
-          </tbody></table></div></div>`;
-        return;
-      }
-
-      // 9. AUDITED CALL DETAILS
-      if (tab === 'Audited Call Details') {
-        title.innerHTML = `<i class="bi bi-telephone-fill text-primary"></i> Audited Call Details`;
-        sub.innerText = "Raw Call Audit Records for Active Agents";
-        const calls = appData.sheets['Audited Call Details'] || [];
-
-        view.innerHTML = `
-          <div class="table-box">
-            <div class="row g-2 mb-3">
-              <div class="col-12 col-md-6"><input type="text" id="callSearch" class="form-control form-control-sm text-center" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
-              <div class="col-12 col-md-6">
-                <select id="resultFilter" class="form-select form-select-sm text-center" onchange="filterCalls()">
-                  <option value="">All Results (Pass & Fail)</option>
-                  <option value="pass">Pass Only</option>
-                  <option value="fail">Fail Only</option>
-                </select>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="custom-table" id="callTable">
-                <thead><tr><th>AGENT NAME</th><th>CONTACT DATE</th><th>AUDIT PARTY</th><th>ANI</th><th>TOPIC</th><th>FAIL REMARKS</th><th>RESULT</th></tr></thead>
-                <tbody id="callBody">
-                  ${renderCallRows(calls)}
-                </tbody>
-              </table>
-            </div>
-          </div>`;
-        return;
-      }
+      document.getElementById('leaderboardGrid').innerHTML = `
+        <div class="param-card">
+          <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
+          ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>
+        <div class="param-card">
+          <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
+          ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>
+        <div class="param-card">
+          <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
+          ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>
+        <div class="param-card red">
+          <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
+          ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td>${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>
+      `;
+      return;
     }
 
-    function renderAgentCard(agentName) {
+    // 2. PERFORMANCE CARD
+    if (tab === 'Performance Card') {
       const list = appData.sheets['Performance Card'] || [];
-      const agent = list.find(a => a.name === agentName);
-      const box = document.getElementById('cardBox');
-
-      if (!agent) { box.innerHTML = ''; return; }
-
-      box.innerHTML = `
-        <div class="kpi-card p-4 mx-auto" style="max-width: 800px;">
-          <div class="border-bottom border-secondary pb-3 mb-3">
-            <h3 class="fw-extrabold text-info mb-1">${agent.name}</h3>
-            <div class="text-muted small fw-bold">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor}</div>
-            <span class="badge bg-success mt-2">Active Agent</span>
-          </div>
-          <div class="row g-3">
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">AHT</small><span class="fw-bold fs-6">${agent.aht}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">ADHERENCE %</small><span class="fw-bold fs-6">${agent.adherence}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">LOGIN COMPLIANCE</small><span class="fw-bold fs-6">${agent.loginCompliance}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">FCR %</small><span class="fw-bold fs-6">${agent.fcr}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">EMPATHY PASS</small><span class="fw-bold fs-6 text-success">${agent.empathyPass}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">GP SCORE</small><span class="fw-bold fs-6">${agent.gpScore}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">PRESENT % (DKB)</small><span class="fw-bold fs-6">${agent.presentPercent}</span></div></div>
-            <div class="col-6 col-md-3"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">HEALTH</small><span class="fw-bold fs-6">${agent.health}</span></div></div>
-            <div class="col-6 col-md-6"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">SERVICE DELIVERY COUNT</small><span class="fw-bold fs-6 text-info">${agent.sdCount}</span></div></div>
-            <div class="col-6 col-md-6"><div class="p-3 bg-dark rounded-3 border border-secondary"><small class="text-muted d-block fw-bold">COMPLAINT TICKETS</small><span class="fw-bold fs-6 text-danger">${agent.complaintCount}</span></div></div>
-          </div>
-        </div>`;
+      const select = document.getElementById('agentSelect');
+      select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+      if (list.length > 0) renderAgentCard(list[0].name);
+      return;
     }
 
-    function renderCallRows(calls) {
-      return calls.map(c => `
+    // 3. AUDIT DETAILS
+    if (tab === 'Audit Details') {
+      const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
+      document.getElementById('auditSummaryKpis').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Agents with Audit Fail</span></div><div class="kpi-num text-danger">${details.summary.failAgentCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Target Not Met (<87.50%)</span></div><div class="kpi-num text-warning">${details.summary.empathyTargetBelowCount || 0}</div></div>
+      `;
+
+      document.getElementById('auditDetailsTable').innerHTML = details.list.map(a => `
+        <tr>
+          <td class="fw-bold">${a.agentName}</td>
+          <td class="num">${a.totalAudits}</td>
+          <td class="num text-success">${a.totalPass}</td>
+          <td class="num text-danger">${a.totalFail}</td>
+          <td class="num cell-red">${a.cePercent}</td>
+          <td class="num text-primary">${a.empathyPass}</td>
+          <td class="num">${a.empathyFail}</td>
+          <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
+        </tr>`).join('');
+      return;
+    }
+
+    // 4. PARAMETER WISE EMPATHY
+    if (tab === 'Parameter wise Empathy') {
+      const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
+      let kpiHtml = '';
+      Object.keys(emp.teamAvg).forEach(p => {
+        kpiHtml += `<div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-check2-square"></i></div><span class="kpi-label">${p}</span></div><div class="kpi-num text-primary">${emp.teamAvg[p]}</div></div>`;
+      });
+      document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
+
+      const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity / Communication', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
+      document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+      document.getElementById('empathyBody').innerHTML = emp.agentList.map(a => `
+        <tr>
+          <td class="fw-bold">${a.agentName}</td>
+          ${headers.map(h => `<td class="num">${a[h] || 'N/A'}</td>`).join('')}
+        </tr>`).join('');
+      return;
+    }
+
+    // 5. FCR & SERVICE DELIVERY
+    if (tab === 'FCR & Service Delivery') {
+      const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
+      document.getElementById('fcrSdKpis').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">Empathy Target Met (>= 92%)</span></div><div class="kpi-num text-success">${fcrSd.summary.empathyMeet92Count || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">Agents with Service Delivery</span></div><div class="kpi-num text-info">${fcrSd.summary.agentsWithSdCount || 0}</div></div>
+      `;
+
+      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num">${a.fcrPercent}</td><td class="num">${a.serviceDeliveryCount}</td></tr>
+      `).join('');
+      return;
+    }
+
+    // 6. COMPLAINT ESCALATION AND DKB %
+    if (tab === 'Complaint Escalation and DKB %') {
+      const list = appData.sheets['Complaint Escalation and DKB %'] || [];
+      document.getElementById('complaintTable').innerHTML = list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary">${a.escalationPercent}</td></tr>
+      `).join('');
+
+      document.getElementById('dkbTable').innerHTML = list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info">${a.dkbPercent}</td><td>${a.health}</td></tr>
+      `).join('');
+      return;
+    }
+
+    // 7. LAG ADHERENCE & OVER BREAK
+    if (tab === 'Lag Adherence & Over Break') {
+      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
+      document.getElementById('lagAdhKpis').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Count</span></div><div class="kpi-num text-warning">${lagAdh.summary.overBreakCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-hourglass-split"></i></div><span class="kpi-label">Lag Count</span></div><div class="kpi-num text-danger">${lagAdh.summary.lagCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-slash-circle-fill"></i></div><span class="kpi-label">Adherence < 100%</span></div><div class="kpi-num text-danger">${lagAdh.summary.adhNotMetCount || 0}</div></div>
+      `;
+
+      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `
+        <tr><td class="fw-bold">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num">${a.extraBreak}</td><td class="num">${a.lagTime}</td><td class="num">${a.readyTime}</td></tr>
+      `).join('');
+      return;
+    }
+
+    // 8. AHT & CFS
+    if (tab === 'AHT & CFS') {
+      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
+      document.getElementById('ahtCfsKpis').innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${ahtCfs.summary.ahtMetCount || 0}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${ahtCfs.summary.cfsMetCount || 0}</div></div>
+      `;
+
+      document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `
+        <tr>
+          <td class="fw-bold">${a.agentName}</td>
+          <td class="num">${a.ahtSec}</td>
+          <td><span class="pill ${a.ahtStatus === 'Target Met' ? 'good' : 'warn'}">${a.ahtStatus}</span></td>
+          <td class="num">${a.cfsPercent}</td>
+          <td><span class="pill ${a.cfsStatus === 'Target Met' ? 'good' : 'bad'}">${a.cfsStatus}</span></td>
+        </tr>
+      `).join('');
+      return;
+    }
+
+    // 9. AUDITED CALL DETAILS
+    if (tab === 'Audited Call Details') {
+      filterCalls();
+      return;
+    }
+  }
+
+  function renderAgentCard(agentName) {
+    const list = appData.sheets['Performance Card'] || [];
+    const agent = list.find(a => a.name === agentName);
+    const box = document.getElementById('perfCardBox');
+
+    if (!agent) { box.innerHTML = ''; return; }
+
+    box.innerHTML = `
+      <div class="perf-header">
+        <div>
+          <div class="ph-title">${agent.name}</div>
+          <div class="ph-meta">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor}</div>
+        </div>
+        <span class="pill good">Active Agent</span>
+      </div>
+      <div class="grid-4">
+        <div class="kpi-card"><span class="kpi-label">AHT</span><span class="kpi-num">${agent.aht}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Adherence %</span><span class="kpi-num">${agent.adherence}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Login Compliance</span><span class="kpi-num">${agent.loginCompliance}</span></div>
+        <div class="kpi-card"><span class="kpi-label">FCR %</span><span class="kpi-num">${agent.fcr}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Empathy Pass</span><span class="kpi-num text-success">${agent.empathyPass}</span></div>
+        <div class="kpi-card"><span class="kpi-label">GP Score</span><span class="kpi-num">${agent.gpScore}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Present % (DKB)</span><span class="kpi-num">${agent.presentPercent}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Health</span><span class="kpi-num">${agent.health}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Service Delivery Count</span><span class="kpi-num text-info">${agent.sdCount}</span></div>
+        <div class="kpi-card"><span class="kpi-label">Complaint Tickets</span><span class="kpi-num text-danger">${agent.complaintCount}</span></div>
+      </div>`;
+  }
+
+  function filterCalls() {
+    const q = (document.getElementById('callSearch')?.value || '').toLowerCase();
+    const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
+    const calls = appData?.sheets['Audited Call Details'] || [];
+
+    const filtered = calls.filter(c => {
+      const matchQ = JSON.stringify(c).toLowerCase().includes(q);
+      const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
+      return matchQ && matchRes;
+    });
+
+    const tbody = document.getElementById('callTableBody');
+    if (tbody) {
+      tbody.innerHTML = filtered.map(c => `
         <tr>
           <td class="fw-bold">${c.agentName}</td>
           <td>${c.contactDate}</td>
           <td>${c.auditParty}</td>
-          <td>${c.ani}</td>
+          <td class="num">${c.ani}</td>
           <td>${c.callTopic}</td>
           <td class="text-danger">${c.failTopic}</td>
-          <td><span class="badge ${String(c.result).toLowerCase() === 'pass' ? 'bg-success' : 'bg-danger'}">${c.result}</span></td>
+          <td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'good' : 'bad'}">${c.result}</span></td>
         </tr>`).join('');
     }
+  }
 
-    function filterCalls() {
-      const q = document.getElementById('callSearch').value.toLowerCase();
-      const resFilter = document.getElementById('resultFilter').value.toLowerCase();
-      const calls = appData.sheets['Audited Call Details'] || [];
-
-      const filtered = calls.filter(c => {
-        const matchQ = JSON.stringify(c).toLowerCase().includes(q);
-        const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
-        return matchQ && matchRes;
-      });
-
-      document.getElementById('callBody').innerHTML = renderCallRows(filtered);
-    }
-
-    document.addEventListener('DOMContentLoaded', loadData);
-  </script>
+  document.addEventListener('DOMContentLoaded', () => { loadDashboard(); });
+</script>
 </body>
 </html>
