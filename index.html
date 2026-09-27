@@ -647,11 +647,9 @@
 
     const passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
     const failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
-    const cePercentVal = totalAudit > 0 ? ((ceFails / totalAudit) * 100) : 0;
 
     const passPercent = passPercentVal.toFixed(1) + '%';
     const failPercent = failPercentVal.toFixed(1) + '%';
-    const cePercent = cePercentVal.toFixed(1) + '%';
 
     let empPassSum = 0, empFailSum = 0;
     filteredCalls.forEach(c => {
@@ -714,7 +712,6 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail / Fail %</span></div><div class="kpi-num text-danger">${totalFail} (${failPercent})</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-triangle-fill"></i></div><span class="kpi-label">Critical Error (CE) %</span></div><div class="kpi-num text-danger">${ceFails} (${cePercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy %</span></div><div class="kpi-num text-purple">${empathyPercent}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num">${cfsVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} AHT</span></div><div class="kpi-num">${ahtVal}</div></div>
@@ -1025,163 +1022,161 @@
     const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
     const isAhtMet = !isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0;
 
-    const escNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
-    const isEscMet = !isNaN(escNum) && escNum >= 95.0;
+    const escPctNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
+    const isEscMet = !isNaN(escPctNum) && escPctNum >= 95;
 
-    const obStr = String(agent.overBreak).toLowerCase();
-    const isObMet = obStr === '0m' || obStr === '0' || obStr === '0.0m';
-
-    const lagStr = String(agent.lagHour).toLowerCase();
-    const isLagMet = lagStr === '0h 0m' || lagStr === '0h' || lagStr === '0' || lagStr === '0m';
+    const dkbPctNum = parseFloat(String(agent.dkbPct).replace('%', ''));
+    const isDkbMet = !isNaN(dkbPctNum) && dkbPctNum >= 95;
 
     const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
-    const isAdhMet = !isNaN(adhNum) && adhNum >= 100.0;
+    const isAdhMet = !isNaN(adhNum) && adhNum >= 100;
 
-    const dkbNum = parseFloat(String(agent.dkbPct).replace('%', ''));
-    const isDkbMet = !isNaN(dkbNum) && dkbNum >= 95.0;
-
-    const ceNum = parseInt(agent.ceCount) || 0;
-    const isCeMet = ceNum === 0;
+    const rtcNum = parseFloat(String(agent.rtcAccuracyPct).replace('%', ''));
+    const isRtcMet = !isNaN(rtcNum) && rtcNum >= 87.5;
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
           <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">ID: ${agent.id} | VDI ID: ${agent.vdiId} | Supervisor: ${agent.supervisor} | Total Audits: ${agent.totalAudits}</div>
+          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor}</div>
         </div>
 
         <div class="pdf-grid-3">
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">AUDIT FAIL %</div>
+            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target Meet' : 'Fail Found'}</span>
+            <div class="pdf-kpi-title">Audit Fail Rate</div>
             <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
-            <div class="pdf-kpi-sub">Target: 0.00% | Pass: ${agent.passCount} / Fail: ${agent.failCount}</div>
+            <div class="pdf-kpi-sub">Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">EMPATHY %</div>
+            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">Empathy Pass %</div>
             <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
-            <div class="pdf-kpi-sub">Target: 87.5% | Pass: ${agent.empathyPassSum} / Fail: ${agent.empathyFailSum}</div>
+            <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">AVERAGE AHT</div>
-            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-danger'}">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: <=170s</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">ESCALATION ACCURACY %</div>
-            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Target: 95.0% | Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isObMet ? 'delivered' : 'missed'}">${isObMet ? 'Target meet' : 'Over Break'}</span>
-            <div class="pdf-kpi-title">OVER BREAK</div>
-            <div class="pdf-kpi-value ${isObMet ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
-            <div class="pdf-kpi-sub">Extra Break Duration</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isLagMet ? 'delivered' : 'missed'}">${isLagMet ? 'Target meet' : 'Lag Recorded'}</span>
-            <div class="pdf-kpi-title">LAG HOUR</div>
-            <div class="pdf-kpi-value ${isLagMet ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
-            <div class="pdf-kpi-sub">Total Lag Time</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">ADHERENCE %</div>
-            <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-danger'}">${agent.adherencePct}</div>
-            <div class="pdf-kpi-sub">Target: 100%</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target meet' : 'Target Missed'}</span>
-            <div class="pdf-kpi-title">DKB %</div>
-            <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
-            <div class="pdf-kpi-sub">Target: 95%</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge delivered">Delivered</span>
-            <div class="pdf-kpi-title">SERVICE DELIVERY (SD)</div>
-            <div class="pdf-kpi-value text-success">${agent.sdCount}</div>
-            <div class="pdf-kpi-sub">Total SD Count</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isCeMet ? 'delivered' : 'missed'}">${isCeMet ? 'Target meet' : 'CE Found'}</span>
-            <div class="pdf-kpi-title">CRITICAL ERROR (CE) COUNT</div>
-            <div class="pdf-kpi-value ${isCeMet ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
+            <span class="pdf-badge ${agent.ceCount === 0 ? 'delivered' : 'missed'}">${agent.ceCount === 0 ? 'CE Free' : 'CE Found'}</span>
+            <div class="pdf-kpi-title">Critical Error Count</div>
+            <div class="pdf-kpi-value ${agent.ceCount === 0 ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
             <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge delivered">Status</span>
-            <div class="pdf-kpi-title">RTC ACCURACY %</div>
-            <div class="pdf-kpi-value">${agent.rtcAccuracyPct}</div>
-            <div class="pdf-kpi-sub">RTC Verification Status</div>
+            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Meet' : 'Exceeds Target'}</span>
+            <div class="pdf-kpi-title">AHT (Seconds)</div>
+            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
+            <div class="pdf-kpi-sub">Target: <= 170s</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">Escalation Accuracy</div>
+            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
+            <div class="pdf-kpi-sub">Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'delivered' : 'missed'}">${agent.overBreak === '0m' || agent.overBreak === '0' ? 'No Extra Break' : 'Extra Break Taken'}</span>
+            <div class="pdf-kpi-title">Over Break</div>
+            <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
+            <div class="pdf-kpi-sub">Target: 0m</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'delivered' : 'missed'}">${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'Zero Lag' : 'Lag Recorded'}</span>
+            <div class="pdf-kpi-title">Lag Hour</div>
+            <div class="pdf-kpi-value ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
+            <div class="pdf-kpi-sub">Target: 0h 0m</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? '100% Adhered' : 'Below 100%'}</span>
+            <div class="pdf-kpi-title">Adherence %</div>
+            <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
+            <div class="pdf-kpi-sub">Target: 100.0%</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">DKB %</div>
+            <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
+            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${agent.sdCount > 0 ? 'delivered' : 'missed'}">${agent.sdCount > 0 ? 'Delivered' : 'None'}</span>
+            <div class="pdf-kpi-title">Service Delivery Count</div>
+            <div class="pdf-kpi-value text-info">${agent.sdCount}</div>
+            <div class="pdf-kpi-sub">Total SDs generated</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isRtcMet ? 'delivered' : 'missed'}">${isRtcMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">RTC Accuracy %</div>
+            <div class="pdf-kpi-value ${isRtcMet ? 'text-success' : 'text-danger'}">${agent.rtcAccuracyPct}</div>
+            <div class="pdf-kpi-sub">Target: >= 87.5%</div>
           </div>
         </div>
-      </div>`;
-  }
-
-  function downloadPerformanceCardPdf() {
-    const element = document.getElementById('pdfCardTarget');
-    if (!element) { alert('Performance Card not found.'); return; }
-
-    element.classList.add('pdf-export-mode');
-
-    const filename = `${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}_Performance_Card.pdf`;
-    const opt = {
-      margin:       [0.15, 0.15, 0.15, 0.15],
-      filename:     filename,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
-      pagebreak:    { mode: 'avoid-all' }
-    };
-
-    html2pdf().set(opt).from(element).save().then(() => {
-      element.classList.remove('pdf-export-mode');
-    }).catch(err => {
-      console.error(err);
-      element.classList.remove('pdf-export-mode');
-    });
+      </div>
+    `;
   }
 
   function filterCalls() {
-    const q = (document.getElementById('callSearch')?.value || '').toLowerCase();
+    if (!appData) return;
+    const search = (document.getElementById('callSearch')?.value || '').toLowerCase();
     const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
-    const calls = appData?.sheets['Audited Call Details'] || [];
+    const list = appData.sheets['Audited Call Details'] || [];
 
-    const filtered = calls.filter(c => {
-      const matchQ = JSON.stringify(c).toLowerCase().includes(q);
-      const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
-      return matchQ && matchRes;
+    const filtered = list.filter(c => {
+      const name = String(c.agentName || '').toLowerCase();
+      const ani = String(c.ani || '').toLowerCase();
+      const topic = String(c.callTopic || '').toLowerCase();
+      const res = String(c.result || '').toLowerCase();
+
+      const matchSearch = !search || name.includes(search) || ani.includes(search) || topic.includes(search);
+      const matchRes = !resFilter || res === resFilter;
+
+      return matchSearch && matchRes;
     });
 
-    const tbody = document.getElementById('callTableBody');
-    if (tbody) {
-      tbody.innerHTML = filtered.map(c => `
-        <tr>
-          <td class="fw-bold text-start">${c.agentName}</td>
-          <td>${c.contactDate}</td>
-          <td>${c.auditParty}</td>
-          <td class="num">${c.ani}</td>
-          <td>${c.callTopic}</td>
-          <td class="text-danger">${c.failTopic}</td>
-          <td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'good' : 'bad'}">${c.result}</span></td>
-        </tr>`).join('');
-    }
+    document.getElementById('callTableBody').innerHTML = filtered.map(c => `
+      <tr>
+        <td class="fw-bold text-start">${c.agentName}</td>
+        <td class="num">${c.contactDate}</td>
+        <td>${c.auditParty}</td>
+        <td class="num">${c.ani}</td>
+        <td class="text-start">${c.callTopic}</td>
+        <td class="text-start text-danger">${c.failTopic}</td>
+        <td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td>
+      </tr>
+    `).join('');
   }
 
-  document.addEventListener('DOMContentLoaded', () => { loadDashboard(); });
+  function downloadPerformanceCardPdf() {
+    const cardEl = document.getElementById('pdfCardTarget');
+    if (!cardEl) return;
+
+    cardEl.classList.add('pdf-export-mode');
+
+    const opt = {
+      margin:       [0.2, 0.2, 0.2, 0.2],
+      filename:     `Performance_Card_${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(cardEl).save().then(() => {
+      cardEl.classList.remove('pdf-export-mode');
+    }).catch(err => {
+      console.error("PDF generation failed:", err);
+      cardEl.classList.remove('pdf-export-mode');
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => { loadDashboard(false); });
 </script>
 </body>
 </html>
