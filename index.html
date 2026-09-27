@@ -463,6 +463,11 @@
     }
   }
 
+  // Automatic Background Data Polling for Mobile & Web Users (Every 30 seconds)
+  setInterval(() => {
+    loadDashboard(false);
+  }, 30000);
+
   function navTo(tabName) {
     activeTab = tabName;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -534,8 +539,12 @@
     if (tab === 'Performance Card') {
       const list = appData.sheets['Performance Card'] || [];
       const select = document.getElementById('agentSelect');
+      const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      if (list.length > 0) renderAgentCard(list[0].name);
+      if (prevVal && list.some(a => a.name === prevVal)) {
+        select.value = prevVal;
+      }
+      if (list.length > 0) renderAgentCard(select.value || list[0].name);
       return;
     }
 
@@ -571,7 +580,7 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (SCORE >= 87.5% GREEN, < 87.5% RED)
+    // 4. PARAMETER WISE EMPATHY
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       let kpiHtml = '';
@@ -674,7 +683,7 @@
       return;
     }
 
-    // 8. AHT & CFS (N/A CFS AGENTS EXCLUDED FROM DENOMINATOR)
+    // 8. AHT & CFS
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const sum = ahtCfs.summary || {};
