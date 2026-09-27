@@ -157,7 +157,7 @@
   .lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
   .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
 
-  /* PERFORMANCE CARD PDF CONTAINER */
+  /* PERFORMANCE CARD CONTAINER & PDF OPTIMIZATION */
   .pdf-card-wrapper {
     background: #f8fafc; border-radius: 14px; padding: 20px; border: 1px solid var(--line); max-width: 1000px; margin: 0 auto;
   }
@@ -181,6 +181,31 @@
   }
   .pdf-badge.missed { background: #fdecea; color: #e0503f; }
   .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
+
+  /* STRICT PDF EXPORT PRINT STYLES FOR SINGLE PAGE */
+  .pdf-export-mode {
+    width: 960px !important;
+    max-width: 960px !important;
+    padding: 16px !important;
+    background: #f8fafc !important;
+    border-radius: 10px !important;
+  }
+  .pdf-export-mode .pdf-header-bar {
+    padding: 12px 16px !important;
+    margin-bottom: 12px !important;
+  }
+  .pdf-export-mode .pdf-agent-name { font-size: 18px !important; }
+  .pdf-export-mode .pdf-grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .pdf-export-mode .pdf-kpi-card {
+    height: 92px !important;
+    padding: 8px 10px !important;
+  }
+  .pdf-export-mode .pdf-kpi-title { font-size: 9.5px !important; }
+  .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
+  .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
@@ -540,9 +565,24 @@
     });
 
     const totalAudit = filteredCalls.length;
-    const totalPass = filteredCalls.filter(c => String(c.result || '').toLowerCase() === 'pass').length;
-    const totalFail = filteredCalls.filter(c => String(c.result || '').toLowerCase() === 'fail').length;
-    const passPercent = totalAudit > 0 ? ((totalPass / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
+    let totalPass = 0;
+    let totalFail = 0;
+
+    filteredCalls.forEach(c => {
+      const resVal = String(c.result || '').trim().toLowerCase();
+      if (resVal === 'pass') {
+        totalPass++;
+      } else if (resVal === 'fail') {
+        totalFail++;
+      }
+    });
+
+    // Pass % and Fail % calculation - Ensuring exact 100% distribution without gap
+    const passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
+    const failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
+
+    const passPercent = passPercentVal.toFixed(1) + '%';
+    const failPercent = failPercentVal.toFixed(1) + '%';
 
     const ceFails = filteredCalls.filter(c => {
       const ceVal = String(c.criticalError || '').toLowerCase();
@@ -561,7 +601,7 @@
     const tl = appData.tlSummary || {};
     let teamCfs = tl.teamCfs || 'N/A';
     let teamAht = tl.aht || 'N/A';
-    let teamFcr = tl.fcr || 'N/A'; // Default Team FCR (TL wise: Mohammad Imam Hossain)
+    let teamFcr = tl.fcr || 'N/A'; // Strict: Sourced from FCR sheet Mohammad Imam Hossain
     let compPct = tl.complaintEscalationPct || '0%';
     let sdCount = tl.sdCount || 0;
     let dkbPct = tl.dkbPercent || 'N/A';
@@ -596,7 +636,7 @@
       grid.innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${totalFail}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail / Fail %</span></div><div class="kpi-num text-danger">${totalFail} (${failPercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div><span class="kpi-label">Total CE %</span></div><div class="kpi-num text-danger">${cePercent}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">GP Call Empathy %</span></div><div class="kpi-num text-purple">${gpEmpathyPercent}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num">${teamCfs}</div></div>
@@ -659,7 +699,7 @@
       return;
     }
 
-    // 3. AUDIT DETAILS (Fixed runtime bug and loaded from IB agent wise data)
+    // 3. AUDIT DETAILS
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
@@ -687,8 +727,8 @@
         });
 
         const totalAudits = agentAudits.length;
-        const passes = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'pass').length;
-        const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'fail').length;
+        const passes = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'pass').length;
+        const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'fail').length;
 
         const ceFails = agentAudits.filter(r => {
           const ceVal = String(r.criticalError || r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
@@ -829,7 +869,7 @@
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK (Removed 0m, 0h from labels)
+    // 7. LAG ADHERENCE & OVER BREAK
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
       const sum = lagAdh.summary || {};
@@ -856,7 +896,7 @@
       return;
     }
 
-    // 8. AHT & CFS (Target meet badge made GREEN)
+    // 8. AHT & CFS
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const sum = ahtCfs.summary || {};
@@ -1015,20 +1055,30 @@
       </div>`;
   }
 
+  // Strict Single-Page PDF export handler for Mobile & Desktop
   function downloadPerformanceCardPdf() {
     const element = document.getElementById('pdfCardTarget');
     if (!element) { alert('Performance Card not found.'); return; }
 
+    // Temporarily add export mode class to lock dimensions for exact single-page fit
+    element.classList.add('pdf-export-mode');
+
     const filename = `${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}_Performance_Card.pdf`;
     const opt = {
-      margin:       0.3,
+      margin:       [0.15, 0.15, 0.15, 0.15],
       filename:     filename,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
+      pagebreak:    { mode: 'avoid-all' }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+      element.classList.remove('pdf-export-mode');
+    }).catch(err => {
+      console.error(err);
+      element.classList.remove('pdf-export-mode');
+    });
   }
 
   function filterCalls() {
