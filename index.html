@@ -561,19 +561,33 @@
     const tl = appData.tlSummary || {};
     let teamCfs = tl.teamCfs || 'N/A';
     let teamAht = tl.aht || 'N/A';
-    let teamFcr = tl.fcr || 'N/A';
+    let teamFcr = tl.fcr || 'N/A'; // Default Team FCR (TL wise: Mohammad Imam Hossain)
     let compPct = tl.complaintEscalationPct || '0%';
     let sdCount = tl.sdCount || 0;
     let dkbPct = tl.dkbPercent || 'N/A';
 
+    // Agent Selected -> Show Agent's individual CFS & FCR
     if (selectedAgent) {
       const perfList = appData.sheets['Performance Card'] || [];
       const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
+      
+      const fcrSdList = appData.sheets['FCR & Service Delivery']?.list || [];
+      const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
+
+      const ahtCfsList = appData.sheets['AHT & CFS']?.list || [];
+      const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
+
       if (agentPerf) {
         teamAht = agentPerf.aht || 'N/A';
         compPct = agentPerf.escalationAccuracyPct || '0%';
         sdCount = agentPerf.sdCount || 0;
         dkbPct = agentPerf.dkbPct || 'N/A';
+      }
+      if (agentAhtCfs) {
+        teamCfs = agentAhtCfs.cfsPercent || 'N/A';
+      }
+      if (agentFcr) {
+        teamFcr = agentFcr.fcrPercent || 'N/A';
       }
     }
 
@@ -585,9 +599,9 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${totalFail}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div><span class="kpi-label">Total CE %</span></div><div class="kpi-num text-danger">${cePercent}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">GP Call Empathy %</span></div><div class="kpi-num text-purple">${gpEmpathyPercent}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${teamCfs}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num">${teamCfs}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${teamAht}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num text-success">${teamFcr}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} FCR %</span></div><div class="kpi-num text-success">${teamFcr}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${compPct}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${sdCount}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">Team DKB %</span></div><div class="kpi-num text-info">${dkbPct}</div></div>
@@ -645,7 +659,7 @@
       return;
     }
 
-    // 3. AUDIT DETAILS
+    // 3. AUDIT DETAILS (Fixed runtime bug and loaded from IB agent wise data)
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
@@ -715,7 +729,7 @@
       const tot = activeAgents.length;
       document.getElementById('auditSummaryKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${failFreeCountAgent} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${failAgentCount} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${failCountAgent} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target meet (>=87.5%)</span></div><div class="kpi-num text-success">${empathyMetCount} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${empathyBelowTargetAgent} / ${tot}</div></div>
       `;
@@ -815,7 +829,7 @@
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK
+    // 7. LAG ADHERENCE & OVER BREAK (Removed 0m, 0h from labels)
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
       const sum = lagAdh.summary || {};
@@ -823,8 +837,8 @@
       const tot = sum.totalAgents || list.length;
 
       document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Meet</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Meet</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Target Meet</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time Target Meet</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${tot}</div></div>
       `;
 
@@ -842,7 +856,7 @@
       return;
     }
 
-    // 8. AHT & CFS
+    // 8. AHT & CFS (Target meet badge made GREEN)
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const sum = ahtCfs.summary || {};
@@ -855,15 +869,19 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${validCfsCount}</div></div>
       `;
 
-      document.getElementById('ahtCfsTable').innerHTML = list.map(a => `
+      document.getElementById('ahtCfsTable').innerHTML = list.map(a => {
+        const isAhtTargetMeet = String(a.ahtStatus).toLowerCase().includes('target meet');
+        const isCfsTargetMeet = String(a.cfsStatus).toLowerCase().includes('target meet');
+
+        return `
         <tr>
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.ahtSec}</td>
-          <td><span class="pill ${a.ahtStatus === 'Target meet' ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
+          <td><span class="pill ${isAhtTargetMeet ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
           <td class="num">${a.cfsPercent}</td>
-          <td><span class="pill ${a.cfsStatus === 'Target meet' ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
-        </tr>
-      `).join('');
+          <td><span class="pill ${isCfsTargetMeet ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
+        </tr>`;
+      }).join('');
       return;
     }
 
