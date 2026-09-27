@@ -277,6 +277,22 @@
   <main>
     <!-- 1. DASHBOARD OVERVIEW -->
     <div class="page active" id="page-Dashboard">
+      <div class="filterbar">
+        <div class="fgroup">
+          <label>IB Agent Wise Filter</label>
+          <select id="dashAgentFilter" onchange="renderDashboardKpis()">
+            <option value="">All Active Agents</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label>Audit Party Filter</label>
+          <select id="dashAuditPartyFilter" onchange="renderDashboardKpis()">
+            <option value="">All Audit Parties</option>
+            <option value="GP">GP</option>
+            <option value="Genex">Genex</option>
+          </select>
+        </div>
+      </div>
       <section>
         <div class="section-head"><h2>Team Performance Summary</h2></div>
         <div class="kpi-row" id="tlKpiGrid"></div>
@@ -301,15 +317,13 @@
 
     <!-- 3. AUDIT DETAILS -->
     <div class="page" id="page-Audit Details">
-      <!-- Audit Party Filter Option Added Here -->
       <div class="filterbar">
         <div class="fgroup">
           <label>Audit Party Filter</label>
-          <select id="auditPartyFilter" onchange="loadDashboard(false)">
+          <select id="auditPartyFilter" onchange="renderView('Audit Details')">
             <option value="">All Audit Parties</option>
             <option value="GP">GP</option>
-            <option value="Internal">Internal</option>
-            <option value="External">External</option>
+            <option value="Genex">Genex</option>
           </select>
         </div>
       </div>
@@ -475,10 +489,7 @@
     }
   }
 
-  // Automatic Background Data Polling every 30 seconds for instant updates
-  setInterval(() => {
-    loadDashboard(false);
-  }, 30000);
+  setInterval(() => { loadDashboard(false); }, 30000);
 
   function navTo(tabName) {
     activeTab = tabName;
@@ -496,27 +507,101 @@
     renderView(tabName);
   }
 
+  function renderDashboardKpis() {
+    if (!appData) return;
+
+    // Populate Agent Select Dropdown if empty
+    const agentSelect = document.getElementById('dashAgentFilter');
+    if (agentSelect && agentSelect.options.length <= 1) {
+      const activeAgents = appData.sheets['Alignment'] || [];
+      activeAgents.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a['Name'];
+        opt.textContent = a['Name'];
+        agentSelect.appendChild(opt);
+      });
+    }
+
+    const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
+    const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
+
+    const allCalls = appData.sheets['Audited Call Details'] || [];
+
+    // Filter audits dynamically based on Agent and Audit Party (GP / Genex)
+    const filteredCalls = allCalls.filter(c => {
+      const agentName = String(c.agentName || '').toLowerCase();
+      const vdi = String(c.vdiId || '').toLowerCase();
+      const party = String(c.auditParty || '').toLowerCase();
+
+      const matchAgent = !selectedAgent || agentName === selectedAgent || vdi === selectedAgent;
+      const matchParty = !selectedParty || party.includes(selectedParty);
+
+      return matchAgent && matchParty;
+    });
+
+    const totalAudit = filteredCalls.length;
+    const totalPass = filteredCalls.filter(c => String(c.result || '').toLowerCase() === 'pass').length;
+    const totalFail = filteredCalls.filter(c => String(c.result || '').toLowerCase() === 'fail').length;
+    const passPercent = totalAudit > 0 ? ((totalPass / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
+
+    const ceFails = filteredCalls.filter(c => {
+      const ceVal = String(c.criticalError || '').toLowerCase();
+      return ceVal === '1' || ceVal.includes('fail') || ceVal.includes('yes');
+    }).length;
+    const cePercent = totalAudit > 0 ? ((ceFails / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
+
+    let empPassSum = 0, empFailSum = 0;
+    filteredCalls.forEach(c => {
+      empPassSum += (parseInt(c.empPass) || 0);
+      empFailSum += (parseInt(c.empFail) || 0);
+    });
+    const empTotal = empPassSum + empFailSum;
+    const gpEmpathyPercent = empTotal > 0 ? ((empPassSum / empTotal) * 100).toFixed(1) + '%' : '0.0%';
+
+    const tl = appData.tlSummary || {};
+    let teamCfs = tl.teamCfs || 'N/A';
+    let teamAht = tl.aht || 'N/A';
+    let teamFcr = tl.fcr || 'N/A';
+    let compPct = tl.complaintEscalationPct || '0%';
+    let sdCount = tl.sdCount || 0;
+    let dkbPct = tl.dkbPercent || 'N/A';
+
+    if (selectedAgent) {
+      const perfList = appData.sheets['Performance Card'] || [];
+      const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
+      if (agentPerf) {
+        teamAht = agentPerf.aht || 'N/A';
+        compPct = agentPerf.escalationAccuracyPct || '0%';
+        sdCount = agentPerf.sdCount || 0;
+        dkbPct = agentPerf.dkbPct || 'N/A';
+      }
+    }
+
+    const grid = document.getElementById('tlKpiGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${totalFail}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div><span class="kpi-label">Total CE %</span></div><div class="kpi-num text-danger">${cePercent}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">GP Call Empathy %</span></div><div class="kpi-num text-purple">${gpEmpathyPercent}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${teamCfs}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${teamAht}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num text-success">${teamFcr}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${compPct}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${sdCount}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">Team DKB %</span></div><div class="kpi-num text-info">${dkbPct}</div></div>
+      `;
+    }
+  }
+
   function renderView(tab) {
     if (!appData) return;
 
     // 1. DASHBOARD
     if (tab === 'Dashboard') {
-      const tl = appData.tlSummary || {};
+      renderDashboardKpis();
       const lb = appData.leaderboards || {};
-
-      document.getElementById('tlKpiGrid').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Total Fail</span></div><div class="kpi-num text-danger">${tl.totalFail || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div><span class="kpi-label">Total CE %</span></div><div class="kpi-num text-danger">${tl.cePercent || '0.0%'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">GP Call Empathy %</span></div><div class="kpi-num text-purple">${tl.gpEmpathyPercent || '0.0%'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${tl.teamCfs || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${tl.aht || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num text-success">${tl.fcr || 'N/A'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${tl.complaintEscalationPct || '0%'}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${tl.sdCount || 0}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">Team DKB %</span></div><div class="kpi-num text-info">${tl.dkbPercent || 'N/A'}</div></div>
-      `;
 
       document.getElementById('leaderboardGrid').innerHTML = `
         <div class="lb-card">
@@ -560,16 +645,15 @@
       return;
     }
 
-    // 3. AUDIT DETAILS (With Audit Party Filter Applied)
+    // 3. AUDIT DETAILS
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const activeAgents = appData.sheets['Alignment'] || [];
 
-      // Filter audited calls based on selected audit party if any
       const filteredAudits = allCalls.filter(c => {
         if (!partyFilter) return true;
-        return String(c.auditParty).toLowerCase().includes(partyFilter);
+        return String(c.auditParty || '').toLowerCase().includes(partyFilter);
       });
 
       let auditDetailsList = [];
@@ -583,17 +667,17 @@
         const name = String(agent['Name'] || '').trim().toLowerCase();
 
         const agentAudits = filteredAudits.filter(r => {
-          const rVdi = String(r['VDI ID'] || '').trim().toLowerCase();
-          const rName = String(r['Agent Name'] || r['Evaluatee Name'] || '').trim().toLowerCase();
+          const rVdi = String(r.vdiId || r['VDI ID'] || '').trim().toLowerCase();
+          const rName = String(r.agentName || r['Agent Name'] || r['Evaluatee Name'] || '').trim().toLowerCase();
           return (vdi && rVdi === vdi) || (name && rName === name);
         });
 
         const totalAudits = agentAudits.length;
-        const passes = agentAudits.filter(r => String(r['result'] || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'pass').length;
-        const fails = agentAudits.filter(r => String(r['result'] || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'fail').length;
-        
+        const passes = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'pass').length;
+        const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'fail').length;
+
         const ceFails = agentAudits.filter(r => {
-          const ceVal = String(r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
+          const ceVal = String(r.criticalError || r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
           return ceVal === '1' || ceVal.includes('fail') || ceVal.includes('yes');
         }).length;
 
@@ -601,8 +685,8 @@
 
         let empPassSum = 0, empFailSum = 0;
         agentAudits.forEach(call => {
-          empPassSum += parseInt(call['Total Emp Parameter Pass Count'] || call['Emp Pass'] || 0) || 0;
-          empFailSum += parseInt(call['Total Emp Parameter Fail Count'] || call['Emp Fail'] || 0) || 0;
+          empPassSum += parseInt(call.empPass || call['Total Emp Parameter Pass Count'] || call['Emp Pass'] || 0) || 0;
+          empFailSum += parseInt(call.empFail || call['Total Emp Parameter Fail Count'] || call['Emp Fail'] || 0) || 0;
         });
 
         const empTotal = empPassSum + empFailSum;
@@ -632,7 +716,7 @@
       document.getElementById('auditSummaryKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${failFreeCountAgent} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${failAgentCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target Met (>=87.5%)</span></div><div class="kpi-num text-success">${empathyMetCount} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target meet (>=87.5%)</span></div><div class="kpi-num text-success">${empathyMetCount} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${empathyBelowTargetAgent} / ${tot}</div></div>
       `;
 
@@ -699,7 +783,7 @@
       const tot = sum.totalAgents || fcrSd.list.length;
 
       document.getElementById('fcrSdKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target Met (>= 92%)</span></div><div class="kpi-num text-success">${sum.fcrMeet92Count || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target meet (>= 92%)</span></div><div class="kpi-num text-success">${sum.fcrMeet92Count || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">With Service Delivery</span></div><div class="kpi-num text-info">${sum.agentsWithSdCount || 0} / ${tot}</div></div>
       `;
 
@@ -717,8 +801,8 @@
       const tot = sum.totalAgents || list.length;
 
       document.getElementById('compDkbKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target Met (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target Met (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target meet (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target meet (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('complaintTable').innerHTML = list.map(a => `
@@ -739,9 +823,9 @@
       const tot = sum.totalAgents || list.length;
 
       document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Met</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Met</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Met</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break 0m Meet</span></div><div class="kpi-num text-success">${sum.overBreakZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time 0h Meet</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${tot}</div></div>
       `;
 
       document.getElementById('lagAdhTable').innerHTML = list.map(a => {
@@ -767,17 +851,17 @@
       const validCfsCount = sum.validCfsAgentCount !== undefined ? sum.validCfsAgentCount : tot;
 
       document.getElementById('ahtCfsKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target Met (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target Met (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${validCfsCount}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target meet (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${validCfsCount}</div></div>
       `;
 
       document.getElementById('ahtCfsTable').innerHTML = list.map(a => `
         <tr>
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.ahtSec}</td>
-          <td><span class="pill ${a.ahtStatus === 'Target Met' ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
+          <td><span class="pill ${a.ahtStatus === 'Target meet' ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
           <td class="num">${a.cfsPercent}</td>
-          <td><span class="pill ${a.cfsStatus === 'Target Met' ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
+          <td><span class="pill ${a.cfsStatus === 'Target meet' ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
         </tr>
       `).join('');
       return;
@@ -790,7 +874,6 @@
     }
   }
 
-  // DYNAMIC PERFORMANCE CARD RENDER
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
     const list = appData.sheets['Performance Card'] || [];
@@ -835,56 +918,56 @@
 
         <div class="pdf-grid-3">
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">AUDIT FAIL %</div>
             <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
             <div class="pdf-kpi-sub">Target: 0.00% | Pass: ${agent.passCount} / Fail: ${agent.failCount}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">EMPATHY %</div>
             <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
             <div class="pdf-kpi-sub">Target: 87.5% | Pass: ${agent.empathyPassSum} / Fail: ${agent.empathyFailSum}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">AVERAGE AHT</div>
             <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-danger'}">${agent.aht}</div>
             <div class="pdf-kpi-sub">Target: <=170s</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">ESCALATION ACCURACY %</div>
             <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
             <div class="pdf-kpi-sub">Target: 95.0% | Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isObMet ? 'delivered' : 'missed'}">${isObMet ? 'Target Met' : 'Over Break'}</span>
+            <span class="pdf-badge ${isObMet ? 'delivered' : 'missed'}">${isObMet ? 'Target meet' : 'Over Break'}</span>
             <div class="pdf-kpi-title">OVER BREAK</div>
             <div class="pdf-kpi-value ${isObMet ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
             <div class="pdf-kpi-sub">Extra Break Duration</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isLagMet ? 'delivered' : 'missed'}">${isLagMet ? 'Target Met' : 'Lag Recorded'}</span>
+            <span class="pdf-badge ${isLagMet ? 'delivered' : 'missed'}">${isLagMet ? 'Target meet' : 'Lag Recorded'}</span>
             <div class="pdf-kpi-title">LAG HOUR</div>
             <div class="pdf-kpi-value ${isLagMet ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
             <div class="pdf-kpi-sub">Total Lag Time</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">ADHERENCE %</div>
             <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-danger'}">${agent.adherencePct}</div>
             <div class="pdf-kpi-sub">Target: 100%</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target Met' : 'Target Missed'}</span>
+            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target meet' : 'Target Missed'}</span>
             <div class="pdf-kpi-title">DKB %</div>
             <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
             <div class="pdf-kpi-sub">Target: 95%</div>
@@ -898,7 +981,7 @@
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isCeMet ? 'delivered' : 'missed'}">${isCeMet ? 'Target Met' : 'CE Found'}</span>
+            <span class="pdf-badge ${isCeMet ? 'delivered' : 'missed'}">${isCeMet ? 'Target meet' : 'CE Found'}</span>
             <div class="pdf-kpi-title">CRITICAL ERROR (CE) COUNT</div>
             <div class="pdf-kpi-value ${isCeMet ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
             <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
