@@ -301,6 +301,18 @@
 
     <!-- 3. AUDIT DETAILS -->
     <div class="page" id="page-Audit Details">
+      <!-- Audit Party Filter Option Added Here -->
+      <div class="filterbar">
+        <div class="fgroup">
+          <label>Audit Party Filter</label>
+          <select id="auditPartyFilter" onchange="loadDashboard(false)">
+            <option value="">All Audit Parties</option>
+            <option value="GP">GP</option>
+            <option value="Internal">Internal</option>
+            <option value="External">External</option>
+          </select>
+        </div>
+      </div>
       <section><div class="kpi-row mb-3" id="auditSummaryKpis"></div></section>
       <section>
         <div class="section-head"><h2>Active Agent Audit Summary</h2></div>
@@ -463,7 +475,7 @@
     }
   }
 
-  // Automatic Background Data Polling for Mobile & Web Users (Every 30 seconds)
+  // Automatic Background Data Polling every 30 seconds for instant updates
   setInterval(() => {
     loadDashboard(false);
   }, 30000);
@@ -548,20 +560,83 @@
       return;
     }
 
-    // 3. AUDIT DETAILS
+    // 3. AUDIT DETAILS (With Audit Party Filter Applied)
     if (tab === 'Audit Details') {
-      const details = appData.sheets['Audit Details'] || { summary: {}, list: [] };
-      const sum = details.summary || {};
-      const tot = sum.totalAgents || details.list.length;
+      const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
+      const allCalls = appData.sheets['Audited Call Details'] || [];
+      const activeAgents = appData.sheets['Alignment'] || [];
 
+      // Filter audited calls based on selected audit party if any
+      const filteredAudits = allCalls.filter(c => {
+        if (!partyFilter) return true;
+        return String(c.auditParty).toLowerCase().includes(partyFilter);
+      });
+
+      let auditDetailsList = [];
+      let failCountAgent = 0;
+      let failFreeCountAgent = 0;
+      let empathyMetCount = 0;
+      let empathyBelowTargetAgent = 0;
+
+      activeAgents.forEach(agent => {
+        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
+        const name = String(agent['Name'] || '').trim().toLowerCase();
+
+        const agentAudits = filteredAudits.filter(r => {
+          const rVdi = String(r['VDI ID'] || '').trim().toLowerCase();
+          const rName = String(r['Agent Name'] || r['Evaluatee Name'] || '').trim().toLowerCase();
+          return (vdi && rVdi === vdi) || (name && rName === name);
+        });
+
+        const totalAudits = agentAudits.length;
+        const passes = agentAudits.filter(r => String(r['result'] || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'pass').length;
+        const fails = agentAudits.filter(r => String(r['result'] || r['Pass or Fail'] || r['Pass'] || '').toLowerCase() === 'fail').length;
+        
+        const ceFails = agentAudits.filter(r => {
+          const ceVal = String(r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
+          return ceVal === '1' || ceVal.includes('fail') || ceVal.includes('yes');
+        }).length;
+
+        const cePercent = totalAudits > 0 ? ((ceFails / totalAudits) * 100).toFixed(1) + '%' : '0.0%';
+
+        let empPassSum = 0, empFailSum = 0;
+        agentAudits.forEach(call => {
+          empPassSum += parseInt(call['Total Emp Parameter Pass Count'] || call['Emp Pass'] || 0) || 0;
+          empFailSum += parseInt(call['Total Emp Parameter Fail Count'] || call['Emp Fail'] || 0) || 0;
+        });
+
+        const empTotal = empPassSum + empFailSum;
+        const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
+        const empPercent = empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%';
+
+        if (totalAudits > 0) {
+          if (fails === 0) failFreeCountAgent++; else failCountAgent++;
+          if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++;
+        }
+
+        auditDetailsList.push({
+          agentName: agent['Name'],
+          vdiId: agent['VDI ID'],
+          id: agent['ID'],
+          totalAudits: totalAudits,
+          totalPass: passes,
+          totalFail: fails,
+          cePercent: cePercent,
+          empathyPass: empPassSum,
+          empathyFail: empFailSum,
+          empathyPassPercent: empPercent
+        });
+      });
+
+      const tot = activeAgents.length;
       document.getElementById('auditSummaryKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${sum.failFreeCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${sum.failAgentCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target Met (>=87.5%)</span></div><div class="kpi-num text-success">${sum.empathyMetCount || 0} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${sum.empathyTargetBelowCount || 0} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${failFreeCountAgent} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${failAgentCount} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target Met (>=87.5%)</span></div><div class="kpi-num text-success">${empathyMetCount} / ${tot}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${empathyBelowTargetAgent} / ${tot}</div></div>
       `;
 
-      document.getElementById('auditDetailsTable').innerHTML = details.list.map(a => {
+      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => {
         const ceNum = parseFloat(String(a.cePercent).replace('%', ''));
         const isCeZero = isNaN(ceNum) || ceNum === 0;
 
