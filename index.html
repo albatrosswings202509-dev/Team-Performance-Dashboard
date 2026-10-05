@@ -612,16 +612,16 @@
     renderView(activeTab);
   }
 
-  // Enhanced Month Match Function with Flexible Parsing
-  function matchMonth(itemMonth) {
-    if (!selectedGlobalMonth) return true;
-    if (!itemMonth || String(itemMonth).trim() === '') return true; // Don't filter out shared agent records
+ // Guaranteed Safe Month Matcher
+function matchMonth(itemMonth) {
+  if (!selectedGlobalMonth || selectedGlobalMonth === '') return true;
+  if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return true; 
 
-    const sel = selectedGlobalMonth.toLowerCase();
-    const item = String(itemMonth).trim().toLowerCase();
+  const sel = selectedGlobalMonth.toLowerCase().trim();
+  const item = String(itemMonth).toLowerCase().trim();
 
-    return item.includes(sel) || sel.includes(item);
-  }
+  return item.includes(sel) || sel.includes(item);
+}
 
   function navTo(tabName) {
     activeTab = tabName;
