@@ -584,12 +584,25 @@
     const select = document.getElementById('globalMonthFilter');
     if (!select || !appData) return;
 
-    let monthSet = new Set(appData.availableMonths || []);
+    let monthSet = new Set();
 
+    // Collect valid months only from records that actually exist in the data
     const allCalls = appData.sheets['Audited Call Details'] || [];
-    allCalls.forEach(c => { if (c.month) monthSet.add(c.month); });
+    allCalls.forEach(c => {
+      if (c.month && String(c.month).trim() !== '' && String(c.month).toLowerCase() !== 'n/a') {
+        monthSet.add(String(c.month).trim());
+      }
+    });
 
-    const sortedMonths = Array.from(monthSet).filter(Boolean).sort();
+    if (appData.availableMonths && Array.isArray(appData.availableMonths)) {
+      appData.availableMonths.forEach(m => {
+        if (m && String(m).trim() !== '' && String(m).toLowerCase() !== 'n/a') {
+          monthSet.add(String(m).trim());
+        }
+      });
+    }
+
+    const sortedMonths = Array.from(monthSet).sort();
     const currentVal = select.value;
     select.innerHTML = '<option value="">All Months (Entire Data)</option>';
     
@@ -611,14 +624,15 @@
     renderView(activeTab);
   }
 
+  // Strict Month Matcher: If a month is selected, DO NOT show records with missing/empty/N/A months
   function matchMonth(itemMonth) {
-    if (!selectedGlobalMonth || selectedGlobalMonth === '') return true;
-    if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return true; 
+    if (!selectedGlobalMonth || selectedGlobalMonth === '') return true; // All Months selected
+    if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return false; // Strict: Empty/N/A month data will NOT show when a specific month filter is set
 
     const sel = selectedGlobalMonth.toLowerCase().trim();
     const item = String(itemMonth).toLowerCase().trim();
 
-    return item.includes(sel) || sel.includes(item);
+    return item === sel || item.includes(sel) || sel.includes(item);
   }
 
   // Active Agent Checker for non-dashboard sheets
@@ -633,8 +647,9 @@
       const aVdi = String(a['VDI ID'] || a.vdiId || a.VDI || '').trim().toLowerCase();
       const st = String(a.Status || a.status || 'active').trim().toLowerCase();
 
-      const match = (n && aName === n) || (v && aVdi === v);
-      return match && st === 'active';
+      const match = (n && aName && (aName === n || aName.includes(n) || n.includes(aName))) ||
+                    (v && aVdi && aVdi === v);
+      return match && (st === 'active' || st === '');
     });
   }
 
