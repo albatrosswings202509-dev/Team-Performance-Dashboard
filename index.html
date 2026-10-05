@@ -563,7 +563,7 @@
 
       if (appData.lastUpdated) {
         const dt = new Date(appData.lastUpdated);
-        liveMeta.innerText = `Live · ${dt.toLocaleTimeString()} (${getActiveAgentsList().length} Active Agents)`;
+        liveMeta.innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
         chip.classList.remove('stale');
       }
 
@@ -584,25 +584,13 @@
     const select = document.getElementById('globalMonthFilter');
     if (!select || !appData) return;
 
-    let monthSet = new Set();
+    let monthSet = new Set(appData.availableMonths || []);
 
-    // Populate months ONLY from actual data records
+    // Collect months from auditing records dynamically
     const allCalls = appData.sheets['Audited Call Details'] || [];
-    allCalls.forEach(c => {
-      if (c.month && String(c.month).trim() !== '' && String(c.month).toLowerCase() !== 'n/a') {
-        monthSet.add(String(c.month).trim());
-      }
-    });
+    allCalls.forEach(c => { if (c.month) monthSet.add(c.month); });
 
-    if (appData.availableMonths && Array.isArray(appData.availableMonths)) {
-      appData.availableMonths.forEach(m => {
-        if (m && String(m).trim() !== '' && String(m).toLowerCase() !== 'n/a') {
-          monthSet.add(String(m).trim());
-        }
-      });
-    }
-
-    const sortedMonths = Array.from(monthSet).sort();
+    const sortedMonths = Array.from(monthSet).filter(Boolean).sort();
     const currentVal = select.value;
     select.innerHTML = '<option value="">All Months (Entire Data)</option>';
     
@@ -624,56 +612,16 @@
     renderView(activeTab);
   }
 
-  // Strict Month Matcher: If a month is selected, empty/missing month records will NOT show
-  function matchMonth(itemMonth) {
-    if (!selectedGlobalMonth || selectedGlobalMonth === '') return true; // All Months selected
-    if (!itemMonth) return false;
+ // Guaranteed Safe Month Matcher
+function matchMonth(itemMonth) {
+  if (!selectedGlobalMonth || selectedGlobalMonth === '') return true;
+  if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return true; 
 
-    const sel = selectedGlobalMonth.toLowerCase().trim();
-    const item = String(itemMonth).toLowerCase().trim();
+  const sel = selectedGlobalMonth.toLowerCase().trim();
+  const item = String(itemMonth).toLowerCase().trim();
 
-    if (item === 'n/a' || item === '' || item === 'null' || item === 'undefined') return false;
-
-    return item === sel || item.includes(sel) || sel.includes(item);
-  }
-
-  // Deduplicated Active Agents List from Alignment sheet
-  function getActiveAgentsList() {
-    if (!appData || !appData.sheets || !appData.sheets['Alignment']) return [];
-    const align = appData.sheets['Alignment'];
-    const map = new Map();
-
-    align.forEach(a => {
-      const st = String(a.Status || a.status || 'active').trim().toLowerCase();
-      if (st === 'active' || st === '') {
-        const name = String(a.Name || a.name || a['Agent Name'] || '').trim();
-        const vdi = String(a['VDI ID'] || a.vdiId || a.VDI || '').trim();
-        const key = (vdi || name).toLowerCase();
-        
-        if (key && !map.has(key)) {
-          map.set(key, { name: name, vdiId: vdi, raw: a });
-        }
-      }
-    });
-
-    return Array.from(map.values());
-  }
-
-  // Active Agent Checker
-  function isAgentActive(name, vdi) {
-    const activeList = getActiveAgentsList();
-    if (activeList.length === 0) return true;
-
-    const n = String(name || '').trim().toLowerCase();
-    const v = String(vdi || '').trim().toLowerCase();
-
-    return activeList.some(a => {
-      const aName = a.name.toLowerCase();
-      const aVdi = a.vdiId.toLowerCase();
-      return (n && aName && (aName === n || aName.includes(n) || n.includes(aName))) ||
-             (v && aVdi && aVdi === v);
-    });
-  }
+  return item.includes(sel) || sel.includes(item);
+}
 
   function navTo(tabName) {
     activeTab = tabName;
@@ -696,12 +644,13 @@
 
     const agentSelect = document.getElementById('dashAgentFilter');
     if (agentSelect && agentSelect.options.length <= 1) {
-      const activeList = getActiveAgentsList();
-      agentSelect.innerHTML = '<option value="">All Agents (Entire TL Sheet)</option>';
-      activeList.sort((a,b) => a.name.localeCompare(b.name)).forEach(a => {
+      const allCalls = appData.sheets['Audited Call Details'] || [];
+      const agentNames = [...new Set(allCalls.map(c => c.agentName).filter(n => n && n !== 'N/A'))].sort();
+      
+      agentNames.forEach(name => {
         const opt = document.createElement('option');
-        opt.value = a.name;
-        opt.textContent = a.name;
+        opt.value = name;
+        opt.textContent = name;
         agentSelect.appendChild(opt);
       });
     }
@@ -742,7 +691,7 @@
     });
 
     if (empPassSum === 0 && empFailSum === 0) {
-      const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month) && isAgentActive(a.name, a.vdiId));
+      const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
       const relevantPerf = selectedAgent 
         ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent)
         : perfList;
@@ -756,19 +705,23 @@
     const empTotal = empPassSum + empFailSum;
     const empathyPercent = empTotal > 0 ? ((empPassSum / empTotal) * 100).toFixed(1) + '%' : '0.0%';
 
-    // Dynamic Team/Agent Calculations based on selected Global Month
-    const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month) && isAgentActive(a.name, a.vdiId));
-    const ahtCfsList = (appData.sheets['AHT & CFS']?.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-    const fcrSdList = (appData.sheets['FCR & Service Delivery']?.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-    const compDkbList = (appData.sheets['Complaint Escalation and DKB %']?.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-
-    let cfsVal = 'N/A', ahtVal = 'N/A', fcrVal = 'N/A', compPct = '0%', sdCount = 0, dkbPct = 'N/A';
+    const tl = appData.tlSummary || {};
+    let cfsVal = tl.teamCfs || 'N/A';
+    let ahtVal = tl.aht || 'N/A';
+    let fcrVal = tl.fcr || 'N/A'; 
+    let compPct = tl.complaintEscalationPct || '0%';
+    let sdCount = tl.sdCount || 0;
+    let dkbPct = tl.dkbPercent || 'N/A';
 
     if (selectedAgent) {
+      const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
       const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
+      
+      const fcrSdList = (appData.sheets['FCR & Service Delivery']?.list || []).filter(a => matchMonth(a.month));
       const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
+
+      const ahtCfsList = (appData.sheets['AHT & CFS']?.list || []).filter(a => matchMonth(a.month));
       const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
-      const agentCompDkb = compDkbList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
 
       if (agentPerf) {
         ahtVal = agentPerf.aht || 'N/A';
@@ -778,64 +731,16 @@
       }
       if (agentAhtCfs) cfsVal = agentAhtCfs.cfsPercent || 'N/A';
       if (agentFcr) fcrVal = agentFcr.fcrPercent || 'N/A';
-      if (agentCompDkb) {
-        if (!compPct || compPct === '0%') compPct = agentCompDkb.escalationPercent || '0%';
-        if (!dkbPct || dkbPct === 'N/A') dkbPct = agentCompDkb.dkbPercent || 'N/A';
-      }
-    } else {
-      // Dynamic Team Aggregates for Month
-      if (ahtCfsList.length > 0) {
-        let cfsSum = 0, cfsCount = 0, ahtSum = 0, ahtCount = 0;
-        ahtCfsList.forEach(a => {
-          let c = parseFloat(String(a.cfsPercent).replace('%', ''));
-          if (!isNaN(c)) { cfsSum += c; cfsCount++; }
-          if (a.ahtVal > 0) { ahtSum += a.ahtVal; ahtCount++; }
-        });
-        if (cfsCount > 0) cfsVal = (cfsSum / cfsCount).toFixed(1) + '%';
-        if (ahtCount > 0) ahtVal = Math.round(ahtSum / ahtCount) + 's';
-      }
-
-      if (fcrSdList.length > 0) {
-        let fcrSum = 0, fcrCount = 0;
-        fcrSdList.forEach(a => {
-          let f = parseFloat(String(a.fcrPercent).replace('%', ''));
-          if (!isNaN(f)) { fcrSum += f; fcrCount++; }
-          sdCount += (parseInt(a.serviceDeliveryCount) || 0);
-        });
-        if (fcrCount > 0) fcrVal = (fcrSum / fcrCount).toFixed(1) + '%';
-      }
-
-      if (compDkbList.length > 0) {
-        let escSum = 0, escCount = 0, dkbSum = 0, dkbCount = 0;
-        compDkbList.forEach(a => {
-          let e = parseFloat(String(a.escalationPercent).replace('%', ''));
-          if (!isNaN(e)) { escSum += e; escCount++; }
-          let d = parseFloat(String(a.dkbPercent).replace('%', ''));
-          if (!isNaN(d)) { dkbSum += d; dkbCount++; }
-        });
-        if (escCount > 0) compPct = (escSum / escCount).toFixed(1) + '%';
-        if (dkbCount > 0) dkbPct = (dkbSum / dkbCount).toFixed(1) + '%';
-      }
-
-      // Fallback to tlSummary only if All Months selected and month lists are empty
-      if (!selectedGlobalMonth && cfsVal === 'N/A' && appData.tlSummary) {
-        cfsVal = appData.tlSummary.teamCfs || 'N/A';
-        ahtVal = appData.tlSummary.aht || 'N/A';
-        fcrVal = appData.tlSummary.fcr || 'N/A';
-        compPct = appData.tlSummary.complaintEscalationPct || '0%';
-        sdCount = appData.tlSummary.sdCount || 0;
-        dkbPct = appData.tlSummary.dkbPercent || 'N/A';
-      }
     }
 
     const grid = document.getElementById('tlKpiGrid');
     if (grid) {
       grid.innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num text-primary">${cfsVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail / Fail %</span></div><div class="kpi-num text-danger">${totalFail} (${failPercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy %</span></div><div class="kpi-num text-purple">${empathyPercent}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num">${cfsVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} AHT</span></div><div class="kpi-num">${ahtVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} FCR %</span></div><div class="kpi-num text-success">${fcrVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${compPct}</div></div>
@@ -856,25 +761,25 @@
         <div class="lb-card">
           <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
-          ${(lb.topCfs || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
+          ${(lb.topCfs || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
-          ${(lb.topAht || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
+          ${(lb.topAht || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
-          ${(lb.topEmpathy || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
+          ${(lb.topEmpathy || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
-          ${(lb.topCe || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
+          ${(lb.topCe || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
       `;
@@ -882,22 +787,20 @@
     }
 
     if (tab === 'Performance Card') {
-      const activeAgents = getActiveAgentsList().sort((a,b) => a.name.localeCompare(b.name));
+      const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
       const select = document.getElementById('agentSelect');
       const prevVal = select.value;
-      
-      select.innerHTML = activeAgents.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      if (prevVal && activeAgents.some(a => a.name === prevVal)) select.value = prevVal;
-      
-      if (activeAgents.length > 0) renderAgentCard(select.value || activeAgents[0].name);
-      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No active agents found.</div>';
+      select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+      if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
+      if (list.length > 0) renderAgentCard(select.value || list[0].name);
+      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No agent records found for the selected month.</div>';
       return;
     }
 
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
-      const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month) && isAgentActive(c.agentName, c.vdiId));
-      const activeAgents = getActiveAgentsList();
+      const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
+      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month));
 
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
 
@@ -905,8 +808,8 @@
       let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
 
       activeAgents.forEach(agent => {
-        const vdi = agent.vdiId.toLowerCase();
-        const name = agent.name.toLowerCase();
+        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
+        const name = String(agent['Name'] || '').trim().toLowerCase();
 
         const agentAudits = filteredAudits.filter(r => {
           const rVdi = String(r.vdiId || r['VDI ID'] || '').trim().toLowerCase();
@@ -941,8 +844,9 @@
         }
 
         auditDetailsList.push({
-          agentName: agent.name,
-          vdiId: agent.vdiId,
+          agentName: agent['Name'],
+          vdiId: agent['VDI ID'],
+          id: agent['ID'],
           totalAudits: totalAudits,
           totalPass: passes,
           totalFail: fails,
@@ -977,29 +881,9 @@
 
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
-      const rawList = (emp.agentList || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-      const activeAgents = getActiveAgentsList();
+      const filteredAgentList = (emp.agentList || []).filter(a => matchMonth(a.month));
 
-      let sum = 0, count = 0;
-      Object.keys(emp.teamAvg).forEach(p => {
-        let valStr = emp.teamAvg[p];
-        let valNum = parseFloat(String(valStr).replace('%', ''));
-        if (!isNaN(valNum) && valNum > 0) {
-          sum += valNum;
-          count++;
-        }
-      });
-      let overallAvgNum = count > 0 ? (sum / count) : 0;
-      let overallAvgStr = count > 0 ? overallAvgNum.toFixed(1) + '%' : 'N/A';
-      let isOverallGood = overallAvgNum >= 87.5;
-
-      let kpiHtml = `
-        <div class="empathy-param-card ${isOverallGood ? 'green' : 'red'}" style="border: 2px solid var(--purple); background: #f3f0ff;">
-          <div class="pname" style="color: var(--purple); font-weight: 800;">Overall Empathy Average</div>
-          <div class="pval" style="color: var(--purple); font-weight: 800;">${overallAvgStr}</div>
-          <div class="ptarget">Target >= 87.5%</div>
-        </div>`;
-
+      let kpiHtml = '';
       Object.keys(emp.teamAvg).forEach(p => {
         let valStr = emp.teamAvg[p];
         let valNum = parseFloat(String(valStr).replace('%', ''));
@@ -1017,112 +901,84 @@
       const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
       document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-      // Deduplicated Table Rows per Active Agent
-      document.getElementById('empathyBody').innerHTML = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        return `
-          <tr>
-            <td class="fw-bold text-start">${ag.name}</td>
-            ${headers.map(h => {
-              let cellVal = item[h] || 'N/A';
-              let numVal = parseFloat(String(cellVal).replace('%', ''));
-              let colorClass = !isNaN(numVal) ? (numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold') : '';
-              return `<td class="num ${colorClass}">${cellVal}</td>`;
-            }).join('')}
-          </tr>`;
-      }).join('');
+      document.getElementById('empathyBody').innerHTML = filteredAgentList.map(a => `
+        <tr>
+          <td class="fw-bold text-start">${a.agentName}</td>
+          ${headers.map(h => {
+            let cellVal = a[h] || 'N/A';
+            let numVal = parseFloat(String(cellVal).replace('%', ''));
+            let colorClass = !isNaN(numVal) ? (numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold') : '';
+            return `<td class="num ${colorClass}">${cellVal}</td>`;
+          }).join('')}
+        </tr>`).join('');
       return;
     }
 
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
-      const rawList = (fcrSd.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-      const activeAgents = getActiveAgentsList();
-      const tot = activeAgents.length;
+      const filteredList = (fcrSd.list || []).filter(a => matchMonth(a.month));
+      const tot = filteredList.length;
 
-      let fcrMeetCount = 0, sdCount = 0;
-
-      const tableRows = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        const fcrStr = item.fcrPercent || 'N/A';
-        const sdVal = item.serviceDeliveryCount || 0;
-
-        let fcrNum = parseFloat(String(fcrStr).replace('%', ''));
-        if (!isNaN(fcrNum) && fcrNum >= 92.0) fcrMeetCount++;
-        if (sdVal > 0) sdCount++;
-
-        return `<tr><td class="fw-bold text-start">${ag.name}</td><td class="num">${ag.vdiId || item.vdiId || 'N/A'}</td><td class="num">${fcrStr}</td><td class="num">${sdVal}</td></tr>`;
-      }).join('');
+      let fcrMeetCount = filteredList.filter(a => {
+        let fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
+        return !isNaN(fcrNum) && fcrNum >= 92.0;
+      }).length;
+      let sdCount = filteredList.filter(a => a.serviceDeliveryCount > 0).length;
 
       document.getElementById('fcrSdKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target meet (>= 92%)</span></div><div class="kpi-num text-success">${fcrMeetCount} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">With Service Delivery</span></div><div class="kpi-num text-info">${sdCount} / ${tot}</div></div>
       `;
 
-      document.getElementById('fcrSdTable').innerHTML = tableRows;
+      document.getElementById('fcrSdTable').innerHTML = filteredList.map(a => `
+        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num">${a.fcrPercent}</td><td class="num">${a.serviceDeliveryCount}</td></tr>
+      `).join('');
       return;
     }
 
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const rawList = (compDkb.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-      const activeAgents = getActiveAgentsList();
-      const tot = activeAgents.length;
+      const filteredList = (compDkb.list || []).filter(a => matchMonth(a.month));
+      const tot = filteredList.length;
 
       let compMetCount = 0, dkbMetCount = 0;
-
-      const compRows = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        let escVal = parseFloat(String(item.escalationPercent).replace('%', ''));
+      filteredList.forEach(a => {
+        let escVal = parseFloat(String(a.escalationPercent).replace('%', ''));
         if (!isNaN(escVal) && escVal >= 95.0) compMetCount++;
-
-        return `<tr><td class="fw-bold text-start">${ag.name}</td><td class="num text-success">${item.valid || 0}</td><td class="num text-danger">${item.invalid || 0}</td><td class="num">${item.totalComplaints || 0}</td><td class="num text-primary fw-bold">${item.escalationPercent || '0%'}</td></tr>`;
-      }).join('');
-
-      const dkbRows = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        let dkbVal = parseFloat(String(item.dkbPercent).replace('%', ''));
+        let dkbVal = parseFloat(String(a.dkbPercent).replace('%', ''));
         if (!isNaN(dkbVal) && dkbVal >= 95.0) dkbMetCount++;
-
-        return `<tr><td class="fw-bold text-start">${ag.name}</td><td class="num text-success">${item.present || 0}</td><td class="num text-danger">${item.absent || 0}</td><td class="num text-info fw-bold">${item.dkbPercent || 'N/A'}</td><td>${item.health || 'Normal'}</td></tr>`;
-      }).join('');
+      });
 
       document.getElementById('compDkbKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target meet (>=95%)</span></div><div class="kpi-num text-success">${compMetCount} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target meet (>=95%)</span></div><div class="kpi-num text-info">${dkbMetCount} / ${tot}</div></div>
       `;
 
-      document.getElementById('complaintTable').innerHTML = compRows;
-      document.getElementById('dkbTable').innerHTML = dkbRows;
+      document.getElementById('complaintTable').innerHTML = filteredList.map(a => `
+        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>
+      `).join('');
+
+      document.getElementById('dkbTable').innerHTML = filteredList.map(a => `
+        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>
+      `).join('');
       return;
     }
 
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const rawList = (lagAdh.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-      const activeAgents = getActiveAgentsList();
-      const tot = activeAgents.length;
+      const filteredList = (lagAdh.list || []).filter(a => matchMonth(a.month));
+      const tot = filteredList.length;
 
       let overBreakZeroCount = 0, lagZeroCount = 0, adhMetCount = 0;
-
-      const tableRows = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        let extraBreakNum = parseFloat(String(item.extraBreak || '0').replace(/[^0-9.]/g, '')) || 0;
-        let lagTimeNum = parseFloat(String(item.lagTime || '0').replace(/[^0-9.]/g, '')) || 0;
-        let adhVal = parseFloat(String(item.adherence || '0').replace('%', '')) || 0;
+      filteredList.forEach(a => {
+        let extraBreakNum = parseFloat(String(a.extraBreak).replace(/[^0-9.]/g, '')) || 0;
+        let lagTimeNum = parseFloat(String(a.lagTime).replace(/[^0-9.]/g, '')) || 0;
+        let adhVal = parseFloat(String(a.adherence).replace('%', '')) || 0;
 
         if (extraBreakNum === 0) overBreakZeroCount++;
         if (lagTimeNum === 0) lagZeroCount++;
         if (adhVal >= 100.0) adhMetCount++;
-
-        return `
-          <tr class="${item.hasOverBreak ? 'row-overbreak' : ''}">
-            <td class="fw-bold text-start">${ag.name}</td>
-            <td class="num">${item.adherence || '100%'}</td>
-            <td class="num ${item.hasOverBreak ? 'text-overbreak' : ''}">${item.extraBreak || '0m'}</td>
-            <td class="num">${item.lagTime || '0h 0m'}</td>
-          </tr>`;
-      }).join('');
+      });
 
       document.getElementById('lagAdhKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Target Meet</span></div><div class="kpi-num text-success">${overBreakZeroCount} / ${tot}</div></div>
@@ -1130,45 +986,44 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${adhMetCount} / ${tot}</div></div>
       `;
 
-      document.getElementById('lagAdhTable').innerHTML = tableRows;
+      document.getElementById('lagAdhTable').innerHTML = filteredList.map(a => `
+        <tr class="${a.hasOverBreak ? 'row-overbreak' : ''}">
+          <td class="fw-bold text-start">${a.agentName}</td>
+          <td class="num">${a.adherence}</td>
+          <td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td>
+          <td class="num">${a.lagTime}</td>
+        </tr>`).join('');
       return;
     }
 
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const rawList = (ahtCfs.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
-      const activeAgents = getActiveAgentsList();
-      const tot = activeAgents.length;
+      const filteredList = (ahtCfs.list || []).filter(a => matchMonth(a.month));
+      const tot = filteredList.length;
 
       let ahtMetCount = 0, cfsMetCount = 0, validCfsAgentCount = 0;
-
-      const tableRows = activeAgents.map(ag => {
-        const item = rawList.find(a => String(a.agentName).toLowerCase().includes(ag.name.toLowerCase()) || String(ag.name).toLowerCase().includes(String(a.agentName).toLowerCase())) || {};
-        let ahtSecVal = item.ahtVal || parseFloat(String(item.ahtSec).replace('s','')) || 0;
-        let cfsVal = parseFloat(String(item.cfsPercent).replace('%', ''));
-
-        if (ahtSecVal <= 170 && ahtSecVal > 0) ahtMetCount++;
+      filteredList.forEach(a => {
+        if (a.ahtVal <= 170 && a.ahtVal > 0) ahtMetCount++;
+        let cfsVal = parseFloat(String(a.cfsPercent).replace('%', ''));
         if (!isNaN(cfsVal)) {
           validCfsAgentCount++;
           if (cfsVal >= 90.0) cfsMetCount++;
         }
-
-        return `
-          <tr>
-            <td class="fw-bold text-start">${ag.name}</td>
-            <td class="num">${item.ahtSec || 'N/A'}</td>
-            <td><span class="pill ${ahtSecVal <= 170 && ahtSecVal > 0 ? 'good' : 'bad'}">${item.ahtStatus || 'N/A'}</span></td>
-            <td class="num">${item.cfsPercent || 'N/A'}</td>
-            <td><span class="pill ${String(item.cfsStatus || '').toLowerCase().includes('target meet') ? 'good' : 'bad'}">${item.cfsStatus || 'N/A'}</span></td>
-          </tr>`;
-      }).join('');
+      });
 
       document.getElementById('ahtCfsKpis').innerHTML = `
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target meet (<=170s)</span></div><div class="kpi-num text-success">${ahtMetCount} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${cfsMetCount} / ${validCfsAgentCount}</div></div>
       `;
 
-      document.getElementById('ahtCfsTable').innerHTML = tableRows;
+      document.getElementById('ahtCfsTable').innerHTML = filteredList.map(a => `
+        <tr>
+          <td class="fw-bold text-start">${a.agentName}</td>
+          <td class="num">${a.ahtSec}</td>
+          <td><span class="pill ${a.ahtVal <= 170 && a.ahtVal > 0 ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
+          <td class="num">${a.cfsPercent}</td>
+          <td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target meet') ? 'good' : 'bad'}">${a.cfsStatus}</span></td>
+        </tr>`).join('');
       return;
     }
 
@@ -1180,23 +1035,14 @@
 
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
-    const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month) && isAgentActive(a.name, a.vdiId));
-    const agent = list.find(a => String(a.name).toLowerCase() === String(agentName).toLowerCase()) || {
-      name: agentName,
-      vdiId: 'N/A',
-      id: 'N/A',
-      supervisor: 'Mohammad Imam Hossain',
-      auditFailPct: '0.0%', totalAudits: 0, passCount: 0, failCount: 0,
-      empathyPct: '0.0%', empathyPassSum: 0, empathyFailSum: 0,
-      ceCount: 0, aht: '0s', escalationAccuracyPct: '0%', validEscCount: 0, totalEscCount: 0,
-      overBreak: '0m', lagHour: '0h 0m', adherencePct: '100%', dkbPct: 'N/A', sdCount: 0, rtcAccuracyPct: '0%'
-    };
-
+    const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
+    const agent = list.find(a => a.name === agentName);
     const box = document.getElementById('perfCardBox');
 
-    const ahtCfsList = (appData.sheets['AHT & CFS']?.list || []).filter(a => matchMonth(a.month));
-    const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === String(agent.name).toLowerCase());
-    const cfsVal = agentAhtCfs ? (agentAhtCfs.cfsPercent || 'N/A') : (agent.cfs || appData.tlSummary?.teamCfs || 'N/A');
+    if (!agent) { 
+      box.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No performance card found for this agent in the selected month.</div>'; 
+      return; 
+    }
 
     const failPctNum = parseFloat(String(agent.auditFailPct).replace('%', ''));
     const isFailMet = !isNaN(failPctNum) && failPctNum === 0;
@@ -1219,9 +1065,6 @@
     const rtcNum = parseFloat(String(agent.rtcAccuracyPct).replace('%', ''));
     const isRtcMet = !isNaN(rtcNum) && rtcNum >= 87.5;
 
-    const cfsNum = parseFloat(String(cfsVal).replace('%', ''));
-    const isCfsMet = !isNaN(cfsNum) && cfsNum >= 90.0;
-
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
@@ -1230,13 +1073,6 @@
         </div>
 
         <div class="pdf-grid-3">
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isCfsMet ? 'delivered' : 'missed'}">${isCfsMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">Team / Agent CFS %</div>
-            <div class="pdf-kpi-value text-primary">${cfsVal}</div>
-            <div class="pdf-kpi-sub">Target: >= 90.0%</div>
-          </div>
-
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target Meet' : 'Fail Found'}</span>
             <div class="pdf-kpi-title">Audit Fail Rate</div>
@@ -1322,7 +1158,7 @@
     if (!appData) return;
     const search = (document.getElementById('callSearch')?.value || '').toLowerCase();
     const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
-    const list = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month) && isAgentActive(c.agentName, c.vdiId));
+    const list = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
 
     const filtered = list.filter(c => {
       const name = String(c.agentName || '').toLowerCase();
