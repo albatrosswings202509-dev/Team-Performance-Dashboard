@@ -1,0 +1,32 @@
+{
+  "lastUpdated": "2026-10-06T04:00:00.000Z",
+  "activeAgentsCount": 1,
+  "availableMonths": ["Oct"],
+  "tlSummary": {
+    "tlName": "Mohammad Imam Hossain",
+    "totalAudit": 0,
+    "totalPass": 0,
+    "totalFail": 0,
+    "passPercent": "0.0%",
+    "failPercent": "0.0%",
+    "cePercent": "0.0%",
+    "empathyPercent": "0.0%",
+    "teamCfs": "N/A",
+    "aht": "N/A",
+    "fcr": "N/A",
+    "complaintEscalationPct": "0.0%",
+    "sdCount": 0,
+    "dkbPercent": "N/A"
+  },
+  "sheets": {
+    "Alignment": [],
+    "Audited Call Details": [],
+    "Performance Card": [],
+    "Audit Details": {"summary":{}, "list":[]},
+    "Parameter wise Empathy": {"teamAvg":{}, "agentList":[]},
+    "FCR & Service Delivery": {"summary":{}, "list":[]},
+    "Complaint Escalation and DKB %": {"summary":{}, "list":[]},
+    "Lag Adherence & Over Break": {"summary":{}, "list":[]},
+    "AHT & CFS": {"summary":{}, "list":[]}
+  }
+}
