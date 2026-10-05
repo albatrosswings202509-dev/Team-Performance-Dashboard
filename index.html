@@ -159,7 +159,6 @@
   .lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
   .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
 
-  /* PERFORMANCE CARD CONTAINER & PDF OPTIMIZATION */
   .pdf-card-wrapper {
     background: #ffffff;
     border-radius: 16px;
@@ -218,7 +217,7 @@
   .pdf-badge.missed { background: #fdecea; color: #e0503f; }
   .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
 
-  /* STRICT PDF EXPORT PRINT STYLES FOR SINGLE PAGE */
+  /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode {
     width: 960px !important;
     max-width: 960px !important;
@@ -269,9 +268,7 @@
     background: var(--card);
     box-shadow: 2px 0 6px rgba(0,0,0,0.05);
   }
-  .table-wrap table th:first-child {
-    z-index: 15;
-  }
+  .table-wrap table th:first-child { z-index: 15; }
 
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -297,12 +294,7 @@
     .topbar { padding: 10px 14px; }
     main { padding: 12px 10px 30px; }
     .grid-2, .grid-4 { grid-template-columns: 1fr; }
-    
-    .pdf-grid-3 {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 10px !important;
-    }
-
+    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .kpi-card { padding: 10px 8px; }
     .kpi-card .kpi-num { font-size: 15px; }
@@ -363,7 +355,7 @@
     <!-- GLOBAL MONTH FILTER BAR -->
     <div class="filterbar" style="background: var(--card); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 20px;">
       <div class="fgroup" style="flex: 1; min-width: 220px;">
-        <label><i class="bi bi-calendar-month text-primary"></i> Global Month Filter (Auto-applies to all sheets/views)</label>
+        <label><i class="bi bi-calendar-month text-primary"></i> Global Month Filter (Auto-applies across sheets)</label>
         <select id="globalMonthFilter" onchange="onGlobalMonthChange()">
           <option value="">All Months (Entire Data)</option>
         </select>
@@ -590,33 +582,45 @@
 
   function populateGlobalMonthDropdown() {
     const select = document.getElementById('globalMonthFilter');
-    if (!select || !appData || !appData.availableMonths) return;
+    if (!select || !appData) return;
 
+    let monthSet = new Set(appData.availableMonths || []);
+
+    // Collect months from auditing records dynamically
+    const allCalls = appData.sheets['Audited Call Details'] || [];
+    allCalls.forEach(c => { if (c.month) monthSet.add(c.month); });
+
+    const sortedMonths = Array.from(monthSet).filter(Boolean).sort();
     const currentVal = select.value;
     select.innerHTML = '<option value="">All Months (Entire Data)</option>';
     
-    appData.availableMonths.forEach(m => {
+    sortedMonths.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m;
       opt.textContent = m;
       select.appendChild(opt);
     });
 
-    if (currentVal && appData.availableMonths.includes(currentVal)) {
+    if (currentVal && sortedMonths.includes(currentVal)) {
       select.value = currentVal;
     }
   }
 
   function onGlobalMonthChange() {
     const select = document.getElementById('globalMonthFilter');
-    selectedGlobalMonth = select ? select.value.toLowerCase() : '';
+    selectedGlobalMonth = select ? select.value.trim().toLowerCase() : '';
     renderView(activeTab);
   }
 
+  // Enhanced Month Match Function with Flexible Parsing
   function matchMonth(itemMonth) {
     if (!selectedGlobalMonth) return true;
-    if (!itemMonth) return true;
-    return String(itemMonth).trim().toLowerCase().includes(selectedGlobalMonth);
+    if (!itemMonth || String(itemMonth).trim() === '') return true; // Don't filter out shared agent records
+
+    const sel = selectedGlobalMonth.toLowerCase();
+    const item = String(itemMonth).trim().toLowerCase();
+
+    return item.includes(sel) || sel.includes(item);
   }
 
   function navTo(tabName) {
@@ -670,22 +674,15 @@
     const totalAudit = filteredCalls.length;
     let totalPass = 0;
     let totalFail = 0;
-    let ceFails = 0;
 
     filteredCalls.forEach(c => {
       const resVal = String(c.result || '').trim().toLowerCase();
       if (resVal === 'pass') totalPass++;
       else if (resVal === 'fail') totalFail++;
-
-      const ceVal = String(c.criticalError || '').trim().toLowerCase();
-      if (ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail')) ceFails++;
     });
 
-    const passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
-    const failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
-
-    const passPercent = passPercentVal.toFixed(1) + '%';
-    const failPercent = failPercentVal.toFixed(1) + '%';
+    const passPercent = totalAudit > 0 ? ((totalPass / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
+    const failPercent = totalAudit > 0 ? ((totalFail / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
 
     let empPassSum = 0, empFailSum = 0;
     filteredCalls.forEach(c => {
@@ -803,7 +800,7 @@
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
-      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.extractedMonth || a.month));
+      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month));
 
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
 
@@ -884,7 +881,7 @@
 
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
-      const filteredAgentList = emp.agentList.filter(a => matchMonth(a.month));
+      const filteredAgentList = (emp.agentList || []).filter(a => matchMonth(a.month));
 
       let kpiHtml = '';
       Object.keys(emp.teamAvg).forEach(p => {
