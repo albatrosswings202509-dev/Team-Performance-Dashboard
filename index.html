@@ -360,7 +360,7 @@
   </div>
 
   <main>
-    <!-- GLOBAL MONTH FILTER BAR (Sticky / Top of Main Area) -->
+    <!-- GLOBAL MONTH FILTER BAR -->
     <div class="filterbar" style="background: var(--card); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 20px;">
       <div class="fgroup" style="flex: 1; min-width: 220px;">
         <label><i class="bi bi-calendar-month text-primary"></i> Global Month Filter (Auto-applies to all sheets/views)</label>
@@ -613,10 +613,9 @@
     renderView(activeTab);
   }
 
-  // Helper function to check if item matches selected month
   function matchMonth(itemMonth) {
     if (!selectedGlobalMonth) return true;
-    if (!itemMonth) return true; // If month not specified in row, include by default or handle gracefully
+    if (!itemMonth) return true;
     return String(itemMonth).trim().toLowerCase().includes(selectedGlobalMonth);
   }
 
@@ -675,16 +674,11 @@
 
     filteredCalls.forEach(c => {
       const resVal = String(c.result || '').trim().toLowerCase();
-      if (resVal === 'pass') {
-        totalPass++;
-      } else if (resVal === 'fail') {
-        totalFail++;
-      }
+      if (resVal === 'pass') totalPass++;
+      else if (resVal === 'fail') totalFail++;
 
       const ceVal = String(c.criticalError || '').trim().toLowerCase();
-      if (ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail')) {
-        ceFails++;
-      }
+      if (ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail')) ceFails++;
     });
 
     const passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
@@ -738,12 +732,8 @@
         sdCount = agentPerf.sdCount || 0;
         dkbPct = agentPerf.dkbPct || 'N/A';
       }
-      if (agentAhtCfs) {
-        cfsVal = agentAhtCfs.cfsPercent || 'N/A';
-      }
-      if (agentFcr) {
-        fcrVal = agentFcr.fcrPercent || 'N/A';
-      }
+      if (agentAhtCfs) cfsVal = agentAhtCfs.cfsPercent || 'N/A';
+      if (agentFcr) fcrVal = agentFcr.fcrPercent || 'N/A';
     }
 
     const grid = document.getElementById('tlKpiGrid');
@@ -766,7 +756,6 @@
   function renderView(tab) {
     if (!appData) return;
 
-    // 1. DASHBOARD
     if (tab === 'Dashboard') {
       renderDashboardKpis();
       const lb = appData.leaderboards || {};
@@ -775,63 +764,51 @@
         <div class="lb-card">
           <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
-          ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
+          ${(lb.topCfs || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
-          ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
+          ${(lb.topAht || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
-          ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
+          ${(lb.topEmpathy || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="lb-card">
           <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
-          ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
+          ${(lb.topCe || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
       `;
       return;
     }
 
-    // 2. PERFORMANCE CARD
     if (tab === 'Performance Card') {
       const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
       const select = document.getElementById('agentSelect');
       const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      if (prevVal && list.some(a => a.name === prevVal)) {
-        select.value = prevVal;
-      }
+      if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
       if (list.length > 0) renderAgentCard(select.value || list[0].name);
-      else {
-        document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No agent records found for the selected month.</div>';
-      }
+      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No agent records found for the selected month.</div>';
       return;
     }
 
-    // 3. AUDIT DETAILS
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
-      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month));
+      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.extractedMonth || a.month));
 
-      const filteredAudits = allCalls.filter(c => {
-        if (!partyFilter) return true;
-        return String(c.auditParty || '').toLowerCase().includes(partyFilter);
-      });
+      const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
 
       let auditDetailsList = [];
-      let failCountAgent = 0;
-      let failFreeCountAgent = 0;
-      let empathyMetCount = 0;
-      let empathyBelowTargetAgent = 0;
+      let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
 
       activeAgents.forEach(agent => {
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
@@ -848,7 +825,7 @@
         const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'fail').length;
 
         const ceFails = agentAudits.filter(r => {
-          const ceVal = String(r.criticalError || r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
+          const ceVal = String(r.criticalError || r['Critical Error'] || '').toLowerCase();
           return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail');
         }).length;
 
@@ -856,8 +833,8 @@
 
         let empPassSum = 0, empFailSum = 0;
         agentAudits.forEach(call => {
-          empPassSum += parseInt(call.empPass || call['Total Emp Parameter Pass Count'] || call['Emp Pass'] || 0) || 0;
-          empFailSum += parseInt(call.empFail || call['Total Emp Parameter Fail Count'] || call['Emp Fail'] || 0) || 0;
+          empPassSum += parseInt(call.empPass || 0) || 0;
+          empFailSum += parseInt(call.empFail || 0) || 0;
         });
 
         const empTotal = empPassSum + empFailSum;
@@ -891,26 +868,20 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${empathyBelowTargetAgent} / ${tot}</div></div>
       `;
 
-      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => {
-        const ceNum = parseFloat(String(a.cePercent).replace('%', ''));
-        const isCeZero = isNaN(ceNum) || ceNum === 0;
-
-        return `
+      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => `
         <tr>
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.totalAudits}</td>
           <td class="num text-success">${a.totalPass}</td>
           <td class="num text-danger">${a.totalFail}</td>
-          <td class="num ${isCeZero ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.cePercent}</td>
+          <td class="num ${parseFloat(a.cePercent) === 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.cePercent}</td>
           <td class="num text-primary">${a.empathyPass}</td>
           <td class="num text-danger">${a.empathyFail}</td>
           <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
-        </tr>`;
-      }).join('');
+        </tr>`).join('');
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       const filteredAgentList = emp.agentList.filter(a => matchMonth(a.month));
@@ -939,27 +910,22 @@
           ${headers.map(h => {
             let cellVal = a[h] || 'N/A';
             let numVal = parseFloat(String(cellVal).replace('%', ''));
-            let colorClass = '';
-            if (!isNaN(numVal)) {
-              colorClass = numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold';
-            }
+            let colorClass = !isNaN(numVal) ? (numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold') : '';
             return `<td class="num ${colorClass}">${cellVal}</td>`;
           }).join('')}
         </tr>`).join('');
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
       const filteredList = (fcrSd.list || []).filter(a => matchMonth(a.month));
       const tot = filteredList.length;
 
       let fcrMeetCount = filteredList.filter(a => {
-        const fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
+        let fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
         return !isNaN(fcrNum) && fcrNum >= 92.0;
       }).length;
-
       let sdCount = filteredList.filter(a => a.serviceDeliveryCount > 0).length;
 
       document.getElementById('fcrSdKpis').innerHTML = `
@@ -973,7 +939,6 @@
       return;
     }
 
-    // 6. COMPLAINT ESCALATION AND DKB %
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
       const filteredList = (compDkb.list || []).filter(a => matchMonth(a.month));
@@ -981,10 +946,9 @@
 
       let compMetCount = 0, dkbMetCount = 0;
       filteredList.forEach(a => {
-        const escVal = parseFloat(String(a.escalationPercent).replace('%', ''));
+        let escVal = parseFloat(String(a.escalationPercent).replace('%', ''));
         if (!isNaN(escVal) && escVal >= 95.0) compMetCount++;
-
-        const dkbVal = parseFloat(String(a.dkbPercent).replace('%', ''));
+        let dkbVal = parseFloat(String(a.dkbPercent).replace('%', ''));
         if (!isNaN(dkbVal) && dkbVal >= 95.0) dkbMetCount++;
       });
 
@@ -1003,7 +967,6 @@
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
       const filteredList = (lagAdh.list || []).filter(a => matchMonth(a.month));
@@ -1011,9 +974,9 @@
 
       let overBreakZeroCount = 0, lagZeroCount = 0, adhMetCount = 0;
       filteredList.forEach(a => {
-        const extraBreakNum = parseFloat(String(a.extraBreak).replace(/[^0-9.]/g, '')) || 0;
-        const lagTimeNum = parseFloat(String(a.lagTime).replace(/[^0-9.]/g, '')) || 0;
-        const adhVal = parseFloat(String(a.adherence).replace('%', '')) || 0;
+        let extraBreakNum = parseFloat(String(a.extraBreak).replace(/[^0-9.]/g, '')) || 0;
+        let lagTimeNum = parseFloat(String(a.lagTime).replace(/[^0-9.]/g, '')) || 0;
+        let adhVal = parseFloat(String(a.adherence).replace('%', '')) || 0;
 
         if (extraBreakNum === 0) overBreakZeroCount++;
         if (lagTimeNum === 0) lagZeroCount++;
@@ -1026,20 +989,16 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${adhMetCount} / ${tot}</div></div>
       `;
 
-      document.getElementById('lagAdhTable').innerHTML = filteredList.map(a => {
-        const isOver = a.hasOverBreak;
-        return `
-        <tr class="${isOver ? 'row-overbreak' : ''}">
+      document.getElementById('lagAdhTable').innerHTML = filteredList.map(a => `
+        <tr class="${a.hasOverBreak ? 'row-overbreak' : ''}">
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.adherence}</td>
-          <td class="num ${isOver ? 'text-overbreak' : ''}">${a.extraBreak}</td>
+          <td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td>
           <td class="num">${a.lagTime}</td>
-        </tr>`;
-      }).join('');
+        </tr>`).join('');
       return;
     }
 
-    // 8. AHT & CFS
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const filteredList = (ahtCfs.list || []).filter(a => matchMonth(a.month));
@@ -1048,7 +1007,7 @@
       let ahtMetCount = 0, cfsMetCount = 0, validCfsAgentCount = 0;
       filteredList.forEach(a => {
         if (a.ahtVal <= 170 && a.ahtVal > 0) ahtMetCount++;
-        const cfsVal = parseFloat(String(a.cfsPercent).replace('%', ''));
+        let cfsVal = parseFloat(String(a.cfsPercent).replace('%', ''));
         if (!isNaN(cfsVal)) {
           validCfsAgentCount++;
           if (cfsVal >= 90.0) cfsMetCount++;
@@ -1060,23 +1019,17 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${cfsMetCount} / ${validCfsAgentCount}</div></div>
       `;
 
-      document.getElementById('ahtCfsTable').innerHTML = filteredList.map(a => {
-        const isAhtTargetMeet = String(a.ahtStatus).toLowerCase().includes('target meet');
-        const isCfsTargetMeet = String(a.cfsStatus).toLowerCase().includes('target meet');
-
-        return `
+      document.getElementById('ahtCfsTable').innerHTML = filteredList.map(a => `
         <tr>
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.ahtSec}</td>
-          <td><span class="pill ${isAhtTargetMeet ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
+          <td><span class="pill ${a.ahtVal <= 170 && a.ahtVal > 0 ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
           <td class="num">${a.cfsPercent}</td>
-          <td><span class="pill ${isCfsTargetMeet ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
-        </tr>`;
-      }).join('');
+          <td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target meet') ? 'good' : 'bad'}">${a.cfsStatus}</span></td>
+        </tr>`).join('');
       return;
     }
 
-    // 9. AUDITED CALL DETAILS
     if (tab === 'Audited Call Details') {
       filterCalls();
       return;
