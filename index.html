@@ -129,7 +129,6 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
-  .kpi-card.highlight-kpi { border: 2px solid var(--blue); background: var(--blue-dim); }
   .kpi-card .kpi-top { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
   .kpi-icon { width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
   .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
@@ -622,6 +621,23 @@
     return item.includes(sel) || sel.includes(item);
   }
 
+  // Active Agent Checker for non-dashboard sheets
+  function isAgentActive(name, vdi) {
+    const align = appData.sheets['Alignment'];
+    if (!align || align.length === 0) return true;
+    const n = String(name || '').trim().toLowerCase();
+    const v = String(vdi || '').trim().toLowerCase();
+
+    return align.some(a => {
+      const aName = String(a.Name || a.name || a['Agent Name'] || '').trim().toLowerCase();
+      const aVdi = String(a['VDI ID'] || a.vdiId || a.VDI || '').trim().toLowerCase();
+      const st = String(a.Status || a.status || 'active').trim().toLowerCase();
+
+      const match = (n && aName === n) || (v && aVdi === v);
+      return match && st === 'active';
+    });
+  }
+
   function navTo(tabName) {
     activeTab = tabName;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -712,7 +728,6 @@
     let cfsVal = tl.teamCfs || 'N/A';
     let ahtVal = tl.aht || 'N/A';
     
-    // FCR % Retrieval for TL Mohammad Imam Hossain
     let fcrVal = tl.fcr || 'N/A';
     if (!fcrVal || fcrVal === 'N/A') {
       const fcrSheet = appData.sheets['FCR & Service Delivery'] || appData.sheets['FCR'] || {};
@@ -753,7 +768,7 @@
     const grid = document.getElementById('tlKpiGrid');
     if (grid) {
       grid.innerHTML = `
-        <div class="kpi-card highlight-kpi" style="border: 2px solid var(--blue); background: var(--blue-dim);"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label" style="font-weight:700; color:var(--blue);">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num text-primary" style="color:var(--blue); font-weight:800;">${cfsVal}</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num text-primary">${cfsVal}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail / Fail %</span></div><div class="kpi-num text-danger">${totalFail} (${failPercent})</div></div>
@@ -804,20 +819,20 @@
     }
 
     if (tab === 'Performance Card') {
-      const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
+      const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month) && isAgentActive(a.name, a.vdiId));
       const select = document.getElementById('agentSelect');
       const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
       if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
       if (list.length > 0) renderAgentCard(select.value || list[0].name);
-      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No agent records found for the selected month.</div>';
+      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No active agent records found for the selected month.</div>';
       return;
     }
 
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
-      const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
-      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month));
+      const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month) && isAgentActive(c.agentName, c.vdiId));
+      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month) && String(a.Status || a.status || 'active').trim().toLowerCase() === 'active');
 
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
 
@@ -898,9 +913,8 @@
 
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
-      const filteredAgentList = (emp.agentList || []).filter(a => matchMonth(a.month));
+      const filteredAgentList = (emp.agentList || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
 
-      // Calculate Overall Empathy Average across parameters
       let sum = 0, count = 0;
       Object.keys(emp.teamAvg).forEach(p => {
         let valStr = emp.teamAvg[p];
@@ -953,7 +967,7 @@
 
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
-      const filteredList = (fcrSd.list || []).filter(a => matchMonth(a.month));
+      const filteredList = (fcrSd.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
       const tot = filteredList.length;
 
       let fcrMeetCount = filteredList.filter(a => {
@@ -975,7 +989,7 @@
 
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const filteredList = (compDkb.list || []).filter(a => matchMonth(a.month));
+      const filteredList = (compDkb.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
       const tot = filteredList.length;
 
       let compMetCount = 0, dkbMetCount = 0;
@@ -1003,7 +1017,7 @@
 
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const filteredList = (lagAdh.list || []).filter(a => matchMonth(a.month));
+      const filteredList = (lagAdh.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
       const tot = filteredList.length;
 
       let overBreakZeroCount = 0, lagZeroCount = 0, adhMetCount = 0;
@@ -1035,7 +1049,7 @@
 
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const filteredList = (ahtCfs.list || []).filter(a => matchMonth(a.month));
+      const filteredList = (ahtCfs.list || []).filter(a => matchMonth(a.month) && isAgentActive(a.agentName, a.vdiId));
       const tot = filteredList.length;
 
       let ahtMetCount = 0, cfsMetCount = 0, validCfsAgentCount = 0;
@@ -1072,12 +1086,12 @@
 
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
-    const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
+    const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month) && isAgentActive(a.name, a.vdiId));
     const agent = list.find(a => a.name === agentName);
     const box = document.getElementById('perfCardBox');
 
     if (!agent) { 
-      box.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No performance card found for this agent in the selected month.</div>'; 
+      box.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No performance card found for this active agent in the selected month.</div>'; 
       return; 
     }
 
@@ -1106,6 +1120,9 @@
     const rtcNum = parseFloat(String(agent.rtcAccuracyPct).replace('%', ''));
     const isRtcMet = !isNaN(rtcNum) && rtcNum >= 87.5;
 
+    const cfsNum = parseFloat(String(cfsVal).replace('%', ''));
+    const isCfsMet = !isNaN(cfsNum) && cfsNum >= 90.0;
+
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
@@ -1114,11 +1131,10 @@
         </div>
 
         <div class="pdf-grid-3">
-          <!-- Highlighted Team / Agent CFS % KPI Card -->
-          <div class="pdf-kpi-card" style="border: 2px solid var(--blue); background: #eff6ff;">
-            <span class="pdf-badge delivered" style="background: var(--blue); color: #ffffff;">Highlighted</span>
-            <div class="pdf-kpi-title" style="color: var(--blue); font-weight: 800;">Team / Agent CFS %</div>
-            <div class="pdf-kpi-value text-primary" style="color: var(--blue); font-weight: 800;">${cfsVal}</div>
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isCfsMet ? 'delivered' : 'missed'}">${isCfsMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">Team / Agent CFS %</div>
+            <div class="pdf-kpi-value text-primary">${cfsVal}</div>
             <div class="pdf-kpi-sub">Target: >= 90.0%</div>
           </div>
 
@@ -1207,7 +1223,7 @@
     if (!appData) return;
     const search = (document.getElementById('callSearch')?.value || '').toLowerCase();
     const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
-    const list = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
+    const list = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month) && isAgentActive(c.agentName, c.vdiId));
 
     const filtered = list.filter(c => {
       const name = String(c.agentName || '').toLowerCase();
