@@ -1,441 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Albatross Wings — Enterprise Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Performance Dashboard - Mohammad Imam Hossain</title>
+  <!-- Google Fonts & Bootstrap Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- html2pdf for Performance Card Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- Google Fonts: Inter & IBM Plex Mono -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f4f6f9;
+      --panel-bg: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --purple: #9333ea;
+      --purple-light: #faf5ff;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
 
-<!-- html2pdf Library for PDF Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-dark); display: flex; min-height: 100vh; }
 
-<style>
-  :root {
-    --navy: #101d34;
-    --navy-raised: #16243f;
-    --navy-line: rgba(36, 52, 84, 0.56);
-    --bg: #f4f6fa;
-    --card: #ffffff;
-    --line: #e4e8f0;
-    --ink: #182238;
-    --muted: #6b7488;
-    --muted-dim: #9aa2b2;
-    --blue: #3b6fd9;
-    --blue-dim: #e8eefd;
-    --good: #1fa971;
-    --good-dim: #e6f7ef;
-    --bad: #e0503f;
-    --bad-dim: #fdecea;
-    --warn: #e0a021;
-    --warn-dim: #fdf3e0;
-    --purple: #7c5fd6;
-    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
-  }
+    /* LAYOUT & SIDEBAR */
+    .app-container { display: flex; width: 100vw; min-height: 100vh; overflow-x: hidden; }
+    .sidebar { width: 260px; background: #0f172a; color: #f8fafc; padding: 20px 15px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 10px; }
+    .brand-icon { width: 38px; height: 38px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .brand-text h2 { font-size: 16px; font-weight: 700; color: #ffffff; }
+    .brand-text p { font-size: 11px; color: #94a3b8; }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 13.5px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    display: flex;
-    min-height: 100vh;
-  }
+    .nav-menu { display: flex; flex-direction: column; gap: 6px; flex-grow: 1; margin-top: 10px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 8px; color: #94a3b8; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { background: #1e293b; color: #ffffff; }
+    .nav-item.active { background: var(--primary); }
+    .nav-item .ic { font-size: 18px; }
 
-  /* SIDEBAR */
-  .sidebar-overlay {
-    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(16, 29, 52, 0.5); backdrop-filter: blur(2px); z-index: 80;
-  }
-  .sidebar {
-    width: 240px; background: var(--navy); color: #dde3ef; flex-shrink: 0;
-    display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
-    overflow-x: hidden; overflow-y: auto; z-index: 90; transition: transform 0.25s ease, width 0.25s ease;
-  }
-  body.sidebar-collapsed .sidebar { width: 0; min-width: 0; }
-  .sidebar-inner { width: 240px; }
-  .sidebar-brand {
-    display: flex; align-items: center; gap: 10px; padding: 18px 16px;
-    border-bottom: 1px solid var(--navy-line); white-space: nowrap;
-  }
-  .sidebar-brand .logo {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: linear-gradient(135deg, #3b6fd9, #7c5fd6);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0;
-  }
-  .sidebar-brand .name { font-size: 14px; font-weight: 700; color: #fff; }
-  .sidebar-nav { padding: 12px 8px; flex: 1; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px;
-    border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: #aab2c5;
-    white-space: nowrap; transition: background 0.15s, color 0.15s; min-height: 44px;
-  }
-  .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
-  .nav-item:hover { background: #1c2c4c; color: #fff; }
-  .nav-item.active { background: var(--blue); color: #fff; font-weight: 600; }
-  .sidebar-foot { padding: 14px 16px; font-size: 11px; color: #6d768c; border-top: 1px solid var(--navy-line); white-space: nowrap; text-align: center; }
+    /* MAIN CONTENT AREA */
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
+    .topbar { background: var(--panel-bg); border-bottom: 1px solid var(--border-color); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; sticky: top; z-index: 10; }
+    .topbar-left h1 { font-size: 20px; font-weight: 700; color: var(--text-dark); }
+    .topbar-left p { font-size: 13px; color: var(--text-muted); }
 
-  /* MAIN WORKSPACE */
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .topbar {
-    background: var(--card); border-bottom: 1px solid var(--line); padding: 14px 24px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    position: sticky; top: 0; z-index: 40;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .mobile-menu-btn { display: none; background: none; border: 1px solid var(--line); padding: 8px 12px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--ink); min-height: 40px; }
-  .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--ink); }
-  .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .filter-group { display: flex; align-items: center; gap: 8px; background: var(--bg-main); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .filter-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .filter-group select { border: none; background: transparent; font-size: 14px; font-weight: 600; color: var(--primary); outline: none; cursor: pointer; }
 
-  .live-chip {
-    display: flex; align-items: center; gap: 6px; background: var(--good-dim); color: var(--good);
-    padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px;
-  }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  #refreshBtn { background: var(--blue); color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; min-height: 38px; }
+    .status-cluster { display: flex; align-items: center; gap: 10px; }
+    .live-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--success-light); color: var(--success); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; }
+    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-  main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
-  .page { display: none; }
-  .page.active { display: block; animation: fadein 0.25s ease; }
-  @keyframes fadein { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-refresh { background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-refresh:hover { background: #1d4ed8; }
 
-  section { margin-bottom: 24px; }
-  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
-  .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--ink); }
+    /* CONTENT PAGES */
+    .page-container { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+    .page { display: none; flex-direction: column; gap: 24px; }
+    .page.active { display: flex; }
 
-  .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
-  .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
-  .filterbar label { font-size: 10.5px; color: var(--muted-dim); font-weight: 600; text-transform: uppercase; }
-  .filterbar select, .filterbar input[type=text] {
-    background: #fff; color: var(--ink); border: 1px solid var(--line);
-    border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px;
-  }
+    /* KPI CARDS & GRIDS */
+    .section-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .kpi-card { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-card.highlight-kpi { border: 2px solid var(--primary); background: var(--primary-light); }
+    .kpi-top { display: flex; align-items: center; gap: 10px; }
+    .kpi-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .kpi-icon.blue { background: var(--primary-light); color: var(--primary); }
+    .kpi-icon.good { background: var(--success-light); color: var(--success); }
+    .kpi-icon.bad { background: var(--danger-light); color: var(--danger); }
+    .kpi-icon.warn { background: var(--warning-light); color: var(--warning); }
+    .kpi-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .kpi-label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .kpi-num { font-size: 22px; font-weight: 700; color: var(--text-dark); }
 
-  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-  .kpi-card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-    padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; text-align: center; align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
-  .kpi-card .kpi-top { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
-  .kpi-icon { width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-  .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
-  .kpi-icon.good { background: var(--good-dim); color: var(--good); }
-  .kpi-icon.bad { background: var(--bad-dim); color: var(--bad); }
-  .kpi-icon.warn { background: var(--warn-dim); color: var(--warn); }
-  .kpi-icon.purple { background: #efe9fc; color: var(--purple); }
-  .kpi-card .kpi-label { font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-  .kpi-card .kpi-num { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
+    /* LEADERBOARDS & TABLES */
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .lb-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    .lb-card .pname { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .table-wrap { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { background: #f8fafc; padding: 12px 16px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-dark); white-space: nowrap; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
 
-  /* Empathy Parameter Cards */
-  .empathy-param-card {
-    border-radius: 10px; padding: 12px; border: 1px solid var(--line);
-    text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-  .empathy-param-card.green { background: var(--good-dim); border-color: #b7ebd3; }
-  .empathy-param-card.red { background: var(--bad-dim); border-color: #f3c7c1; }
-  .empathy-param-card .pname { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
-  .empathy-param-card .pval { font-size: 20px; font-weight: 800; }
-  .empathy-param-card.green .pval { color: var(--good); }
-  .empathy-param-card.red .pval { color: var(--bad); }
-  .empathy-param-card .ptarget { font-size: 10px; color: var(--muted-dim); margin-top: 2px; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .badge.pass { background: var(--success-light); color: var(--success); }
+    .badge.fail { background: var(--danger-light); color: var(--danger); }
 
-  /* Leaderboard Cards */
-  .lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
-  .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+    /* PERFORMANCE CARD PRINT AREA */
+    .perf-card-box { background: white; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .btn-pdf { background: var(--purple); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .btn-pdf:hover { background: #7e22ce; }
 
-  .pdf-card-wrapper {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    max-width: 1000px;
-    margin: 10px auto;
-    box-shadow: 0 20px 40px -15px rgba(16, 29, 52, 0.12), 0 0 15px rgba(59, 111, 217, 0.05);
-    animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  @keyframes popupCard {
-    0% { opacity: 0; transform: scale(0.96) translateY(12px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .pdf-header-bar {
-    background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%);
-    color: #ffffff;
-    padding: 18px 22px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: left;
-    box-shadow: 0 8px 20px rgba(16, 29, 52, 0.15);
-  }
-  .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
-  .pdf-agent-sub { font-size: 11.5px; color: #aab2c5; }
-
-  .pdf-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .pdf-kpi-card {
-    background: #ffffff;
-    border: 1px solid #e8ecf4;
-    border-radius: 12px;
-    padding: 14px 16px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 112px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.25s ease;
-  }
-  .pdf-kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px -6px rgba(16, 29, 52, 0.12), 0 4px 8px -2px rgba(16, 29, 52, 0.06);
-    border-color: #cbd5e1;
-  }
-  .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; }
-  .pdf-kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0; }
-  .pdf-kpi-sub { font-size: 10px; color: #94a3b8; }
-  .pdf-badge {
-    position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 700;
-  }
-  .pdf-badge.missed { background: #fdecea; color: #e0503f; }
-  .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
-
-  /* STRICT PDF EXPORT PRINT STYLES */
-  .pdf-export-mode {
-    width: 960px !important;
-    max-width: 960px !important;
-    padding: 16px !important;
-    background: #f8fafc !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
-    animation: none !important;
-  }
-  .pdf-export-mode .pdf-header-bar {
-    padding: 12px 16px !important;
-    margin-bottom: 12px !important;
-  }
-  .pdf-export-mode .pdf-agent-name { font-size: 18px !important; }
-  .pdf-export-mode .pdf-grid-3 {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-  }
-  .pdf-export-mode .pdf-kpi-card {
-    height: 92px !important;
-    padding: 8px 10px !important;
-    box-shadow: none !important;
-    transform: none !important;
-  }
-  .pdf-export-mode .pdf-kpi-title { font-size: 9.5px !important; }
-  .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
-  .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
-
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
-  thead th {
-    text-align: center; font-size: 10px; color: var(--muted); font-weight: 700;
-    padding: 9.5px 10px; border-bottom: 1.5px solid var(--line); position: sticky; top: 0; background: var(--card);
-    text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; z-index: 10;
-  }
-  tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; text-align: center; }
-  tbody tr:hover { background: #fafbfd; }
-  .table-wrap {
-    max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
-    -webkit-overflow-scrolling: touch; position: relative;
-  }
-
-  .table-wrap table th:first-child,
-  .table-wrap table td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 5;
-    background: var(--card);
-    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-  }
-  .table-wrap table th:first-child { z-index: 15; }
-
-  .num { font-family: var(--mono); }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
-  .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
-
-  tr.row-overbreak { background-color: #fdecea !important; }
-  .text-overbreak { color: #e0503f !important; font-weight: 700; }
-
-  .btn-pdf {
-    background: #101d34; color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px;
-  }
-  .btn-pdf:hover { background: #16243f; }
-
-  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted-dim); font-family: var(--mono); }
-
-  @media (max-width: 1280px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 820px) {
-    .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
-    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; }
-    body.sidebar-open .sidebar { transform: translateX(0); }
-    body.sidebar-open .sidebar-overlay { display: block; }
-    .topbar { padding: 10px 14px; }
-    main { padding: 12px 10px 30px; }
-    .grid-2, .grid-4 { grid-template-columns: 1fr; }
-    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .kpi-card { padding: 10px 8px; }
-    .kpi-card .kpi-num { font-size: 15px; }
-    .kpi-card .kpi-label { font-size: 9.5px; }
-    .pdf-card-wrapper { padding: 14px; border-radius: 12px; }
-    .btn-pdf { width: 100%; }
-    .filterbar select, .filterbar input[type=text] { min-width: 100%; }
-    .table-wrap { max-height: 60vh; }
-  }
-  @media (max-width: 480px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .kpi-card .kpi-num { font-size: 14px; }
-    .pdf-kpi-card { padding: 10px 12px; min-height: 100px; }
-    .pdf-kpi-value { font-size: 18px; }
-  }
-</style>
+    .text-success { color: var(--success) !important; }
+    .text-danger { color: var(--danger) !important; }
+    .text-warning { color: var(--warning) !important; }
+    .text-primary { color: var(--primary) !important; }
+    .text-purple { color: var(--purple) !important; }
+  </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
-
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-inner">
-    <div class="sidebar-brand">
-      <div class="logo">AW</div>
-      <div class="name">Albatross Wings</div>
-    </div>
-    <div class="sidebar-nav">
-      <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
-      <div class="nav-item" data-page="Performance Card" onclick="navTo('Performance Card')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>Performance Card</div>
-      <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
-      <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
-      <div class="nav-item" data-page="FCR & Service Delivery" onclick="navTo('FCR & Service Delivery')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR &amp; Service Delivery</div>
-      <div class="nav-item" data-page="Complaint Escalation and DKB %" onclick="navTo('Complaint Escalation and DKB %')"><span class="ic"><i class="bi bi-exclamation-triangle-fill"></i></span>Complaint &amp; DKB %</div>
-      <div class="nav-item" data-page="Lag Adherence & Over Break" onclick="navTo('Lag Adherence & Over Break')"><span class="ic"><i class="bi bi-clock-history"></i></span>Lag &amp; Adherence</div>
-      <div class="nav-item" data-page="AHT & CFS" onclick="navTo('AHT & CFS')"><span class="ic"><i class="bi bi-pie-chart-fill"></i></span>AHT &amp; CFS</div>
-      <div class="nav-item" data-page="Audited Call Details" onclick="navTo('Audited Call Details')"><span class="ic"><i class="bi bi-telephone-fill"></i></span>Audited Call Details</div>
-    </div>
-    <div class="sidebar-foot">Better Quality<br>Stronger Performance</div>
-  </div>
-</div>
-
-<!-- MAIN WORKSPACE -->
-<div class="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
-      <div><h1 id="pageTitle">Dashboard Overview</h1></div>
-    </div>
-    <div class="status-cluster">
-      <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
-      <button id="refreshBtn" onclick="loadDashboard(true)">Refresh now</button>
-    </div>
-  </div>
-
-  <main>
-    <!-- GLOBAL MONTH FILTER BAR -->
-    <div class="filterbar" style="background: var(--card); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 20px;">
-      <div class="fgroup" style="flex: 1; min-width: 220px;">
-        <label><i class="bi bi-calendar-month text-primary"></i> Global Month Filter (Auto-applies across sheets)</label>
-        <select id="globalMonthFilter" onchange="onGlobalMonthChange()">
-          <option value="">All Months (Entire Data)</option>
-        </select>
+<div class="app-container">
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="bi bi-speedometer2"></i></div>
+      <div class="brand-text">
+        <h2>Performance Hub</h2>
+        <p>Mohammad Imam Hossain</p>
       </div>
     </div>
 
-    <!-- 1. DASHBOARD OVERVIEW -->
-    <div class="page active" id="page-Dashboard">
-      <div class="filterbar">
-        <div class="fgroup">
-          <label>IB Agent Wise Filter</label>
-          <select id="dashAgentFilter" onchange="renderDashboardKpis()">
-            <option value="">All Agents (Entire TL Sheet)</option>
+    <nav class="nav-menu">
+      <div class="nav-item active" onclick="navTo('Dashboard', this)"><span class="ic"><i class="bi bi-grid-1x2-fill"></i></span>Overview</div>
+      <div class="nav-item" onclick="navTo('Performance Card', this)"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>Performance Card</div>
+      <div class="nav-item" onclick="navTo('Audit Details', this)"><span class="ic"><i class="bi bi-journal-check"></i></span>Audit Summary</div>
+      <div class="nav-item" onclick="navTo('Parameter wise Empathy', this)"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Empathy Parameters</div>
+      <div class="nav-item" onclick="navTo('FCR & Service Delivery', this)"><span class="ic"><i class="bi bi-check2-square"></i></span>FCR & Service Delivery</div>
+      <div class="nav-item" onclick="navTo('Complaint Escalation and DKB %', this)"><span class="ic"><i class="bi bi-exclamation-triangle-fill"></i></span>Complaint & DKB %</div>
+      <div class="nav-item" onclick="navTo('Lag Adherence & Over Break', this)"><span class="ic"><i class="bi bi-clock-history"></i></span>Lag & Adherence</div>
+      <div class="nav-item" onclick="navTo('AHT & CFS', this)"><span class="ic"><i class="bi bi-pie-chart-fill"></i></span>AHT & CFS</div>
+      <div class="nav-item" onclick="navTo('Audited Call Details', this)"><span class="ic"><i class="bi bi-telephone-fill"></i></span>Audited Calls</div>
+    </nav>
+  </aside>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="main-content">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">Dashboard Overview</h1>
+        <p>Real-time Team Metrics & Agent Insights</p>
+      </div>
+
+      <div class="topbar-right">
+        <!-- GLOBAL MONTH FILTER -->
+        <div class="filter-group">
+          <label><i class="bi bi-calendar3"></i> Month:</label>
+          <select id="globalMonthSelect" onchange="onMonthChange(this.value)">
+            <option value="">All Months</option>
           </select>
         </div>
-        <div class="fgroup">
-          <label>Audit Party Filter</label>
-          <select id="dashAuditPartyFilter" onchange="renderDashboardKpis()">
-            <option value="">All Audit Parties</option>
-            <option value="GP">GP</option>
-            <option value="Genex">Genex</option>
-          </select>
+
+        <div class="status-cluster">
+          <span class="live-chip"><span class="live-dot"></span><span id="syncStatus">Syncing...</span></span>
+          <button class="btn-refresh" onclick="loadDashboard(true)"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
         </div>
       </div>
-      <section>
-        <div class="section-head"><h2>Team Performance Summary</h2></div>
-        <div class="kpi-row" id="tlKpiGrid"></div>
-      </section>
-      <section>
-        <div class="section-head"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div>
+    </header>
+
+    <div class="page-container">
+      
+      <!-- 1. DASHBOARD OVERVIEW -->
+      <section class="page active" id="page-Dashboard">
+        <div class="section-title"><i class="bi bi-bar-chart-line-fill text-primary"></i> Team KPI Summary (Mohammad Imam Hossain)</div>
+        <div class="kpi-grid" id="tlKpiGrid"></div>
+
+        <div class="section-title" style="margin-top: 10px;"><i class="bi bi-trophy-fill text-warning"></i> Agent Leaderboard Highlights</div>
         <div class="grid-4" id="leaderboardGrid"></div>
       </section>
-    </div>
 
-    <!-- 2. PERFORMANCE CARD -->
-    <div class="page" id="page-Performance Card">
-      <div class="filterbar">
-        <div class="fgroup">
-          <label>Select Active Agent</label>
-          <select id="agentSelect" onchange="renderAgentCard(this.value)"></select>
+      <!-- 2. PERFORMANCE CARD -->
+      <section class="page" id="page-Performance Card">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color);">
+          <div class="filter-group" style="background: white;">
+            <label>Select Agent:</label>
+            <select id="agentSelect" onchange="renderPerformanceCard(this.value)"></select>
+          </div>
+          <button class="btn-pdf" onclick="downloadPdf()"><i class="bi bi-download"></i> Download PDF</button>
         </div>
-        <button class="btn-pdf" onclick="downloadPerformanceCardPdf()"><i class="bi bi-download"></i> Download PDF</button>
-      </div>
-      <div id="perfCardBox"></div>
-    </div>
+        <div id="perfCardBox" class="perf-card-box"></div>
+      </section>
 
-    <!-- 3. AUDIT DETAILS -->
-    <div class="page" id="page-Audit Details">
-      <div class="filterbar">
-        <div class="fgroup">
-          <label>Audit Party Filter</label>
-          <select id="auditPartyFilter" onchange="renderView('Audit Details')">
-            <option value="">All Audit Parties</option>
-            <option value="GP">GP</option>
-            <option value="Genex">Genex</option>
-          </select>
-        </div>
-      </div>
-      <section><div class="kpi-row mb-3" id="auditSummaryKpis"></div></section>
-      <section>
-        <div class="section-head"><h2>Active Agent Audit Summary</h2></div>
+      <!-- 3. AUDIT DETAILS -->
+      <section class="page" id="page-Audit Details">
+        <div class="kpi-grid" id="auditSummaryKpis"></div>
+        <div class="section-title"><i class="bi bi-people-fill text-primary"></i> Agent Audit Breakdown</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Agent Name</th><th>Total Audit</th><th>Pass</th><th>Fail</th><th>CE% (Fail Rate)</th><th>Empathy Pass (Sum)</th><th>Empathy Fail (Sum)</th><th>Empathy Pass%</th></tr>
+              <tr>
+                <th>Agent Name</th>
+                <th>Total Audit</th>
+                <th>Pass</th>
+                <th>Fail</th>
+                <th>CE% (Fail Rate)</th>
+                <th>Empathy Pass</th>
+                <th>Empathy Fail</th>
+                <th>Empathy Pass%</th>
+              </tr>
             </thead>
             <tbody id="auditDetailsTable"></tbody>
           </table>
         </div>
       </section>
-    </div>
 
-    <!-- 4. PARAMETER WISE EMPATHY -->
-    <div class="page" id="page-Parameter wise Empathy">
-      <section>
-        <div class="section-head"><h2>Empathy Parameter — Overall Pass % (Team Average)</h2></div>
-        <div class="grid-4 mb-3" id="empathyTeamKpis"></div>
-      </section>
-      <section>
-        <div class="section-head"><h2>Agent x Parameter Matrix</h2></div>
+      <!-- 4. PARAMETER WISE EMPATHY -->
+      <section class="page" id="page-Parameter wise Empathy">
+        <div class="section-title"><i class="bi bi-heart-fill text-purple"></i> Team Empathy Breakdown</div>
+        <div class="kpi-grid" id="empathyTeamKpis"></div>
+
+        <div class="section-title" style="margin-top: 10px;"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Agent x Empathy Parameter Matrix</div>
         <div class="table-wrap">
           <table>
             <thead id="empathyHeader"></thead>
@@ -443,771 +226,508 @@
           </table>
         </div>
       </section>
-    </div>
 
-    <!-- 5. FCR & SERVICE DELIVERY -->
-    <div class="page" id="page-FCR & Service Delivery">
-      <section><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
-      <section>
-        <div class="section-head"><h2>Agent FCR & Service Delivery Data</h2></div>
+      <!-- 5. FCR & SERVICE DELIVERY -->
+      <section class="page" id="page-FCR & Service Delivery">
+        <div class="kpi-grid" id="fcrSdKpis"></div>
+        <div class="section-title"><i class="bi bi-check-circle-fill text-success"></i> Agent FCR & Service Delivery Data</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Service Delivery Count</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>VDI ID</th>
+                <th>FCR %</th>
+                <th>Service Delivery Count</th>
+              </tr>
+            </thead>
             <tbody id="fcrSdTable"></tbody>
           </table>
         </div>
       </section>
-    </div>
 
-    <!-- 6. COMPLAINT ESCALATION AND DKB % -->
-    <div class="page" id="page-Complaint Escalation and DKB %">
-      <section><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
-
-      <section>
-        <div class="section-head"><h2>Complaint Escalation Table</h2></div>
-        <div class="table-wrap mb-4">
+      <!-- 6. COMPLAINT ESCALATION AND DKB % -->
+      <section class="page" id="page-Complaint Escalation and DKB %">
+        <div class="kpi-grid" id="compDkbKpis"></div>
+        <div class="section-title"><i class="bi bi-shield-exclamation text-warning"></i> Complaint Escalation & DKB Report</div>
+        <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total Complaints</th><th>Escalation Accuracy %</th></tr></thead>
-            <tbody id="complaintTable"></tbody>
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>VDI ID</th>
+                <th>Valid Escalations</th>
+                <th>Invalid Escalations</th>
+                <th>Escalation %</th>
+                <th>Present % (DKB)</th>
+              </tr>
+            </thead>
+            <tbody id="compDkbTable"></tbody>
           </table>
         </div>
       </section>
 
-      <section>
-        <div class="section-head"><h2>DKB % Attendance Table</h2></div>
+      <!-- 7. LAG ADHERENCE & OVER BREAK -->
+      <section class="page" id="page-Lag Adherence & Over Break">
+        <div class="kpi-grid" id="lagAdhKpis"></div>
+        <div class="section-title"><i class="bi bi-clock-history text-primary"></i> Lag & Adherence Report</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health Status</th></tr></thead>
-            <tbody id="dkbTable"></tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-
-    <!-- 7. LAG ADHERENCE & OVER BREAK -->
-    <div class="page" id="page-Lag Adherence & Over Break">
-      <section><div class="kpi-row mb-3" id="lagAdhKpis"></div></section>
-      <section>
-        <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Adherence %</th><th>Extra Break</th><th>Lag Time</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>Adherence %</th>
+                <th>Extra Break</th>
+                <th>Lag Time</th>
+              </tr>
+            </thead>
             <tbody id="lagAdhTable"></tbody>
           </table>
         </div>
       </section>
-    </div>
 
-    <!-- 8. AHT & CFS -->
-    <div class="page" id="page-AHT & CFS">
-      <section><div class="kpi-row mb-3" id="ahtCfsKpis"></div></section>
-      <section>
-        <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
+      <!-- 8. AHT & CFS -->
+      <section class="page" id="page-AHT & CFS">
+        <div class="kpi-grid" id="ahtCfsKpis"></div>
+        <div class="section-title"><i class="bi bi-graph-up-arrow text-success"></i> Agent AHT & CFS Analysis</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>AHT (Sec)</th><th>AHT Status / Reduction Required</th><th>CFS %</th><th>CFS Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>AHT</th>
+                <th>AHT Status</th>
+                <th>CFS %</th>
+                <th>CFS Status</th>
+              </tr>
+            </thead>
             <tbody id="ahtCfsTable"></tbody>
           </table>
         </div>
       </section>
-    </div>
 
-    <!-- 9. AUDITED CALL DETAILS -->
-    <div class="page" id="page-Audited Call Details">
-      <div class="filterbar">
-        <div class="fgroup">
-          <label>Search Record</label>
-          <input type="text" id="callSearch" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()">
+      <!-- 9. AUDITED CALL DETAILS -->
+      <section class="page" id="page-Audited Call Details">
+        <div class="section-title"><i class="bi bi-telephone-inbound-fill text-primary"></i> Detailed Audited Call List</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>VDI ID</th>
+                <th>Contact Date</th>
+                <th>Audit Party</th>
+                <th>Call Topic</th>
+                <th>Result</th>
+                <th>Critical Error</th>
+                <th>Empathy Pass</th>
+                <th>Empathy Fail</th>
+              </tr>
+            </thead>
+            <tbody id="auditedCallsTable"></tbody>
+          </table>
         </div>
-        <div class="fgroup">
-          <label>Result Filter</label>
-          <select id="resultFilter" onchange="filterCalls()">
-            <option value="">All Results (Pass & Fail)</option>
-            <option value="pass">Pass Only</option>
-            <option value="fail">Fail Only</option>
-          </select>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Agent Name</th><th>Contact Date</th><th>Audit Party</th><th>ANI</th><th>Call Topic</th><th>Fail Remarks</th><th>Result</th></tr>
-          </thead>
-          <tbody id="callTableBody"></tbody>
-        </table>
-      </div>
+      </section>
+
     </div>
   </main>
-
-  <footer id="footerNote">—</footer>
 </div>
 
 <script>
-  let appData = null;
-  let activeTab = 'Dashboard';
-  let currentCardAgentName = '';
-  let selectedGlobalMonth = '';
+  let appData = {};
+  let selectedGlobalMonth = "";
+  let currentPage = "Dashboard";
 
-  function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
+  // Match month helper
+  function matchMonth(itemMonth) {
+    if (!selectedGlobalMonth || selectedGlobalMonth === '') return true;
+    if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return true;
+    const sel = selectedGlobalMonth.toLowerCase().trim();
+    const item = String(itemMonth).toLowerCase().trim();
+    return item.includes(sel) || sel.includes(item);
+  }
 
-  async function loadDashboard(manual = false) {
-    const btn = document.getElementById('refreshBtn');
-    if (manual && btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
-
+  // Load Data
+  async function loadDashboard(forceRefresh = false) {
+    document.getElementById('syncStatus').innerText = 'Loading...';
     try {
-      const res = await fetch('./data.json?t=' + new Date().getTime());
-      appData = await res.json();
+      const cacheBust = forceRefresh ? `?t=${new Date().getTime()}` : '';
+      const response = await fetch(`./data.json${cacheBust}`);
+      if (!response.ok) throw new Error('Data file not found');
+      appData = await response.json();
 
-      const chip = document.getElementById('liveChip');
-      const liveMeta = document.getElementById('liveMeta');
-
-      if (appData.lastUpdated) {
-        const dt = new Date(appData.lastUpdated);
-        liveMeta.innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
-        chip.classList.remove('stale');
-      }
-
-      populateGlobalMonthDropdown();
-      renderView(activeTab);
+      document.getElementById('syncStatus').innerText = 'Live Synced';
+      populateMonthDropdown();
+      renderAllPages();
     } catch (err) {
-      console.error("Data load failed:", err);
-      document.getElementById('liveChip').classList.add('stale');
-      document.getElementById('liveMeta').innerText = 'Connection Error';
-    } finally {
-      if (manual && btn) { btn.disabled = false; btn.textContent = 'Refresh now'; }
+      console.error("Dashboard Load Error:", err);
+      document.getElementById('syncStatus').innerText = 'Sync Error';
     }
   }
 
-  setInterval(() => { loadDashboard(false); }, 30000);
-
-  function populateGlobalMonthDropdown() {
-    const select = document.getElementById('globalMonthFilter');
-    if (!select || !appData) return;
-
-    let monthSet = new Set(appData.availableMonths || []);
-
-    // Collect months from auditing records dynamically
-    const allCalls = appData.sheets['Audited Call Details'] || [];
-    allCalls.forEach(c => { if (c.month) monthSet.add(c.month); });
-
-    const sortedMonths = Array.from(monthSet).filter(Boolean).sort();
-    const currentVal = select.value;
-    select.innerHTML = '<option value="">All Months (Entire Data)</option>';
-    
-    sortedMonths.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m;
-      opt.textContent = m;
-      select.appendChild(opt);
+  function populateMonthDropdown() {
+    const sel = document.getElementById('globalMonthSelect');
+    const months = appData.availableMonths || [];
+    let opts = `<option value="">All Months</option>`;
+    months.forEach(m => {
+      opts += `<option value="${m}" ${m === selectedGlobalMonth ? 'selected' : ''}>${m}</option>`;
     });
-
-    if (currentVal && sortedMonths.includes(currentVal)) {
-      select.value = currentVal;
-    }
+    sel.innerHTML = opts;
   }
 
-  function onGlobalMonthChange() {
-    const select = document.getElementById('globalMonthFilter');
-    selectedGlobalMonth = select ? select.value.trim().toLowerCase() : '';
-    renderView(activeTab);
+  function onMonthChange(val) {
+    selectedGlobalMonth = val;
+    renderAllPages();
   }
 
- // Guaranteed Safe Month Matcher
-function matchMonth(itemMonth) {
-  if (!selectedGlobalMonth || selectedGlobalMonth === '') return true;
-  if (!itemMonth || String(itemMonth).trim() === '' || String(itemMonth).trim().toLowerCase() === 'n/a') return true; 
+  function navTo(pageName, el) {
+    currentPage = pageName;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
 
-  const sel = selectedGlobalMonth.toLowerCase().trim();
-  const item = String(itemMonth).toLowerCase().trim();
-
-  return item.includes(sel) || sel.includes(item);
-}
-
-  function navTo(tabName) {
-    activeTab = tabName;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`page-${pageName}`).classList.add('active');
+    document.getElementById('pageTitle').innerText = pageName === 'Dashboard' ? 'Dashboard Overview' : pageName;
 
-    const activePage = document.getElementById('page-' + tabName);
-    if (activePage) activePage.classList.add('active');
-
-    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-    if (activeNav) activeNav.classList.add('active');
-
-    document.getElementById('pageTitle').innerText = tabName;
-    document.body.classList.remove('sidebar-open');
-    renderView(tabName);
+    renderCurrentPage();
   }
 
-  function renderDashboardKpis() {
-    if (!appData) return;
+  function renderAllPages() {
+    renderOverview();
+    renderCurrentPage();
+  }
 
-    const agentSelect = document.getElementById('dashAgentFilter');
-    if (agentSelect && agentSelect.options.length <= 1) {
-      const allCalls = appData.sheets['Audited Call Details'] || [];
-      const agentNames = [...new Set(allCalls.map(c => c.agentName).filter(n => n && n !== 'N/A'))].sort();
-      
-      agentNames.forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        agentSelect.appendChild(opt);
-      });
+  function renderCurrentPage() {
+    switch (currentPage) {
+      case "Dashboard": renderOverview(); break;
+      case "Performance Card": populateAgentDropdown(); break;
+      case "Audit Details": renderAuditDetails(); break;
+      case "Parameter wise Empathy": renderEmpathy(); break;
+      case "FCR & Service Delivery": renderFcrSd(); break;
+      case "Complaint Escalation and DKB %": renderComplaintDkb(); break;
+      case "Lag Adherence & Over Break": renderLagAdh(); break;
+      case "AHT & CFS": renderAhtCfs(); break;
+      case "Audited Call Details": renderAuditedCalls(); break;
     }
+  }
 
-    const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
-    const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
-
-    const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
-
-    const filteredCalls = allCalls.filter(c => {
-      const agentName = String(c.agentName || '').toLowerCase();
-      const vdi = String(c.vdiId || '').toLowerCase();
-      const party = String(c.auditParty || '').toLowerCase();
-
-      const matchAgent = !selectedAgent || agentName === selectedAgent || vdi === selectedAgent;
-      const matchParty = !selectedParty || party.includes(selectedParty);
-
-      return matchAgent && matchParty;
-    });
-
-    const totalAudit = filteredCalls.length;
-    let totalPass = 0;
-    let totalFail = 0;
-
-    filteredCalls.forEach(c => {
-      const resVal = String(c.result || '').trim().toLowerCase();
-      if (resVal === 'pass') totalPass++;
-      else if (resVal === 'fail') totalFail++;
-    });
-
-    const passPercent = totalAudit > 0 ? ((totalPass / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
-    const failPercent = totalAudit > 0 ? ((totalFail / totalAudit) * 100).toFixed(1) + '%' : '0.0%';
-
-    let empPassSum = 0, empFailSum = 0;
-    filteredCalls.forEach(c => {
-      empPassSum += (parseInt(c.empPass) || 0);
-      empFailSum += (parseInt(c.empFail) || 0);
-    });
-
-    if (empPassSum === 0 && empFailSum === 0) {
-      const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
-      const relevantPerf = selectedAgent 
-        ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent)
-        : perfList;
-
-      relevantPerf.forEach(a => {
-        empPassSum += (parseInt(a.empathyPassSum) || 0);
-        empFailSum += (parseInt(a.empathyFailSum) || 0);
-      });
-    }
-
-    const empTotal = empPassSum + empFailSum;
-    const empathyPercent = empTotal > 0 ? ((empPassSum / empTotal) * 100).toFixed(1) + '%' : '0.0%';
-
+  // 1. RENDER DASHBOARD OVERVIEW
+  function renderOverview() {
     const tl = appData.tlSummary || {};
-    let cfsVal = tl.teamCfs || 'N/A';
-    let ahtVal = tl.aht || 'N/A';
-    let fcrVal = tl.fcr || 'N/A'; 
-    let compPct = tl.complaintEscalationPct || '0%';
-    let sdCount = tl.sdCount || 0;
-    let dkbPct = tl.dkbPercent || 'N/A';
+    const lb = appData.leaderboards || {};
 
-    if (selectedAgent) {
-      const perfList = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
-      const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-      
-      const fcrSdList = (appData.sheets['FCR & Service Delivery']?.list || []).filter(a => matchMonth(a.month));
-      const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-
-      const ahtCfsList = (appData.sheets['AHT & CFS']?.list || []).filter(a => matchMonth(a.month));
-      const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
-
-      if (agentPerf) {
-        ahtVal = agentPerf.aht || 'N/A';
-        compPct = agentPerf.escalationAccuracyPct || '0%';
-        sdCount = agentPerf.sdCount || 0;
-        dkbPct = agentPerf.dkbPct || 'N/A';
-      }
-      if (agentAhtCfs) cfsVal = agentAhtCfs.cfsPercent || 'N/A';
-      if (agentFcr) fcrVal = agentFcr.fcrPercent || 'N/A';
-    }
-
-    const grid = document.getElementById('tlKpiGrid');
-    if (grid) {
-      grid.innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${totalAudit}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${totalPass} (${passPercent})</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail / Fail %</span></div><div class="kpi-num text-danger">${totalFail} (${failPercent})</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy %</span></div><div class="kpi-num text-purple">${empathyPercent}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} CFS %</span></div><div class="kpi-num">${cfsVal}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} AHT</span></div><div class="kpi-num">${ahtVal}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} FCR %</span></div><div class="kpi-num text-success">${fcrVal}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${compPct}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${sdCount}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">${selectedAgent ? 'Agent' : 'Team'} DKB %</span></div><div class="kpi-num text-info">${dkbPct}</div></div>
-      `;
-    }
-  }
-
-  function renderView(tab) {
-    if (!appData) return;
-
-    if (tab === 'Dashboard') {
-      renderDashboardKpis();
-      const lb = appData.leaderboards || {};
-
-      document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
-          ${(lb.topCfs || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
+    // TL SUMMARY KPI GRID (Highlighting Team CFS %)
+    document.getElementById('tlKpiGrid').innerHTML = `
+      <div class="kpi-card highlight-kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon blue"><i class="bi bi-trophy-fill"></i></div>
+          <span class="kpi-label">Team CFS %</span>
         </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
-          ${(lb.topAht || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
+        <div class="kpi-num text-primary">${tl.teamCfs || 'N/A'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon blue"><i class="bi bi-hash"></i></div>
+          <span class="kpi-label">Total Audits</span>
         </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
-          ${(lb.topEmpathy || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
+        <div class="kpi-num">${tl.totalAudit || 0}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div>
+          <span class="kpi-label">Pass Rate</span>
         </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
-          ${(lb.topCe || []).filter(a => matchMonth(a.month)).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
-          </tbody></table></div>
+        <div class="kpi-num text-success">${tl.passPercent || '0.0%'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div>
+          <span class="kpi-label">Fail Rate</span>
         </div>
-      `;
-      return;
-    }
-
-    if (tab === 'Performance Card') {
-      const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
-      const select = document.getElementById('agentSelect');
-      const prevVal = select.value;
-      select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
-      if (list.length > 0) renderAgentCard(select.value || list[0].name);
-      else document.getElementById('perfCardBox').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No agent records found for the selected month.</div>';
-      return;
-    }
-
-    if (tab === 'Audit Details') {
-      const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
-      const allCalls = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
-      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchMonth(a.month));
-
-      const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
-
-      let auditDetailsList = [];
-      let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
-
-      activeAgents.forEach(agent => {
-        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
-        const name = String(agent['Name'] || '').trim().toLowerCase();
-
-        const agentAudits = filteredAudits.filter(r => {
-          const rVdi = String(r.vdiId || r['VDI ID'] || '').trim().toLowerCase();
-          const rName = String(r.agentName || r['Agent Name'] || r['Evaluatee Name'] || '').trim().toLowerCase();
-          return (vdi && rVdi === vdi) || (name && rName === name);
-        });
-
-        const totalAudits = agentAudits.length;
-        const passes = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'pass').length;
-        const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'fail').length;
-
-        const ceFails = agentAudits.filter(r => {
-          const ceVal = String(r.criticalError || r['Critical Error'] || '').toLowerCase();
-          return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail');
-        }).length;
-
-        const cePercent = totalAudits > 0 ? ((ceFails / totalAudits) * 100).toFixed(1) + '%' : '0.0%';
-
-        let empPassSum = 0, empFailSum = 0;
-        agentAudits.forEach(call => {
-          empPassSum += parseInt(call.empPass || 0) || 0;
-          empFailSum += parseInt(call.empFail || 0) || 0;
-        });
-
-        const empTotal = empPassSum + empFailSum;
-        const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
-        const empPercent = empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%';
-
-        if (totalAudits > 0) {
-          if (fails === 0) failFreeCountAgent++; else failCountAgent++;
-          if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++;
-        }
-
-        auditDetailsList.push({
-          agentName: agent['Name'],
-          vdiId: agent['VDI ID'],
-          id: agent['ID'],
-          totalAudits: totalAudits,
-          totalPass: passes,
-          totalFail: fails,
-          cePercent: cePercent,
-          empathyPass: empPassSum,
-          empathyFail: empFailSum,
-          empathyPassPercent: empPercent
-        });
-      });
-
-      const tot = activeAgents.length;
-      document.getElementById('auditSummaryKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Fail Free (100% Pass)</span></div><div class="kpi-num text-success">${failFreeCountAgent} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail Found</span></div><div class="kpi-num text-danger">${failCountAgent} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy Target meet (>=87.5%)</span></div><div class="kpi-num text-success">${empathyMetCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-exclamation-circle-fill"></i></div><span class="kpi-label">Empathy Below Target (<87.5%)</span></div><div class="kpi-num text-warning">${empathyBelowTargetAgent} / ${tot}</div></div>
-      `;
-
-      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.totalAudits}</td>
-          <td class="num text-success">${a.totalPass}</td>
-          <td class="num text-danger">${a.totalFail}</td>
-          <td class="num ${parseFloat(a.cePercent) === 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.cePercent}</td>
-          <td class="num text-primary">${a.empathyPass}</td>
-          <td class="num text-danger">${a.empathyFail}</td>
-          <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
-        </tr>`).join('');
-      return;
-    }
-
-    if (tab === 'Parameter wise Empathy') {
-      const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
-      const filteredAgentList = (emp.agentList || []).filter(a => matchMonth(a.month));
-
-      let kpiHtml = '';
-      Object.keys(emp.teamAvg).forEach(p => {
-        let valStr = emp.teamAvg[p];
-        let valNum = parseFloat(String(valStr).replace('%', ''));
-        let isGood = !isNaN(valNum) && valNum >= 87.5;
-
-        kpiHtml += `
-          <div class="empathy-param-card ${isGood ? 'green' : 'red'}">
-            <div class="pname">${p}</div>
-            <div class="pval">${valStr}</div>
-            <div class="ptarget">target 87.5%</div>
-          </div>`;
-      });
-      document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
-
-      const headers = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
-      document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
-
-      document.getElementById('empathyBody').innerHTML = filteredAgentList.map(a => `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          ${headers.map(h => {
-            let cellVal = a[h] || 'N/A';
-            let numVal = parseFloat(String(cellVal).replace('%', ''));
-            let colorClass = !isNaN(numVal) ? (numVal >= 87.5 ? 'text-success fw-bold' : 'text-danger fw-bold') : '';
-            return `<td class="num ${colorClass}">${cellVal}</td>`;
-          }).join('')}
-        </tr>`).join('');
-      return;
-    }
-
-    if (tab === 'FCR & Service Delivery') {
-      const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
-      const filteredList = (fcrSd.list || []).filter(a => matchMonth(a.month));
-      const tot = filteredList.length;
-
-      let fcrMeetCount = filteredList.filter(a => {
-        let fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
-        return !isNaN(fcrNum) && fcrNum >= 92.0;
-      }).length;
-      let sdCount = filteredList.filter(a => a.serviceDeliveryCount > 0).length;
-
-      document.getElementById('fcrSdKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target meet (>= 92%)</span></div><div class="kpi-num text-success">${fcrMeetCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">With Service Delivery</span></div><div class="kpi-num text-info">${sdCount} / ${tot}</div></div>
-      `;
-
-      document.getElementById('fcrSdTable').innerHTML = filteredList.map(a => `
-        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num">${a.fcrPercent}</td><td class="num">${a.serviceDeliveryCount}</td></tr>
-      `).join('');
-      return;
-    }
-
-    if (tab === 'Complaint Escalation and DKB %') {
-      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const filteredList = (compDkb.list || []).filter(a => matchMonth(a.month));
-      const tot = filteredList.length;
-
-      let compMetCount = 0, dkbMetCount = 0;
-      filteredList.forEach(a => {
-        let escVal = parseFloat(String(a.escalationPercent).replace('%', ''));
-        if (!isNaN(escVal) && escVal >= 95.0) compMetCount++;
-        let dkbVal = parseFloat(String(a.dkbPercent).replace('%', ''));
-        if (!isNaN(dkbVal) && dkbVal >= 95.0) dkbMetCount++;
-      });
-
-      document.getElementById('compDkbKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target meet (>=95%)</span></div><div class="kpi-num text-success">${compMetCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target meet (>=95%)</span></div><div class="kpi-num text-info">${dkbMetCount} / ${tot}</div></div>
-      `;
-
-      document.getElementById('complaintTable').innerHTML = filteredList.map(a => `
-        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>
-      `).join('');
-
-      document.getElementById('dkbTable').innerHTML = filteredList.map(a => `
-        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>
-      `).join('');
-      return;
-    }
-
-    if (tab === 'Lag Adherence & Over Break') {
-      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const filteredList = (lagAdh.list || []).filter(a => matchMonth(a.month));
-      const tot = filteredList.length;
-
-      let overBreakZeroCount = 0, lagZeroCount = 0, adhMetCount = 0;
-      filteredList.forEach(a => {
-        let extraBreakNum = parseFloat(String(a.extraBreak).replace(/[^0-9.]/g, '')) || 0;
-        let lagTimeNum = parseFloat(String(a.lagTime).replace(/[^0-9.]/g, '')) || 0;
-        let adhVal = parseFloat(String(a.adherence).replace('%', '')) || 0;
-
-        if (extraBreakNum === 0) overBreakZeroCount++;
-        if (lagTimeNum === 0) lagZeroCount++;
-        if (adhVal >= 100.0) adhMetCount++;
-      });
-
-      document.getElementById('lagAdhKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-cup-hot-fill"></i></div><span class="kpi-label">Over Break Target Meet</span></div><div class="kpi-num text-success">${overBreakZeroCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time Target Meet</span></div><div class="kpi-num text-info">${lagZeroCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${adhMetCount} / ${tot}</div></div>
-      `;
-
-      document.getElementById('lagAdhTable').innerHTML = filteredList.map(a => `
-        <tr class="${a.hasOverBreak ? 'row-overbreak' : ''}">
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.adherence}</td>
-          <td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td>
-          <td class="num">${a.lagTime}</td>
-        </tr>`).join('');
-      return;
-    }
-
-    if (tab === 'AHT & CFS') {
-      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const filteredList = (ahtCfs.list || []).filter(a => matchMonth(a.month));
-      const tot = filteredList.length;
-
-      let ahtMetCount = 0, cfsMetCount = 0, validCfsAgentCount = 0;
-      filteredList.forEach(a => {
-        if (a.ahtVal <= 170 && a.ahtVal > 0) ahtMetCount++;
-        let cfsVal = parseFloat(String(a.cfsPercent).replace('%', ''));
-        if (!isNaN(cfsVal)) {
-          validCfsAgentCount++;
-          if (cfsVal >= 90.0) cfsMetCount++;
-        }
-      });
-
-      document.getElementById('ahtCfsKpis').innerHTML = `
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target meet (<=170s)</span></div><div class="kpi-num text-success">${ahtMetCount} / ${tot}</div></div>
-        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${cfsMetCount} / ${validCfsAgentCount}</div></div>
-      `;
-
-      document.getElementById('ahtCfsTable').innerHTML = filteredList.map(a => `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.ahtSec}</td>
-          <td><span class="pill ${a.ahtVal <= 170 && a.ahtVal > 0 ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
-          <td class="num">${a.cfsPercent}</td>
-          <td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target meet') ? 'good' : 'bad'}">${a.cfsStatus}</span></td>
-        </tr>`).join('');
-      return;
-    }
-
-    if (tab === 'Audited Call Details') {
-      filterCalls();
-      return;
-    }
-  }
-
-  function renderAgentCard(agentName) {
-    currentCardAgentName = agentName;
-    const list = (appData.sheets['Performance Card'] || []).filter(a => matchMonth(a.month));
-    const agent = list.find(a => a.name === agentName);
-    const box = document.getElementById('perfCardBox');
-
-    if (!agent) { 
-      box.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);">No performance card found for this agent in the selected month.</div>'; 
-      return; 
-    }
-
-    const failPctNum = parseFloat(String(agent.auditFailPct).replace('%', ''));
-    const isFailMet = !isNaN(failPctNum) && failPctNum === 0;
-
-    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
-    const isEmpMet = !isNaN(empPctNum) && empPctNum >= 87.5;
-
-    const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
-    const isAhtMet = !isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0;
-
-    const escPctNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
-    const isEscMet = !isNaN(escPctNum) && escPctNum >= 95;
-
-    const dkbPctNum = parseFloat(String(agent.dkbPct).replace('%', ''));
-    const isDkbMet = !isNaN(dkbPctNum) && dkbPctNum >= 95;
-
-    const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
-    const isAdhMet = !isNaN(adhNum) && adhNum >= 100;
-
-    const rtcNum = parseFloat(String(agent.rtcAccuracyPct).replace('%', ''));
-    const isRtcMet = !isNaN(rtcNum) && rtcNum >= 87.5;
-
-    box.innerHTML = `
-      <div class="pdf-card-wrapper" id="pdfCardTarget">
-        <div class="pdf-header-bar">
-          <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor}</div>
+        <div class="kpi-num text-danger">${tl.failPercent || '0.0%'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon bad"><i class="bi bi-exclamation-octagon-fill"></i></div>
+          <span class="kpi-label">Critical Error %</span>
         </div>
-
-        <div class="pdf-grid-3">
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isFailMet ? 'delivered' : 'missed'}">${isFailMet ? 'Target Meet' : 'Fail Found'}</span>
-            <div class="pdf-kpi-title">Audit Fail Rate</div>
-            <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
-            <div class="pdf-kpi-sub">Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">Empathy Pass %</div>
-            <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
-            <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.ceCount === 0 ? 'delivered' : 'missed'}">${agent.ceCount === 0 ? 'CE Free' : 'CE Found'}</span>
-            <div class="pdf-kpi-title">Critical Error Count</div>
-            <div class="pdf-kpi-value ${agent.ceCount === 0 ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
-            <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Meet' : 'Exceeds Target'}</span>
-            <div class="pdf-kpi-title">AHT (Seconds)</div>
-            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: <= 170s</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">Escalation Accuracy</div>
-            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'delivered' : 'missed'}">${agent.overBreak === '0m' || agent.overBreak === '0' ? 'No Extra Break' : 'Extra Break Taken'}</span>
-            <div class="pdf-kpi-title">Over Break</div>
-            <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
-            <div class="pdf-kpi-sub">Target: 0m</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'delivered' : 'missed'}">${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'Zero Lag' : 'Lag Recorded'}</span>
-            <div class="pdf-kpi-title">Lag Hour</div>
-            <div class="pdf-kpi-value ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
-            <div class="pdf-kpi-sub">Target: 0h 0m</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? '100% Adhered' : 'Below 100%'}</span>
-            <div class="pdf-kpi-title">Adherence %</div>
-            <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
-            <div class="pdf-kpi-sub">Target: 100.0%</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">DKB %</div>
-            <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
-            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.sdCount > 0 ? 'delivered' : 'missed'}">${agent.sdCount > 0 ? 'Delivered' : 'None'}</span>
-            <div class="pdf-kpi-title">Service Delivery Count</div>
-            <div class="pdf-kpi-value text-info">${agent.sdCount}</div>
-            <div class="pdf-kpi-sub">Total SDs generated</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isRtcMet ? 'delivered' : 'missed'}">${isRtcMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">RTC Accuracy %</div>
-            <div class="pdf-kpi-value ${isRtcMet ? 'text-success' : 'text-danger'}">${agent.rtcAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Target: >= 87.5%</div>
-          </div>
+        <div class="kpi-num text-danger">${tl.cePercent || '0.0%'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div>
+          <span class="kpi-label">GP Call Empathy %</span>
         </div>
+        <div class="kpi-num text-purple">${tl.gpEmpathyPercent || '0.0%'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div>
+          <span class="kpi-label">Team FCR %</span>
+        </div>
+        <div class="kpi-num text-success">${tl.fcr || 'N/A'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div>
+          <span class="kpi-label">Team AHT</span>
+        </div>
+        <div class="kpi-num">${tl.aht || 'N/A'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div>
+          <span class="kpi-label">Complaint Valid %</span>
+        </div>
+        <div class="kpi-num">${tl.complaintEscalationPct || '0.0%'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon good"><i class="bi bi-truck"></i></div>
+          <span class="kpi-label">SD Count</span>
+        </div>
+        <div class="kpi-num text-success">${tl.sdCount || 0}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div>
+          <span class="kpi-label">Team DKB %</span>
+        </div>
+        <div class="kpi-num">${tl.dkbPercent || 'N/A'}</div>
+      </div>
+    `;
+
+    // LEADERBOARDS
+    const filterList = (arr) => (arr || []).filter(a => matchMonth(a.month));
+    document.getElementById('leaderboardGrid').innerHTML = `
+      <div class="lb-card">
+        <div class="pname text-primary"><i class="bi bi-trophy-fill"></i> TOP 05 CFS</div>
+        <table>
+          <thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead>
+          <tbody>${filterList(lb.topCfs).slice(0,5).map((a,i)=>`<tr><td>${i+1}</td><td>${a.agentName}</td><td class="text-success">${a.cfsDisplay}</td></tr>`).join('') || '<tr><td colspan="3">No data</td></tr>'}</tbody>
+        </table>
+      </div>
+      <div class="lb-card">
+        <div class="pname text-warning"><i class="bi bi-lightning-fill"></i> TOP 05 AHT</div>
+        <table>
+          <thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead>
+          <tbody>${filterList(lb.topAht).slice(0,5).map((a,i)=>`<tr><td>${i+1}</td><td>${a.agentName}</td><td>${a.ahtDisplay}</td></tr>`).join('') || '<tr><td colspan="3">No data</td></tr>'}</tbody>
+        </table>
+      </div>
+      <div class="lb-card">
+        <div class="pname text-purple"><i class="bi bi-heart-fill"></i> TOP 05 EMPATHY</div>
+        <table>
+          <thead><tr><th>#</th><th>Agent</th><th>Empathy %</th></tr></thead>
+          <tbody>${filterList(lb.topEmpathy).slice(0,5).map((a,i)=>`<tr><td>${i+1}</td><td>${a.agentName}</td><td class="text-purple">${a.empathyDisplay}</td></tr>`).join('') || '<tr><td colspan="3">No data</td></tr>'}</tbody>
+        </table>
+      </div>
+      <div class="lb-card">
+        <div class="pname text-danger"><i class="bi bi-exclamation-octagon-fill"></i> TOP 05 CE CRITICAL</div>
+        <table>
+          <thead><tr><th>#</th><th>Agent</th><th>CE Count</th></tr></thead>
+          <tbody>${filterList(lb.topCe).slice(0,5).map((a,i)=>`<tr><td>${i+1}</td><td>${a.agentName}</td><td class="text-danger">${a.ceCount}</td></tr>`).join('') || '<tr><td colspan="3">No data</td></tr>'}</tbody>
+        </table>
       </div>
     `;
   }
 
-  function filterCalls() {
-    if (!appData) return;
-    const search = (document.getElementById('callSearch')?.value || '').toLowerCase();
-    const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
-    const list = (appData.sheets['Audited Call Details'] || []).filter(c => matchMonth(c.month));
+  // 4. PARAMETER WISE EMPATHY
+  function renderEmpathy() {
+    const empData = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
+    const teamAvg = empData.teamAvg || {};
+    const agentList = (empData.agentList || []).filter(a => matchMonth(a.month));
 
-    const filtered = list.filter(c => {
-      const name = String(c.agentName || '').toLowerCase();
-      const ani = String(c.ani || '').toLowerCase();
-      const topic = String(c.callTopic || '').toLowerCase();
-      const res = String(c.result || '').toLowerCase();
+    const params = ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
 
-      const matchSearch = !search || name.includes(search) || ani.includes(search) || topic.includes(search);
-      const matchRes = !resFilter || res === resFilter;
-
-      return matchSearch && matchRes;
+    // Overall Empathy Average Calculation
+    let sum = 0, count = 0;
+    params.forEach(p => {
+      let val = teamAvg[p];
+      if (val && val !== 'N/A') {
+        let num = parseFloat(String(val).replace('%', ''));
+        if (!isNaN(num) && num > 0) {
+          sum += num;
+          count++;
+        }
+      }
     });
+    const overallAvgStr = count > 0 ? (sum / count).toFixed(1) + '%' : 'N/A';
 
-    document.getElementById('callTableBody').innerHTML = filtered.map(c => `
+    // Render KPI Cards with Highlighted Overall Average
+    let kpisHtml = `
+      <div class="kpi-card highlight-kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon good"><i class="bi bi-star-fill"></i></div>
+          <span class="kpi-label">Overall Empathy Average</span>
+        </div>
+        <div class="kpi-num text-success">${overallAvgStr}</div>
+      </div>
+    `;
+
+    params.forEach(p => {
+      kpisHtml += `
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div>
+            <span class="kpi-label">${p}</span>
+          </div>
+          <div class="kpi-num">${teamAvg[p] || 'N/A'}</div>
+        </div>
+      `;
+    });
+    document.getElementById('empathyTeamKpis').innerHTML = kpisHtml;
+
+    // Render Table
+    document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th><th>VDI ID</th>${params.map(p => `<th>${p}</th>`).join('')}</tr>`;
+    document.getElementById('empathyBody').innerHTML = agentList.map(a => `
       <tr>
-        <td class="fw-bold text-start">${c.agentName}</td>
-        <td class="num">${c.contactDate}</td>
-        <td>${c.auditParty}</td>
-        <td class="num">${c.ani}</td>
-        <td class="text-start">${c.callTopic}</td>
-        <td class="text-start text-danger">${c.failTopic}</td>
-        <td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.vdiId || 'N/A'}</td>
+        ${params.map(p => `<td>${a[p] || 'N/A'}</td>`).join('')}
       </tr>
-    `).join('');
+    `).join('') || `<tr><td colspan="${params.length + 2}">No agents found</td></tr>`;
   }
 
-  function downloadPerformanceCardPdf() {
-    const cardEl = document.getElementById('pdfCardTarget');
-    if (!cardEl) return;
+  // 3. AUDIT DETAILS
+  function renderAuditDetails() {
+    const raw = appData.sheets['Audit Details'] || { summary: {}, list: [] };
+    const list = (raw.list || []).filter(a => matchMonth(a.month));
 
-    cardEl.classList.add('pdf-export-mode');
-
-    const opt = {
-      margin:       [0.2, 0.2, 0.2, 0.2],
-      filename:     `Performance_Card_${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-    };
-
-    html2pdf().set(opt).from(cardEl).save().then(() => {
-      cardEl.classList.remove('pdf-export-mode');
-    }).catch(err => {
-      console.error("PDF generation failed:", err);
-      cardEl.classList.remove('pdf-export-mode');
-    });
+    document.getElementById('auditDetailsTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.totalAudits}</td>
+        <td class="text-success">${a.totalPass}</td>
+        <td class="text-danger">${a.totalFail}</td>
+        <td class="text-danger">${a.cePercent}</td>
+        <td>${a.empathyPass}</td>
+        <td>${a.empathyFail}</td>
+        <td class="text-purple">${a.empathyPassPercent}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="8">No data available</td></tr>`;
   }
 
-  window.addEventListener('DOMContentLoaded', () => { loadDashboard(false); });
+  // 5. FCR & SERVICE DELIVERY
+  function renderFcrSd() {
+    const raw = appData.sheets['FCR & Service Delivery'] || { list: [] };
+    const list = (raw.list || []).filter(a => matchMonth(a.month));
+
+    document.getElementById('fcrSdTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.vdiId || 'N/A'}</td>
+        <td class="text-success">${a.fcrPercent}</td>
+        <td>${a.serviceDeliveryCount}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="4">No data available</td></tr>`;
+  }
+
+  // 6. COMPLAINT & DKB
+  function renderComplaintDkb() {
+    const raw = appData.sheets['Complaint Escalation and DKB %'] || { list: [] };
+    const list = (raw.list || []).filter(a => matchMonth(a.month));
+
+    document.getElementById('compDkbTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.vdiId || 'N/A'}</td>
+        <td class="text-success">${a.valid}</td>
+        <td class="text-danger">${a.invalid}</td>
+        <td>${a.escalationPercent}</td>
+        <td class="text-primary">${a.dkbPercent}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="6">No data available</td></tr>`;
+  }
+
+  // 7. LAG & ADHERENCE
+  function renderLagAdh() {
+    const raw = appData.sheets['Lag Adherence & Over Break'] || { list: [] };
+    const list = (raw.list || []).filter(a => matchMonth(a.month));
+
+    document.getElementById('lagAdhTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td class="text-success">${a.adherence}</td>
+        <td class="${a.hasOverBreak ? 'text-danger' : ''}">${a.extraBreak}</td>
+        <td>${a.lagTime}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="4">No data available</td></tr>`;
+  }
+
+  // 8. AHT & CFS
+  function renderAhtCfs() {
+    const raw = appData.sheets['AHT & CFS'] || { list: [] };
+    const list = (raw.list || []).filter(a => matchMonth(a.month));
+
+    document.getElementById('ahtCfsTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.ahtSec}</td>
+        <td><span class="badge ${a.ahtStatus === 'Target meet' ? 'pass' : 'fail'}">${a.ahtStatus}</span></td>
+        <td class="text-success">${a.cfsPercent}</td>
+        <td><span class="badge ${a.cfsStatus === 'Target meet' ? 'pass' : 'fail'}">${a.cfsStatus}</span></td>
+      </tr>
+    `).join('') || `<tr><td colspan="5">No data available</td></tr>`;
+  }
+
+  // 9. AUDITED CALLS
+  function renderAuditedCalls() {
+    const list = (appData.sheets['Audited Call Details'] || []).filter(a => matchMonth(a.month));
+
+    document.getElementById('auditedCallsTable').innerHTML = list.map(a => `
+      <tr>
+        <td><strong>${a.agentName}</strong></td>
+        <td>${a.vdiId}</td>
+        <td>${a.contactDate}</td>
+        <td>${a.auditParty}</td>
+        <td>${a.callTopic}</td>
+        <td><span class="badge ${String(a.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${a.result}</span></td>
+        <td class="${a.criticalError === '1' ? 'text-danger' : ''}">${a.criticalError === '1' ? 'Yes' : 'No'}</td>
+        <td>${a.empPass}</td>
+        <td>${a.empFail}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="9">No call audits found</td></tr>`;
+  }
+
+  // 2. PERFORMANCE CARD
+  function populateAgentDropdown() {
+    const agents = appData.sheets['Alignment'] || [];
+    const sel = document.getElementById('agentSelect');
+    sel.innerHTML = agents.map(a => `<option value="${a.Name}">${a.Name} (${a['VDI ID'] || 'N/A'})</option>`).join('');
+    if (agents.length > 0) renderPerformanceCard(agents[0].Name);
+  }
+
+  function renderPerformanceCard(agentName) {
+    const cards = appData.sheets['Performance Card'] || [];
+    const card = cards.find(c => c.name === agentName) || {};
+
+    document.getElementById('perfCardBox').innerHTML = `
+      <div style="border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 20px;">
+        <h2 style="font-size: 22px; font-weight: 700; color: var(--primary);">${card.name || agentName}</h2>
+        <p style="color: var(--text-muted); font-size: 13px;">VDI: ${card.vdiId || 'N/A'} | ID: ${card.id || 'N/A'} | Supervisor: ${card.supervisor || 'Mohammad Imam Hossain'}</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><span class="kpi-label">Total Audits</span><div class="kpi-num">${card.totalAudits || 0}</div></div>
+        <div class="kpi-card"><span class="kpi-label">Pass / Fail</span><div class="kpi-num text-success">${card.passCount || 0} / <span class="text-danger">${card.failCount || 0}</span></div></div>
+        <div class="kpi-card"><span class="kpi-label">Empathy %</span><div class="kpi-num text-purple">${card.empathyPct || '0.0%'}</div></div>
+        <div class="kpi-card"><span class="kpi-label">AHT</span><div class="kpi-num">${card.aht || 'N/A'}</div></div>
+        <div class="kpi-card"><span class="kpi-label">Escalation Accuracy %</span><div class="kpi-num text-success">${card.escalationAccuracyPct || '100%'}</div></div>
+        <div class="kpi-card"><span class="kpi-label">Adherence %</span><div class="kpi-num">${card.adherencePct || 'N/A'}</div></div>
+        <div class="kpi-card"><span class="kpi-label">Extra Break</span><div class="kpi-num">${card.overBreak || '0m'}</div></div>
+        <div class="kpi-card"><span class="kpi-label">DKB Present %</span><div class="kpi-num text-primary">${card.dkbPct || 'N/A'}</div></div>
+      </div>
+    `;
+  }
+
+  function downloadPdf() {
+    const element = document.getElementById('perfCardBox');
+    html2pdf().from(element).save('Performance_Card.pdf');
+  }
+
+  // Initialize
+  window.onload = () => loadDashboard();
 </script>
+
 </body>
 </html>
