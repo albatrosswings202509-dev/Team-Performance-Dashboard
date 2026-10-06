@@ -1022,6 +1022,9 @@
     const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
     const isAhtMet = !isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0;
 
+    const cfsPctNum = parseFloat(String(agent.cfsPct || agent.cfsPercent || '').replace('%', ''));
+    const isCfsMet = !isNaN(cfsPctNum) && cfsPctNum >= 90.0;
+
     const escPctNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
     const isEscMet = !isNaN(escPctNum) && escPctNum >= 95;
 
@@ -1061,6 +1064,13 @@
             <div class="pdf-kpi-title">Critical Error Count</div>
             <div class="pdf-kpi-value ${agent.ceCount === 0 ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
             <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isCfsMet ? 'delivered' : 'missed'}">${isCfsMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">CFS %</div>
+            <div class="pdf-kpi-value ${isCfsMet ? 'text-success' : 'text-danger'}">${agent.cfsPct || agent.cfsPercent || 'N/A'}</div>
+            <div class="pdf-kpi-sub">Target: >= 90.0%</div>
           </div>
 
           <div class="pdf-kpi-card">
