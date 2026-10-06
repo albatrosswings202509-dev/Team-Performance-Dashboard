@@ -371,7 +371,7 @@
         <div class="fgroup">
           <label>IB Agent Wise Filter</label>
           <select id="dashAgentFilter" onchange="renderDashboardKpis()">
-            <option value="">All Agents (Entire TL Sheet)</option>
+            <option value="">All Agents (Entire TL Audits)</option>
           </select>
         </div>
         <div class="fgroup">
@@ -384,7 +384,7 @@
         </div>
       </div>
       <section>
-        <div class="section-head"><h2>Team Performance Summary</h2></div>
+        <div class="section-head"><h2>Team Performance Summary (All IB Agent Wise Audits)</h2></div>
         <div class="kpi-row" id="tlKpiGrid"></div>
       </section>
       <section>
@@ -857,7 +857,7 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (New Pure VDI-Based Logic)
+    // 4. PARAMETER WISE EMPATHY (Pure VDI-Based Logic)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
       const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
