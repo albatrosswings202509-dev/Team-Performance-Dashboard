@@ -438,7 +438,7 @@
         <div class="grid-4 mb-3" id="empathyTeamKpis"></div>
       </section>
       <section>
-        <div class="section-head"><h2>VDI ID &amp; Agent x Parameter Matrix (Data from empathyWise Sheet)</h2></div>
+        <div class="section-head"><h2>VDI ID &amp; Agent x Parameter Matrix (Data from Empathy Wise Sheet)</h2></div>
         <div class="table-wrap">
           <table>
             <thead id="empathyHeader"></thead>
@@ -857,16 +857,16 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (Strict VDI ID Match from empathyWise Sheet)
+    // 4. PARAMETER WISE EMPATHY (New Pure VDI-Based Logic)
     if (tab === 'Parameter wise Empathy') {
-      const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
-      const headers = [
+      const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
+      const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
         'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity',
         'Proper Listening', 'Personalization', 'Time / Hold Management',
         'Emotional Tone with Courtesy', 'Closing Courtesy'
       ];
 
-      // Top Cards: Target 87.5% Color Rules (Red < 87.5%, Green >= 87.5%)
+      // KPI Grid: Parameter Average across all agents
       let kpiHtml = '';
       headers.forEach(p => {
         let valStr = emp.teamAvg[p] || 'N/A';
@@ -877,15 +877,15 @@
           <div class="empathy-param-card ${isGood ? 'green' : 'red'}">
             <div class="pname">${p}</div>
             <div class="pval ${isGood ? 'text-success' : 'text-danger'}">${valStr}</div>
-            <div class="ptarget">target 87.5%</div>
+            <div class="ptarget">Target 87.5%</div>
           </div>`;
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-      // Table Header with VDI ID and Agent Name
+      // Table Header: VDI ID, Agent Name & Parameters
       document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-      // Table Rows: Display VDI ID, Agent Name & Strict Color Rules
+      // Table Rows: Exact Data from Empathy Wise Sheet mapped by VDI ID
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
         return `
         <tr>
@@ -907,7 +907,7 @@
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY (Direct FCR Sheet Verified Data)
+    // 5. FCR & SERVICE DELIVERY
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
       const sum = fcrSd.summary || {};
@@ -1047,7 +1047,6 @@
     const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
     const isAdhMet = !isNaN(adhNum) && adhNum >= 100;
 
-    // FCR % Validation (Strict Direct FCR Sheet Source)
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
     const isFcrMet = !isNaN(fcrPctNum) && fcrPctNum >= 92.0;
 
@@ -1136,7 +1135,6 @@
             <div class="pdf-kpi-sub">Total SDs generated</div>
           </div>
 
-          <!-- STRICT DIRECT FCR % FROM FCR SHEET -->
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${isFcrMet ? 'delivered' : 'missed'}">${isFcrMet ? 'Target Meet' : 'Below Target'}</span>
             <div class="pdf-kpi-title">FCR %</div>
