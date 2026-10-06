@@ -857,7 +857,7 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (VDI ID + Agent Name + Exact Pass% Mapping)
+    // 4. PARAMETER WISE EMPATHY (Strict VDI ID Match from empathyWise Sheet)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       const headers = [
@@ -885,7 +885,7 @@
       // Table Header with VDI ID and Agent Name
       document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-      // Table Rows: Display VDI ID, Agent Name & Dynamic Red/Green Rules
+      // Table Rows: Display VDI ID, Agent Name & Strict Color Rules
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
         return `
         <tr>
@@ -1047,7 +1047,7 @@
     const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
     const isAdhMet = !isNaN(adhNum) && adhNum >= 100;
 
-    // FCR % Validation (Replaced RTC Accuracy)
+    // FCR % Validation (Strict Direct FCR Sheet Source)
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
     const isFcrMet = !isNaN(fcrPctNum) && fcrPctNum >= 92.0;
 
@@ -1136,7 +1136,7 @@
             <div class="pdf-kpi-sub">Total SDs generated</div>
           </div>
 
-          <!-- REPLACED RTC ACCURACY WITH FCR % -->
+          <!-- STRICT DIRECT FCR % FROM FCR SHEET -->
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${isFcrMet ? 'delivered' : 'missed'}">${isFcrMet ? 'Target Meet' : 'Below Target'}</span>
             <div class="pdf-kpi-title">FCR %</div>
