@@ -78,7 +78,7 @@
   .nav-item {
     display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px;
     border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: #aab2c5;
-    white-space: nowrap; transition: all 0.2s ease; min-height: 44px;
+    white-space: nowrap; transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1); min-height: 44px;
   }
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
   .nav-item:hover { background: #1c2c4c; color: #fff; transform: translateX(3px); }
@@ -108,14 +108,14 @@
 
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
 
-  /* PREMIUM PAGE ANIMATIONS */
+  /* PREMIUM PAGE TRANSITION ANIMATIONS */
   .page { display: none; opacity: 0; }
   .page.active {
     display: block;
-    animation: premiumPageFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   @keyframes premiumPageFade {
-    0% { opacity: 0; transform: translateY(12px) scale(0.99); filter: blur(3px); }
+    0% { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(4px); }
     100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
 
@@ -446,11 +446,11 @@
     <!-- 4. PARAMETER WISE EMPATHY -->
     <div class="page" id="page-Parameter wise Empathy">
       <section>
-        <div class="section-head"><h2>Empathy Parameter — Overall Pass % (Team Average)</h2></div>
+        <div class="section-head"><h2>Empathy Parameter — GP Audited Overall Pass % (Team Average)</h2></div>
         <div class="grid-4 mb-3" id="empathyTeamKpis"></div>
       </section>
       <section>
-        <div class="section-head"><h2>Agent x Parameter Matrix</h2></div>
+        <div class="section-head"><h2>Agent x Parameter Matrix (GP Audit Only)</h2></div>
         <div class="table-wrap">
           <table>
             <thead id="empathyHeader"></thead>
@@ -884,7 +884,7 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (ROBUST FALLBACK - NO N/A)
+    // 4. PARAMETER WISE EMPATHY (STRICTLY GP AUDITS CALCULATION & Dynamic Averages)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [] };
       const headers = [
@@ -893,10 +893,47 @@
         'Emotional Tone with Courtesy', 'Closing Courtesy'
       ];
 
-      // Build Team Average HTML
+      const allAudits = appData.sheets['Audited Call Details'] || [];
+      const gpAudits = allAudits.filter(c => String(c.auditParty || '').toLowerCase().includes('gp'));
+      const activeAgents = appData.sheets['Alignment'] || [];
+
+      // Calculate Dynamic Parameter Averages strictly from GP Audited Calls
+      let paramPassCounts = {};
+      let paramTotalCounts = {};
+      headers.forEach(h => { paramPassCounts[h] = 0; paramTotalCounts[h] = 0; });
+
+      activeAgents.forEach(agent => {
+        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
+        const nameLower = String(agent['Name'] || '').trim().toLowerCase();
+
+        const agentGpCalls = gpAudits.filter(c => {
+          const cVdi = String(c.vdiId || '').trim().toLowerCase();
+          const cName = String(c.agentName || '').trim().toLowerCase();
+          return (vdi && cVdi === vdi) || (nameLower && cName === nameLower);
+        });
+
+        headers.forEach(h => {
+          if (agentGpCalls.length > 0) {
+            agentGpCalls.forEach(call => {
+              paramTotalCounts[h]++;
+              if (String(call.result || '').toLowerCase() === 'pass') {
+                paramPassCounts[h]++;
+              }
+            });
+          }
+        });
+      });
+
+      // Render Dynamic GP Empathy Team Avg KPI Cards
       let kpiHtml = '';
       headers.forEach(p => {
-        let valStr = emp.teamAvg[p] || '100.0%';
+        let valStr = emp.teamAvg[p];
+        if (!valStr || valStr === 'N/A' || paramTotalCounts[p] > 0) {
+          let tot = paramTotalCounts[p];
+          let pass = paramPassCounts[p];
+          valStr = tot > 0 ? ((pass / tot) * 100).toFixed(1) + '%' : '100.0%';
+        }
+
         let valNum = parseFloat(String(valStr).replace('%', ''));
         let isGood = isNaN(valNum) || valNum >= 87.5;
 
@@ -904,31 +941,26 @@
           <div class="empathy-param-card ${isGood ? 'green' : 'red'}">
             <div class="pname">${p}</div>
             <div class="pval">${valStr}</div>
-            <div class="ptarget">target 87.5%</div>
+            <div class="ptarget">target 87.5% (GP Only)</div>
           </div>`;
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
       document.getElementById('empathyHeader').innerHTML = `<tr><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-      const allAudits = appData.sheets['Audited Call Details'] || [];
-      const activeAgents = appData.sheets['Alignment'] || [];
-
-      // Render Table rows
+      // Render Matrix Table rows strictly for GP Calls
       document.getElementById('empathyBody').innerHTML = activeAgents.map(agent => {
         const agentName = agent['Name'];
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
         const nameLower = String(agentName || '').trim().toLowerCase();
 
-        // Find agent from Appscript backend agentList
         let backendRow = emp.agentList.find(a => {
           const aVdi = String(a.vdiId || '').trim().toLowerCase();
           const aName = String(a.agentName || '').trim().toLowerCase();
           return (vdi && aVdi === vdi) || (nameLower && aName === nameLower);
         });
 
-        // Agent calls fallback from Audited Calls if needed
-        const agentCalls = allAudits.filter(c => {
+        const agentGpCalls = gpAudits.filter(c => {
           const cVdi = String(c.vdiId || '').trim().toLowerCase();
           const cName = String(c.agentName || '').trim().toLowerCase();
           return (vdi && cVdi === vdi) || (nameLower && cName === nameLower);
@@ -940,18 +972,18 @@
           ${headers.map(h => {
             let cellVal = backendRow ? backendRow[h] : undefined;
             
-            // Front-end Fallback calculation if N/A or Undefined
-            if (!cellVal || cellVal === 'N/A') {
-              if (agentCalls.length > 0) {
+            // Calculate strictly from GP calls if backend data is unaligned/N/A
+            if (!cellVal || cellVal === 'N/A' || agentGpCalls.length > 0) {
+              if (agentGpCalls.length > 0) {
                 let pPass = 0, pTotal = 0;
-                agentCalls.forEach(call => {
+                agentGpCalls.forEach(call => {
                   let res = String(call.result || '').toLowerCase();
                   pTotal++;
                   if (res === 'pass') pPass++;
                 });
                 cellVal = pTotal > 0 ? ((pPass / pTotal) * 100).toFixed(1) + '%' : '100.0%';
               } else {
-                cellVal = '100.0%'; // Clean default target pass fallback
+                cellVal = '100.0%'; 
               }
             }
 
