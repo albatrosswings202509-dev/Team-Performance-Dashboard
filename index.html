@@ -232,6 +232,33 @@
   }
   .pdf-badge.missed { background: #fdecea; color: #e0503f; }
   .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
+  .pdf-score-badge {
+    position: absolute; bottom: 12px; right: 12px; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
+    background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+  }
+  .predicted-bucket-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #fff;
+    grid-column: span 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .predicted-bucket-card:hover {
+     box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.2);
+     border-color: #3b82f6;
+  }
+  .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; }
+  .predicted-bucket-card .pdf-kpi-value { color: #fff; font-size: 28px; }
+  .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 12px; }
+  .predicted-bucket-card .bucket-label {
+    font-size: 24px; font-weight: 900; padding: 8px 16px; border-radius: 8px; text-transform: uppercase;
+  }
+  .bucket-excellent { background: #1fa971; color: #fff; }
+  .bucket-good { background: #3b82f6; color: #fff; }
+  .bucket-average { background: #e0a021; color: #fff; }
+  .bucket-poor { background: #e0503f; color: #fff; }
+
 
   /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode {
@@ -261,6 +288,10 @@
   .pdf-export-mode .pdf-kpi-title { font-size: 9.5px !important; }
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
   .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
+  .pdf-export-mode .pdf-score-badge { font-size: 9px !important; bottom: 8px !important; right: 8px !important; padding: 2px 6px !important; }
+  .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 12px 16px !important; }
+  .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 22px !important; }
+  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 18px !important; padding: 6px 12px !important; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
@@ -316,12 +347,15 @@
     .btn-pdf { width: 100%; }
     .filterbar select, .filterbar input[type=text] { min-width: 100%; }
     .table-wrap { max-height: 60vh; }
+    .predicted-bucket-card { grid-column: span 2 !important; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .predicted-bucket-card .bucket-label { align-self: flex-start; }
   }
   @media (max-width: 480px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .kpi-card .kpi-num { font-size: 14px; }
     .pdf-kpi-card { padding: 10px 12px; min-height: 100px; }
     .pdf-kpi-value { font-size: 18px; }
+    .predicted-bucket-card { grid-column: span 1 !important; }
   }
 </style>
 </head>
@@ -1049,12 +1083,17 @@
 
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
     const isFcrMet = !isNaN(fcrPctNum) && fcrPctNum >= 92.0;
+    
+    let bucketClass = 'bucket-poor';
+    if(agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
+    else if(agent.bucket === 'Good') bucketClass = 'bucket-good';
+    else if(agent.bucket === 'Average') bucketClass = 'bucket-average';
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
           <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor}</div>
+          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor} | Tenure: ${agent.tenure} | Skill: ${agent.skill}</div>
         </div>
 
         <div class="pdf-grid-3">
@@ -1063,6 +1102,15 @@
             <div class="pdf-kpi-title">Audit Fail Rate</div>
             <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
             <div class="pdf-kpi-sub">Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_criticalError !== undefined ? agent.score_criticalError : '0.00'}</div>
+          </div>
+          
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${agent.validCompCount === 0 ? 'delivered' : 'missed'}">${agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found'}</span>
+            <div class="pdf-kpi-title">Valid Complaint</div>
+            <div class="pdf-kpi-value ${agent.validCompCount === 0 ? 'text-success' : 'text-danger'}">${agent.validCompCount || 0}</div>
+            <div class="pdf-kpi-sub">Valid complaints against service</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_validComplaint !== undefined ? agent.score_validComplaint : '0.00'}</div>
           </div>
 
           <div class="pdf-kpi-card">
@@ -1070,76 +1118,90 @@
             <div class="pdf-kpi-title">Empathy Pass %</div>
             <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
             <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.ceCount === 0 ? 'delivered' : 'missed'}">${agent.ceCount === 0 ? 'CE Free' : 'CE Found'}</span>
-            <div class="pdf-kpi-title">Critical Error Count</div>
-            <div class="pdf-kpi-value ${agent.ceCount === 0 ? 'text-success' : 'text-danger'}">${agent.ceCount}</div>
-            <div class="pdf-kpi-sub">Target: 0 Critical Errors</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_empathy !== undefined ? agent.score_empathy : '0.00'}</div>
           </div>
 
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${isCfsMet ? 'delivered' : 'missed'}">${isCfsMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">CFS %</div>
+            <div class="pdf-kpi-title">CSAT / CFS %</div>
             <div class="pdf-kpi-value ${isCfsMet ? 'text-success' : 'text-danger'}">${agent.cfsPct || agent.cfsPercent || 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 90.0%</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_cfs !== undefined ? agent.score_cfs : '0.00'}</div>
           </div>
-
+          
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Meet' : 'Exceeds Target'}</span>
-            <div class="pdf-kpi-title">AHT (Seconds)</div>
-            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: <= 170s</div>
+            <span class="pdf-badge ${isFcrMet ? 'delivered' : 'missed'}">${isFcrMet ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">FCR %</div>
+            <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
+            <div class="pdf-kpi-sub">Target: >= 93.0%</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_fcr !== undefined ? agent.score_fcr : '0.00'}</div>
           </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">Escalation Accuracy</div>
-            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Valid: ${agent.validEscCount} / Total: ${agent.totalEscCount}</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'delivered' : 'missed'}">${agent.overBreak === '0m' || agent.overBreak === '0' ? 'No Extra Break' : 'Extra Break Taken'}</span>
-            <div class="pdf-kpi-title">Over Break</div>
-            <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
-            <div class="pdf-kpi-sub">Target: 0m</div>
-          </div>
-
-          <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'delivered' : 'missed'}">${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'Zero Lag' : 'Lag Recorded'}</span>
-            <div class="pdf-kpi-title">Lag Hour</div>
-            <div class="pdf-kpi-value ${agent.lagHour === '0h 0m' || agent.lagHour === '0' ? 'text-success' : 'text-danger'}">${agent.lagHour}</div>
-            <div class="pdf-kpi-sub">Target: 0h 0m</div>
-          </div>
-
+          
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? '100% Adhered' : 'Below 100%'}</span>
             <div class="pdf-kpi-title">Adherence %</div>
             <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
             <div class="pdf-kpi-sub">Target: 100.0%</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_adherence !== undefined ? agent.score_adherence : '0.00'}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">DKB %</div>
+             <span class="pdf-badge ${agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'}">${agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'}</span>
+            <div class="pdf-kpi-title">Login Hour Compliance</div>
+            <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance || 'N/A'}%</div>
+            <div class="pdf-kpi-sub">Target: 100%</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_loginHour !== undefined ? agent.score_loginHour : '0.00'}</div>
+          </div>
+
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'}">${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'}</span>
+            <div class="pdf-kpi-title">Over Break</div>
+            <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
+            <div class="pdf-kpi-sub">Target: As Per Schedule</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_breakTime !== undefined ? agent.score_breakTime : '0.00'}</div>
+          </div>
+          
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Meet' : 'Exceeds Target'}</span>
+            <div class="pdf-kpi-title">AHT (Seconds)</div>
+            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
+            <div class="pdf-kpi-sub">Target: <= 175s</div>
+            <div class="pdf-score-badge">KPI: ${agent.score_aht !== undefined ? agent.score_aht : '0.00'}</div>
+          </div>
+          
+          <!-- Bonus / Penalty Cards -->
+          <div class="pdf-kpi-card">
+            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Bonus Eligible' : 'Penalty / None'}</span>
+            <div class="pdf-kpi-title">DKB % (Attendance)</div>
             <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-score-badge">Bonus/Penalty: ${agent.bonusPenalty_dkb !== undefined ? agent.bonusPenalty_dkb : '0.00'}</div>
           </div>
-
+          
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.sdCount > 0 ? 'delivered' : 'missed'}">${agent.sdCount > 0 ? 'Delivered' : 'None'}</span>
-            <div class="pdf-kpi-title">Service Delivery Count</div>
-            <div class="pdf-kpi-value text-info">${agent.sdCount}</div>
-            <div class="pdf-kpi-sub">Total SDs generated</div>
+            <span class="pdf-badge ${parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None'}</span>
+            <div class="pdf-kpi-title">Quiz Score %</div>
+            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore + '%' : 'N/A'}</div>
+            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-score-badge">Bonus/Penalty: ${agent.bonusPenalty_quiz !== undefined ? agent.bonusPenalty_quiz : '0.00'}</div>
           </div>
-
+          
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isFcrMet ? 'delivered' : 'missed'}">${isFcrMet ? 'Target Meet' : 'Below Target'}</span>
-            <div class="pdf-kpi-title">FCR %</div>
-            <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: >= 92.0%</div>
+            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Bonus Eligible' : 'None'}</span>
+            <div class="pdf-kpi-title">Complaint Escalation Accuracy</div>
+            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
+            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-score-badge">Bonus: ${agent.bonusPenalty_esc !== undefined ? agent.bonusPenalty_esc : '0.00'}</div>
+          </div>
+          
+          <!-- OVERALL PREDICTED BUCKET CARD -->
+          <div class="pdf-kpi-card predicted-bucket-card">
+            <div>
+              <div class="pdf-kpi-title">Overall Performance</div>
+              <div class="pdf-kpi-value">${agent.finalScore !== undefined ? agent.finalScore : '0.00'}</div>
+              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenalty || '0.00'}</div>
+            </div>
+            <div class="bucket-label ${bucketClass}">${agent.bucket || 'Poor'}</div>
           </div>
         </div>
       </div>
