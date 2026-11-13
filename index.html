@@ -259,7 +259,6 @@
   .bucket-average { background: #e0a021; color: #fff; }
   .bucket-poor { background: #e0503f; color: #fff; }
 
-
   /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode {
     width: 960px !important;
@@ -489,7 +488,7 @@
         <div class="section-head"><h2>Agent FCR & Service Delivery Data (Direct FCR Sheet Source)</h2></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Service Delivery Count</th></tr></thead>
+            <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Quiz Score</th><th>Service Delivery Count</th></tr></thead>
             <tbody id="fcrSdTable"></tbody>
           </table>
         </div>
@@ -752,7 +751,6 @@
   function renderView(tab) {
     if (!appData) return;
 
-    // 1. DASHBOARD
     if (tab === 'Dashboard') {
       renderDashboardKpis();
       const lb = appData.leaderboards || {};
@@ -786,7 +784,6 @@
       return;
     }
 
-    // 2. PERFORMANCE CARD
     if (tab === 'Performance Card') {
       const list = appData.sheets['Performance Card'] || [];
       const select = document.getElementById('agentSelect');
@@ -797,7 +794,6 @@
       return;
     }
 
-    // 3. AUDIT DETAILS
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
@@ -891,7 +887,6 @@
       return;
     }
 
-    // 4. PARAMETER WISE EMPATHY (Pure VDI-Based Logic)
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
       const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
@@ -900,7 +895,6 @@
         'Emotional Tone with Courtesy', 'Closing Courtesy'
       ];
 
-      // KPI Grid: Parameter Average across all agents
       let kpiHtml = '';
       headers.forEach(p => {
         let valStr = emp.teamAvg[p] || 'N/A';
@@ -916,10 +910,8 @@
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-      // Table Header: VDI ID, Agent Name & Parameters
       document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-      // Table Rows: Exact Data from Empathy Wise Sheet mapped by VDI ID
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
         return `
         <tr>
@@ -941,7 +933,6 @@
       return;
     }
 
-    // 5. FCR & SERVICE DELIVERY
     if (tab === 'FCR & Service Delivery') {
       const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
       const sum = fcrSd.summary || {};
@@ -962,13 +953,13 @@
           <td class="fw-bold text-start">${a.agentName}</td>
           <td class="num">${a.vdiId}</td>
           <td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td>
+          <td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td>
           <td class="num">${a.serviceDeliveryCount}</td>
         </tr>`;
       }).join('');
       return;
     }
 
-    // 6. COMPLAINT ESCALATION AND DKB %
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
       const sum = compDkb.summary || {};
@@ -990,7 +981,6 @@
       return;
     }
 
-    // 7. LAG ADHERENCE & OVER BREAK
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
       const sum = lagAdh.summary || {};
@@ -1016,7 +1006,6 @@
       return;
     }
 
-    // 8. AHT & CFS
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
       const sum = ahtCfs.summary || {};
@@ -1045,7 +1034,6 @@
       return;
     }
 
-    // 9. AUDITED CALL DETAILS
     if (tab === 'Audited Call Details') {
       filterCalls();
       return;
@@ -1085,9 +1073,11 @@
     const isFcrMet = !isNaN(fcrPctNum) && fcrPctNum >= 92.0;
     
     let bucketClass = 'bucket-poor';
-    if(agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
-    else if(agent.bucket === 'Good') bucketClass = 'bucket-good';
-    else if(agent.bucket === 'Average') bucketClass = 'bucket-average';
+    if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
+    else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good';
+    else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
+
+    const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined ? s : '0.00'));
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
@@ -1102,7 +1092,7 @@
             <div class="pdf-kpi-title">Audit Fail Rate</div>
             <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
             <div class="pdf-kpi-sub">Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_criticalError !== undefined ? agent.score_criticalError : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_criticalError)}</div>
           </div>
           
           <div class="pdf-kpi-card">
@@ -1110,7 +1100,7 @@
             <div class="pdf-kpi-title">Valid Complaint</div>
             <div class="pdf-kpi-value ${agent.validCompCount === 0 ? 'text-success' : 'text-danger'}">${agent.validCompCount || 0}</div>
             <div class="pdf-kpi-sub">Valid complaints against service</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_validComplaint !== undefined ? agent.score_validComplaint : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_validComplaint)}</div>
           </div>
 
           <div class="pdf-kpi-card">
@@ -1118,15 +1108,15 @@
             <div class="pdf-kpi-title">Empathy Pass %</div>
             <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
             <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_empathy !== undefined ? agent.score_empathy : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_empathy)}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isCfsMet ? 'delivered' : 'missed'}">${isCfsMet ? 'Target Meet' : 'Below Target'}</span>
+            <span class="pdf-badge ${agent.score_cfs === 'NO KPI' || isCfsMet ? 'delivered' : 'missed'}">${agent.score_cfs === 'NO KPI' ? 'NO KPI' : (isCfsMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">CSAT / CFS %</div>
             <div class="pdf-kpi-value ${isCfsMet ? 'text-success' : 'text-danger'}">${agent.cfsPct || agent.cfsPercent || 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 90.0%</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_cfs !== undefined ? agent.score_cfs : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_cfs)}</div>
           </div>
           
           <div class="pdf-kpi-card">
@@ -1134,7 +1124,7 @@
             <div class="pdf-kpi-title">FCR %</div>
             <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 93.0%</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_fcr !== undefined ? agent.score_fcr : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_fcr)}</div>
           </div>
           
           <div class="pdf-kpi-card">
@@ -1142,7 +1132,7 @@
             <div class="pdf-kpi-title">Adherence %</div>
             <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
             <div class="pdf-kpi-sub">Target: 100.0%</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_adherence !== undefined ? agent.score_adherence : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_adherence)}</div>
           </div>
 
           <div class="pdf-kpi-card">
@@ -1150,15 +1140,15 @@
             <div class="pdf-kpi-title">Login Hour Compliance</div>
             <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance || 'N/A'}%</div>
             <div class="pdf-kpi-sub">Target: 100%</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_loginHour !== undefined ? agent.score_loginHour : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_loginHour)}</div>
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'}">${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'}</span>
+            <span class="pdf-badge ${agent.score_breakTime === 'NO KPI' || agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken')}</span>
             <div class="pdf-kpi-title">Over Break</div>
             <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
             <div class="pdf-kpi-sub">Target: As Per Schedule</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_breakTime !== undefined ? agent.score_breakTime : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_breakTime)}</div>
           </div>
           
           <div class="pdf-kpi-card">
@@ -1166,12 +1156,12 @@
             <div class="pdf-kpi-title">AHT (Seconds)</div>
             <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
             <div class="pdf-kpi-sub">Target: <= 175s</div>
-            <div class="pdf-score-badge">KPI: ${agent.score_aht !== undefined ? agent.score_aht : '0.00'}</div>
+            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
           </div>
           
           <!-- Bonus / Penalty Cards -->
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isDkbMet ? 'delivered' : 'missed'}">${isDkbMet ? 'Bonus Eligible' : 'Penalty / None'}</span>
+            <span class="pdf-badge ${agent.score_breakTime === 'NO KPI' || isDkbMet ? 'delivered' : 'missed'}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : 'Penalty / None')}</span>
             <div class="pdf-kpi-title">DKB % (Attendance)</div>
             <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
@@ -1179,7 +1169,7 @@
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None'}</span>
+            <span class="pdf-badge ${agent.score_breakTime === 'NO KPI' || parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None')}</span>
             <div class="pdf-kpi-title">Quiz Score %</div>
             <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore + '%' : 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
@@ -1197,11 +1187,11 @@
           <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
-              <div class="pdf-kpi-title">Overall Performance</div>
+              <div class="pdf-kpi-title">Overall Performance &amp; Predicted Bucket</div>
               <div class="pdf-kpi-value">${agent.finalScore !== undefined ? agent.finalScore : '0.00'}</div>
               <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenalty || '0.00'}</div>
             </div>
-            <div class="bucket-label ${bucketClass}">${agent.bucket || 'Poor'}</div>
+            <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
         </div>
       </div>
