@@ -243,16 +243,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px;
   }
   .predicted-bucket-card:hover {
      box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.2);
      border-color: #3b82f6;
   }
-  .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; }
-  .predicted-bucket-card .pdf-kpi-value { color: #fff; font-size: 28px; }
-  .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 12px; }
+  .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; font-size: 11px; }
+  .predicted-bucket-card .pdf-kpi-value { color: #fff; font-size: 24px; margin: 2px 0; }
+  .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 11px; }
   .predicted-bucket-card .bucket-label {
-    font-size: 24px; font-weight: 900; padding: 8px 16px; border-radius: 8px; text-transform: uppercase;
+    font-size: 16px; font-weight: 800; padding: 6px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
   }
   .bucket-excellent { background: #1fa971; color: #fff; }
   .bucket-good { background: #3b82f6; color: #fff; }
@@ -288,9 +289,9 @@
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
   .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
   .pdf-export-mode .pdf-score-badge { font-size: 9px !important; bottom: 8px !important; right: 8px !important; padding: 2px 6px !important; }
-  .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 12px 16px !important; }
-  .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 22px !important; }
-  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 18px !important; padding: 6px 12px !important; }
+  .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 10px 14px !important; }
+  .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 20px !important; }
+  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 14px !important; padding: 4px 10px !important; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
@@ -346,7 +347,7 @@
     .btn-pdf { width: 100%; }
     .filterbar select, .filterbar input[type=text] { min-width: 100%; }
     .table-wrap { max-height: 60vh; }
-    .predicted-bucket-card { grid-column: span 2 !important; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .predicted-bucket-card { grid-column: span 2 !important; flex-direction: column; align-items: flex-start; gap: 10px; }
     .predicted-bucket-card .bucket-label { align-self: flex-start; }
   }
   @media (max-width: 480px) {
@@ -1161,35 +1162,35 @@
           
           <!-- Bonus / Penalty Cards -->
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.score_breakTime === 'NO KPI' || isDkbMet ? 'delivered' : 'missed'}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : 'Penalty / None')}</span>
+            <span class="pdf-badge ${agent.bonusPenalty_dkb === 'NO KPI' || isDkbMet ? 'delivered' : 'missed'}">${agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : 'Penalty / None')}</span>
             <div class="pdf-kpi-title">DKB % (Attendance)</div>
             <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
-            <div class="pdf-score-badge">Bonus/Penalty: ${agent.bonusPenalty_dkb !== undefined ? agent.bonusPenalty_dkb : '0.00'}</div>
+            <div class="pdf-score-badge">Bonus/Penalty: ${fmtScore(agent.bonusPenalty_dkb)}</div>
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.score_breakTime === 'NO KPI' || parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None')}</span>
+            <span class="pdf-badge ${agent.bonusPenalty_quiz === 'NO KPI' || parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : (parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None')}</span>
             <div class="pdf-kpi-title">Quiz Score %</div>
-            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore + '%' : 'N/A'}</div>
+            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore + (String(agent.quizScore).includes('%') ? '' : '%') : 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
-            <div class="pdf-score-badge">Bonus/Penalty: ${agent.bonusPenalty_quiz !== undefined ? agent.bonusPenalty_quiz : '0.00'}</div>
+            <div class="pdf-score-badge">Bonus/Penalty: ${fmtScore(agent.bonusPenalty_quiz)}</div>
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEscMet ? 'delivered' : 'missed'}">${isEscMet ? 'Bonus Eligible' : 'None'}</span>
+            <span class="pdf-badge ${agent.bonusPenalty_esc === 'NO KPI' || isEscMet ? 'delivered' : 'missed'}">${agent.bonusPenalty_esc === 'NO KPI' ? 'NO KPI' : (isEscMet ? 'Bonus Eligible' : 'None')}</span>
             <div class="pdf-kpi-title">Complaint Escalation Accuracy</div>
             <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
-            <div class="pdf-score-badge">Bonus: ${agent.bonusPenalty_esc !== undefined ? agent.bonusPenalty_esc : '0.00'}</div>
+            <div class="pdf-score-badge">Bonus: ${fmtScore(agent.bonusPenalty_esc)}</div>
           </div>
           
           <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
-              <div class="pdf-kpi-title">Overall Performance &amp; Predicted Bucket</div>
+              <div class="pdf-kpi-title">Overall Score &amp; Bucket</div>
               <div class="pdf-kpi-value">${agent.finalScore !== undefined ? agent.finalScore : '0.00'}</div>
-              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenalty || '0.00'}</div>
+              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenalty || '0.00'}</div>
             </div>
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
