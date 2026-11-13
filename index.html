@@ -232,6 +232,7 @@
   }
   .pdf-badge.missed { background: #fdecea; color: #e0503f; }
   .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
+  .pdf-badge.nokpi { background: #f1f5f9; color: #475569; }
   .pdf-score-badge {
     position: absolute; bottom: 12px; right: 12px; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
     background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
@@ -252,8 +253,10 @@
   .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; font-size: 11px; }
   .predicted-bucket-card .pdf-kpi-value { color: #fff; font-size: 24px; margin: 2px 0; }
   .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 11px; }
+  
+  /* Reduced font size for Bucket Label */
   .predicted-bucket-card .bucket-label {
-    font-size: 16px; font-weight: 800; padding: 6px 14px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 15px; font-weight: 800; padding: 5px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
   }
   .bucket-excellent { background: #1fa971; color: #fff; }
   .bucket-good { background: #3b82f6; color: #fff; }
@@ -291,7 +294,9 @@
   .pdf-export-mode .pdf-score-badge { font-size: 9px !important; bottom: 8px !important; right: 8px !important; padding: 2px 6px !important; }
   .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 10px 14px !important; }
   .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 20px !important; }
-  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 14px !important; padding: 4px 10px !important; }
+  
+  /* Reduced font size for Bucket Label in PDF mode */
+  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 13px !important; padding: 3px 8px !important; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
@@ -1078,7 +1083,7 @@
     else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good';
     else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
 
-    const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined ? s : '0.00'));
+    const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined && s !== null ? s : '0.00'));
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
@@ -1097,7 +1102,7 @@
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${agent.validCompCount === 0 ? 'delivered' : 'missed'}">${agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found'}</span>
+            <span class="pdf-badge ${agent.score_validComplaint === 'NO KPI' || agent.validCompCount === 0 ? 'delivered' : 'missed'}">${agent.score_validComplaint === 'NO KPI' ? 'NO KPI' : (agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found')}</span>
             <div class="pdf-kpi-title">Valid Complaint</div>
             <div class="pdf-kpi-value ${agent.validCompCount === 0 ? 'text-success' : 'text-danger'}">${agent.validCompCount || 0}</div>
             <div class="pdf-kpi-sub">Valid complaints against service</div>
@@ -1105,7 +1110,7 @@
           </div>
 
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isEmpMet ? 'delivered' : 'missed'}">${isEmpMet ? 'Target Meet' : 'Below Target'}</span>
+            <span class="pdf-badge ${agent.score_empathy === 'NO KPI' || isEmpMet ? 'delivered' : 'missed'}">${agent.score_empathy === 'NO KPI' ? 'NO KPI' : (isEmpMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">Empathy Pass %</div>
             <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
             <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
@@ -1121,7 +1126,7 @@
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isFcrMet ? 'delivered' : 'missed'}">${isFcrMet ? 'Target Meet' : 'Below Target'}</span>
+            <span class="pdf-badge ${agent.score_fcr === 'NO KPI' || isFcrMet ? 'delivered' : 'missed'}">${agent.score_fcr === 'NO KPI' ? 'NO KPI' : (isFcrMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">FCR %</div>
             <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 93.0%</div>
@@ -1129,7 +1134,7 @@
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAdhMet ? 'delivered' : 'missed'}">${isAdhMet ? '100% Adhered' : 'Below 100%'}</span>
+            <span class="pdf-badge ${agent.score_adherence === 'NO KPI' || isAdhMet ? 'delivered' : 'missed'}">${agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? '100% Adhered' : 'Below 100%')}</span>
             <div class="pdf-kpi-title">Adherence %</div>
             <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
             <div class="pdf-kpi-sub">Target: 100.0%</div>
@@ -1137,7 +1142,7 @@
           </div>
 
           <div class="pdf-kpi-card">
-             <span class="pdf-badge ${agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'}">${agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'}</span>
+             <span class="pdf-badge ${agent.score_loginHour === 'NO KPI' || agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'}">${agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">Login Hour Compliance</div>
             <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance || 'N/A'}%</div>
             <div class="pdf-kpi-sub">Target: 100%</div>
@@ -1153,7 +1158,7 @@
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${isAhtMet ? 'delivered' : 'missed'}">${isAhtMet ? 'Target Meet' : 'Exceeds Target'}</span>
+            <span class="pdf-badge ${agent.score_aht === 'NO KPI' || isAhtMet ? 'delivered' : 'missed'}">${agent.score_aht === 'NO KPI' ? 'NO KPI' : (isAhtMet ? 'Target Meet' : 'Exceeds Target')}</span>
             <div class="pdf-kpi-title">AHT (Seconds)</div>
             <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
             <div class="pdf-kpi-sub">Target: <= 175s</div>
@@ -1172,7 +1177,7 @@
           <div class="pdf-kpi-card">
             <span class="pdf-badge ${agent.bonusPenalty_quiz === 'NO KPI' || parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed'}">${agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : (parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None')}</span>
             <div class="pdf-kpi-title">Quiz Score %</div>
-            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore + (String(agent.quizScore).includes('%') ? '' : '%') : 'N/A'}</div>
+            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore : 'N/A'}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
             <div class="pdf-score-badge">Bonus/Penalty: ${fmtScore(agent.bonusPenalty_quiz)}</div>
           </div>
@@ -1188,7 +1193,7 @@
           <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
-              <div class="pdf-kpi-title">Overall Score &amp; Bucket</div>
+              <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
               <div class="pdf-kpi-value">${agent.finalScore !== undefined ? agent.finalScore : '0.00'}</div>
               <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenalty || '0.00'}</div>
             </div>
