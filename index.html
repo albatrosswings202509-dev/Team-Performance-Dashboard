@@ -256,12 +256,12 @@
   
   /* Reduced font size for Bucket Label */
   .predicted-bucket-card .bucket-label {
-    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.15);
   }
-  .bucket-excellent { background: #1fa971; color: #fff; }
-  .bucket-good { background: #3b82f6; color: #fff; }
-  .bucket-average { background: #e0a021; color: #fff; }
-  .bucket-poor { background: #e0503f; color: #fff; }
+  .bucket-excellent { color: #1fa971; border: 1px solid #1fa971; }
+  .bucket-good { color: #3b82f6; border: 1px solid #3b82f6; }
+  .bucket-average { color: #e0a021; border: 1px solid #e0a021; }
+  .bucket-poor { color: #e0503f; border: 1px solid #e0503f; }
 
   /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode {
@@ -1187,7 +1187,7 @@
             <div class="pdf-kpi-title">Complaint Escalation Accuracy</div>
             <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
             <div class="pdf-kpi-sub">Target: >= 95.0%</div>
-            <div class="pdf-score-badge">Bonus: ${fmtScore(agent.bonusPenalty_esc)}</div>
+            <div class="pdf-score-badge">${agent.tenure === 'OJT' ? 'KPI' : 'Bonus'}: ${fmtScore(agent.tenure === 'OJT' ? agent.score_esc_base : agent.bonusPenalty_esc)}</div>
           </div>
           
           <!-- OVERALL PREDICTED BUCKET CARD -->
