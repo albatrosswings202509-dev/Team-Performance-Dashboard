@@ -380,7 +380,7 @@
       <div class="nav-item" data-page="Performance Card" onclick="navTo('Performance Card')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>Performance Card</div>
       <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
       <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
-      <div class="nav-item" data-page="FCR & Service Delivery" onclick="navTo('FCR & Service Delivery')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR &amp; Service Delivery</div>
+      <div class="nav-item" data-page="FCR, Quiz & SD" onclick="navTo('FCR, Quiz & SD')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR, Quiz &amp; SD</div>
       <div class="nav-item" data-page="Complaint Escalation and DKB %" onclick="navTo('Complaint Escalation and DKB %')"><span class="ic"><i class="bi bi-exclamation-triangle-fill"></i></span>Complaint &amp; DKB %</div>
       <div class="nav-item" data-page="Lag Adherence & Over Break" onclick="navTo('Lag Adherence & Over Break')"><span class="ic"><i class="bi bi-clock-history"></i></span>Lag &amp; Adherence</div>
       <div class="nav-item" data-page="AHT & CFS" onclick="navTo('AHT & CFS')"><span class="ic"><i class="bi bi-pie-chart-fill"></i></span>AHT &amp; CFS</div>
@@ -488,10 +488,10 @@
     </div>
 
     <!-- 5. FCR & SERVICE DELIVERY -->
-    <div class="page" id="page-FCR & Service Delivery">
+    <div class="page" id="page-FCR, Quiz & SD">
       <section><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
       <section>
-        <div class="section-head"><h2>Agent FCR & Service Delivery Data (Direct FCR Sheet Source)</h2></div>
+        <div class="section-head"><h2>Agent FCR, Quiz & Service Delivery Data (Direct FCR Sheet Source)</h2></div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Quiz Score</th><th>Service Delivery Count</th></tr></thead>
@@ -721,7 +721,7 @@
       const perfList = appData.sheets['Performance Card'] || [];
       const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
       
-      const fcrSdList = appData.sheets['FCR & Service Delivery']?.list || [];
+      const fcrSdList = appData.sheets['FCR, Quiz & SD']?.list || [];
       const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
 
       const ahtCfsList = appData.sheets['AHT & CFS']?.list || [];
@@ -939,8 +939,8 @@
       return;
     }
 
-    if (tab === 'FCR & Service Delivery') {
-      const fcrSd = appData.sheets['FCR & Service Delivery'] || { summary: {}, list: [] };
+    if (tab === 'FCR, Quiz & SD') {
+      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] };
       const sum = fcrSd.summary || {};
       const list = fcrSd.list || [];
       const tot = sum.totalAgents || list.length;
