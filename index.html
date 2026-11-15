@@ -1053,30 +1053,32 @@
     const box = document.getElementById('perfCardBox');
 
     if (!agent) { box.innerHTML = ''; return; }
+    const M = agent.met || {}, T = agent.targets || {};
+    const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
 
     const failPctNum = parseFloat(String(agent.auditFailPct).replace('%', ''));
-    const isFailMet = !isNaN(failPctNum) && failPctNum === 0;
+    const isFailMet = (M.ce != null) ? M.ce : (!isNaN(failPctNum) && failPctNum === 0);
 
     const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
-    const isEmpMet = !isNaN(empPctNum) && empPctNum >= 87.5;
+    const isEmpMet = (M.emp != null) ? M.emp : (!isNaN(empPctNum) && empPctNum >= 87.5);
 
     const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
-    const isAhtMet = !isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0;
+    const isAhtMet = (M.aht != null) ? M.aht : (!isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0);
 
     const cfsPctNum = parseFloat(String(agent.cfsPct || agent.cfsPercent || '').replace('%', ''));
-    const isCfsMet = !isNaN(cfsPctNum) && cfsPctNum >= 90.0;
+    const isCfsMet = (M.csat != null) ? M.csat : (!isNaN(cfsPctNum) && cfsPctNum >= 90.0);
 
     const escPctNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
-    const isEscMet = !isNaN(escPctNum) && escPctNum >= 95;
+    const isEscMet = (M.esc != null) ? M.esc : (!isNaN(escPctNum) && escPctNum >= 95);
 
     const dkbPctNum = parseFloat(String(agent.dkbPct).replace('%', ''));
-    const isDkbMet = !isNaN(dkbPctNum) && dkbPctNum >= 95;
+    const isDkbMet = (typeof agent.bonusPenalty_dkb === 'number') ? agent.bonusPenalty_dkb > 0 : (!isNaN(dkbPctNum) && dkbPctNum >= 95);
 
     const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
-    const isAdhMet = !isNaN(adhNum) && adhNum >= 100;
+    const isAdhMet = (M.adh != null) ? M.adh : (!isNaN(adhNum) && adhNum >= 100);
 
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
-    const isFcrMet = !isNaN(fcrPctNum) && fcrPctNum >= 92.0;
+    const isFcrMet = (M.fcr != null) ? M.fcr : (!isNaN(fcrPctNum) && fcrPctNum >= 93.0);
     
     let bucketClass = 'bucket-poor';
     if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
@@ -1122,7 +1124,7 @@
             <span class="pdf-badge ${renderBadge(agent.score_cfs, isCfsMet ? 'delivered' : 'missed')}">${agent.score_cfs === 'NO KPI' ? 'NO KPI' : (isCfsMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">CSAT / CFS %</div>
             <div class="pdf-kpi-value ${isCfsMet ? 'text-success' : 'text-danger'}">${agent.cfsPct || agent.cfsPercent || 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: >= 90.0%</div>
+            <div class="pdf-kpi-sub">Target: ${T.csat || '>= 90%'}</div>
             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_cfs)}</div>
           </div>
           
@@ -1130,23 +1132,23 @@
             <span class="pdf-badge ${renderBadge(agent.score_fcr, isFcrMet ? 'delivered' : 'missed')}">${agent.score_fcr === 'NO KPI' ? 'NO KPI' : (isFcrMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">FCR %</div>
             <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: >= 93.0%</div>
+            <div class="pdf-kpi-sub">Target: ${T.fcr || '>= 93%'}</div>
             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_fcr)}</div>
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${renderBadge(agent.score_adherence, isAdhMet ? 'delivered' : 'missed')}">${agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? '100% Adhered' : 'Below 100%')}</span>
+            <span class="pdf-badge ${renderBadge(agent.score_adherence, isAdhMet ? 'delivered' : 'missed')}">${agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">Adherence %</div>
             <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
-            <div class="pdf-kpi-sub">Target: 100.0%</div>
+            <div class="pdf-kpi-sub">Target: ${T.adh || '>= 100%'}</div>
             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_adherence)}</div>
           </div>
 
           <div class="pdf-kpi-card">
              <span class="pdf-badge ${renderBadge(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed')}">${agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target')}</span>
             <div class="pdf-kpi-title">Login Hour Compliance</div>
-            <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance || 'N/A'}%</div>
-            <div class="pdf-kpi-sub">Target: 100%</div>
+            <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A'}</div>
+            <div class="pdf-kpi-sub">Target: ${T.login || '>= 100%'}</div>
             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_loginHour)}</div>
           </div>
 
@@ -1162,32 +1164,32 @@
             <span class="pdf-badge ${renderBadge(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${agent.score_aht === 'NO KPI' ? 'NO KPI' : (isAhtMet ? 'Target Meet' : 'Exceeds Target')}</span>
             <div class="pdf-kpi-title">AHT (Seconds)</div>
             <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: <= 175s</div>
+            <div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : 'N/A'}</div>
             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
           </div>
           
           <!-- Bonus / Penalty Cards -->
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${renderBadge(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed')}">${agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : 'Penalty / None')}</span>
+            <span class="pdf-badge ${renderBadge(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed')}">${agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'))}</span>
             <div class="pdf-kpi-title">DKB % (Attendance)</div>
             <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
-            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-kpi-sub">Target: ${T.dkb || '>= 95%'}</div>
             <div class="pdf-score-badge">Bonus/Penalty: ${fmtScore(agent.bonusPenalty_dkb)}</div>
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${renderBadge(agent.bonusPenalty_quiz, parseFloat(agent.quizScore) >= 95 ? 'delivered' : 'missed')}">${agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : (parseFloat(agent.quizScore) >= 95 ? 'Bonus Eligible' : 'Penalty / None')}</span>
+            <span class="pdf-badge ${renderBadge(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed')}">${agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None'))}</span>
             <div class="pdf-kpi-title">Quiz Score %</div>
-            <div class="pdf-kpi-value ${parseFloat(agent.quizScore) >= 95 ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore : 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-kpi-value ${(typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore : 'N/A'}</div>
+            <div class="pdf-kpi-sub">Target: ${T.quiz || '>= 95%'}</div>
             <div class="pdf-score-badge">Bonus/Penalty: ${fmtScore(agent.bonusPenalty_quiz)}</div>
           </div>
           
           <div class="pdf-kpi-card">
-            <span class="pdf-badge ${renderBadge(agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed')}">${agent.bonusPenalty_esc === 'NO KPI' && agent.score_esc_base === undefined ? 'NO KPI' : (isEscMet ? 'Bonus Eligible' : 'None')}</span>
+            <span class="pdf-badge ${renderBadge(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed')}">${(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc) === 'NO KPI' ? 'NO KPI' : (isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'))}</span>
             <div class="pdf-kpi-title">Complaint Escalation Accuracy</div>
             <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Target: >= 95.0%</div>
+            <div class="pdf-kpi-sub">Target: ${T.esc || '>= 95%'}</div>
             <div class="pdf-score-badge">${agent.tenure.toLowerCase() === 'ojt' ? 'KPI' : 'Bonus'}: ${fmtScore(agent.tenure.toLowerCase() === 'ojt' ? agent.score_esc_base : agent.bonusPenalty_esc)}</div>
           </div>
           
@@ -1196,7 +1198,7 @@
             <div>
               <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
               <div class="pdf-kpi-value">${agent.finalScore !== undefined ? agent.finalScore : '0.00'}</div>
-              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenalty || '0.00'}</div>
+              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenalty || '0.00'} | Grid: ${agent.kpiLob ? (agent.kpiLob === 'ojt' ? 'OJT' : agent.kpiLob.charAt(0).toUpperCase() + agent.kpiLob.slice(1)) : 'N/A'}</div>
             </div>
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
