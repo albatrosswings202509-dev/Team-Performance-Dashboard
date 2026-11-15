@@ -174,7 +174,7 @@
   .lb-card:hover { transform: translateY(-2px); }
   .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
 
-  /* PERFORMANCE CARD CONTAINER & PDF OPTIMIZATION */
+  /* KPI CARD CONTAINER (Previously Performance Card) */
   .pdf-card-wrapper {
     background: #ffffff;
     border-radius: 16px;
@@ -207,7 +207,6 @@
 
   .pdf-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   
-  /* FIX: Mobile overlap fixes through flexbox instead of absolute positioning */
   .pdf-kpi-card {
     background: #ffffff;
     border: 1px solid #e8ecf4;
@@ -233,6 +232,7 @@
     align-items: flex-start;
     gap: 8px;
     margin-bottom: 2px;
+    flex-wrap: wrap; /* Allows text to drop without overlapping */
   }
   .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; margin-top: 2px; }
   .pdf-kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
@@ -319,7 +319,7 @@
   .pdf-export-mode .pdf-kpi-title { font-size: 9.5px !important; }
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
   .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
-  .pdf-export-mode .pdf-score-badge { font-size: 9px !important; padding: 2px 6px !important; }
+  .pdf-export-mode .pdf-score-badge { font-size: 9px !important; padding: 2px 6px !important; margin-top: auto !important; }
   .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 10px 14px !important; }
   .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 20px !important; }
   .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 9px !important; padding: 3px 6px !important; }
@@ -384,12 +384,29 @@
     .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 10px; }
     .predicted-bucket-card .bucket-label { align-self: flex-start; }
   }
+  
+  /* STRICT MOBILE FIX (Prevents Overlap & Forces 2 Columns) */
   @media (max-width: 480px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .kpi-card .kpi-num { font-size: 14px; }
-    .pdf-grid-3 { grid-template-columns: 1fr !important; }
-    .predicted-bucket-card, .focus-card { grid-column: span 1 !important; }
-    .pdf-kpi-value { font-size: 18px; }
+    
+    /* Forces 2-column layout */
+    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+    .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
+    
+    /* Bulletproof overlapping fix: Switch flex direction to column on card headers */
+    .pdf-kpi-card { padding: 8px 10px !important; min-height: 100px; gap: 4px; }
+    .kpi-card-header { flex-direction: column; gap: 4px; } 
+    .pdf-kpi-title { font-size: 9px !important; margin: 0; }
+    .pdf-badge { align-self: flex-start; font-size: 8px !important; padding: 2px 5px !important; }
+    
+    /* Optimize font scales for 2 columns */
+    .pdf-kpi-value { font-size: 15px !important; }
+    .pdf-kpi-sub { font-size: 8px !important; line-height: 1.2; word-break: break-word; }
+    .pdf-score-badge { font-size: 9px !important; padding: 3px 6px !important; margin-top: 4px; }
+    
+    .focus-card .pdf-kpi-title { font-size: 10px !important; }
+    .focus-list { font-size: 9px !important; margin-left: 12px; }
   }
 </style>
 </head>
@@ -406,7 +423,7 @@
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
-      <div class="nav-item" data-page="Performance Card" onclick="navTo('Performance Card')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>Performance Card</div>
+      <div class="nav-item" data-page="KPI" onclick="navTo('KPI')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>KPI</div>
       <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
       <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
       <div class="nav-item" data-page="FCR, Quiz & SD" onclick="navTo('FCR, Quiz & SD')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR, Quiz &amp; SD</div>
@@ -461,14 +478,14 @@
       </section>
     </div>
 
-    <!-- 2. PERFORMANCE CARD -->
-    <div class="page" id="page-Performance Card">
+    <!-- 2. KPI -->
+    <div class="page" id="page-KPI">
       <div class="filterbar">
         <div class="fgroup">
           <label>Select Active Agent</label>
           <select id="agentSelect" onchange="renderAgentCard(this.value)"></select>
         </div>
-        <button class="btn-pdf" onclick="downloadPerformanceCardPdf()"><i class="bi bi-download"></i> Download PDF</button>
+        <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download PDF</button>
       </div>
       <div id="perfCardBox"></div>
     </div>
@@ -724,7 +741,7 @@
     });
 
     if (empPassSum === 0 && empFailSum === 0) {
-      const perfList = appData.sheets['Performance Card'] || [];
+      const perfList = appData.sheets['KPI'] || [];
       const relevantPerf = selectedAgent 
         ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent)
         : perfList;
@@ -747,7 +764,7 @@
     let dkbPct = tl.dkbPercent || 'N/A';
 
     if (selectedAgent) {
-      const perfList = appData.sheets['Performance Card'] || [];
+      const perfList = appData.sheets['KPI'] || [];
       const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
       
       const fcrSdList = appData.sheets['FCR, Quiz & SD']?.list || [];
@@ -819,8 +836,8 @@
       return;
     }
 
-    if (tab === 'Performance Card') {
-      const list = appData.sheets['Performance Card'] || [];
+    if (tab === 'KPI') {
+      const list = appData.sheets['KPI'] || [];
       const select = document.getElementById('agentSelect');
       const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
@@ -1077,7 +1094,7 @@
 
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
-    const list = appData.sheets['Performance Card'] || [];
+    const list = appData.sheets['KPI'] || [];
     const agent = list.find(a => a.name === agentName);
     const box = document.getElementById('perfCardBox');
 
@@ -1109,7 +1126,6 @@
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
     const isFcrMet = (M.fcr != null) ? M.fcr : (!isNaN(fcrPctNum) && fcrPctNum >= 93.0);
     
-    // --- FOCUS AREA LOGIC (Identifies exactly 3 parameters to focus on) ---
     let focusAreas = [];
     if (!isFailMet) focusAreas.push("Audit Fail Rate (CE)");
     if (agent.validCompCount > 0) focusAreas.push("Valid Complaints");
@@ -1123,7 +1139,6 @@
     if (!isDkbMet) focusAreas.push("DKB (Attendance)");
     if (!isEscMet) focusAreas.push("Escalation Accuracy");
     
-    // If agent is perfect, provide standard positive focus areas
     if (focusAreas.length === 0) {
         focusAreas = ["Maintain Consistency", "Peer Mentoring", "Advanced Skilling"];
     } else if (focusAreas.length < 3) {
@@ -1134,9 +1149,8 @@
             i++;
         }
     }
-    focusAreas = focusAreas.slice(0, 3); // Strictly cap at 3
+    focusAreas = focusAreas.slice(0, 3); 
     
-    // --- CAPPING FINAL SCORE AT 4.00 ---
     let rawScore = parseFloat(agent.finalScore || 0);
     let finalDisplayScore = rawScore > 4.00 ? '4.00' : rawScore.toFixed(2);
 
@@ -1282,7 +1296,6 @@
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
               <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
-              <!-- Display the capped score here -->
               <div class="pdf-kpi-value">${finalDisplayScore}</div>
               <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'} (${parseFloat(agent.bonusPenaltyAmount || 0) > 0 ? '+' : ''}${agent.bonusPenaltyAmount || '0.00'}) | Grid: ${agent.kpiLob ? (agent.kpiLob === 'ojt' ? 'OJT' : agent.kpiLob.charAt(0).toUpperCase() + agent.kpiLob.slice(1)) : 'N/A'}</div>
             </div>
@@ -1332,7 +1345,7 @@
     `).join('');
   }
 
-  function downloadPerformanceCardPdf() {
+  function downloadKpiPdf() {
     const cardEl = document.getElementById('pdfCardTarget');
     if (!cardEl) return;
 
@@ -1340,7 +1353,7 @@
 
     const opt = {
       margin:       [0.2, 0.2, 0.2, 0.2],
-      filename:     `Performance_Card_${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+      filename:     `KPI_${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, logging: false },
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
