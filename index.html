@@ -15,396 +15,341 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
+  /* =========================================
+     CSS VARIABLES: DAY & NIGHT MODES
+     ========================================= */
   :root {
-    --navy: #101d34;
-    --navy-raised: #16243f;
-    --navy-line: rgba(36, 52, 84, 0.56);
-    --bg: #f4f6fa;
-    --card: #ffffff;
-    --line: #e4e8f0;
-    --ink: #182238;
-    --muted: #6b7488;
-    --muted-dim: #9aa2b2;
-    --blue: #3b6fd9;
-    --blue-dim: #e8eefd;
-    --good: #1fa971;
-    --good-dim: #e6f7ef;
-    --bad: #e0503f;
-    --bad-dim: #fdecea;
-    --warn: #e0a021;
-    --warn-dim: #fdf3e0;
-    --purple: #7c5fd6;
-    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+    /* DEFAULT DAY MODE (Light Theme) */
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-muted-dim: #94a3b8;
+    --border-color: #e2e8f0;
+    
+    --sidebar-bg: #101d34;
+    --sidebar-text: #dde3ef;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    
+    --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+    --shadow-hover: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.15);
+    
+    --color-good: #059669;
+    --bg-good: #d1fae5;
+    --color-bad: #e11d48;
+    --bg-bad: #ffe4e6;
+    --color-warn: #d97706;
+    --bg-warn: #fef3c7;
+    --color-blue: #3b82f6;
+    --bg-blue: #dbeafe;
+    
+    --chart-bg: #e2e8f0;
+    --bucket-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --bucket-text: #ffffff;
+    --focus-bg: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
+    --focus-border: #ffc9c9;
+    --focus-title: #c92a2a;
+    
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  [data-theme="dark"] {
+    /* CYBER DARK MODE (Linear Vibe) */
+    --bg-main: #0b0f19;
+    --bg-card: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-muted-dim: #64748b;
+    --border-color: #1e293b;
+    
+    --sidebar-bg: #0b0f19;
+    --sidebar-text: #94a3b8;
+    --sidebar-border: #1e293b;
+    
+    --shadow-card: 0 10px 25px -5px rgba(6, 182, 212, 0.10);
+    --shadow-hover: 0 12px 24px -8px rgba(6, 182, 212, 0.25), 0 0 0 1px rgba(6, 182, 212, 0.3);
+
+    --color-good: #10b981;
+    --bg-good: rgba(16, 185, 129, 0.15);
+    --color-bad: #f43f5e;
+    --bg-bad: rgba(244, 63, 94, 0.15);
+    --color-warn: #f59e0b;
+    --bg-warn: rgba(245, 158, 11, 0.15);
+    --color-blue: #22d3ee;
+    --bg-blue: rgba(34, 211, 238, 0.15);
+    
+    --chart-bg: #1e293b;
+    --bucket-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    --bucket-text: #22d3ee;
+    --focus-bg: linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%);
+    --focus-border: #450a0a;
+    --focus-title: #f87171;
   }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--bg-main);
+    color: var(--text-main);
     font-family: var(--sans);
-    font-size: 13.5px;
-    line-height: 1.5;
+    font-size: 13.5px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    display: flex;
-    min-height: 100vh;
+    display: flex; min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
   }
 
+  /* Utility Classes for Theme Colors */
+  .text-success { color: var(--color-good) !important; }
+  .text-danger { color: var(--color-bad) !important; }
+  .text-warning { color: var(--color-warn) !important; }
+  .text-info, .text-primary, .text-purple { color: var(--color-blue) !important; }
+
   /* SIDEBAR */
-  .sidebar-overlay {
-    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(16, 29, 52, 0.5); backdrop-filter: blur(2px); z-index: 80;
-  }
+  .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 80; }
   .sidebar {
-    width: 240px; background: var(--navy); color: #dde3ef; flex-shrink: 0;
+    width: 240px; background: var(--sidebar-bg); color: var(--sidebar-text); flex-shrink: 0;
     display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
-    overflow-x: hidden; overflow-y: auto; z-index: 90; transition: transform 0.25s ease, width 0.25s ease;
+    border-right: 1px solid var(--sidebar-border);
+    overflow-x: hidden; overflow-y: auto; z-index: 90; transition: transform 0.25s ease, width 0.25s ease, background 0.3s;
   }
-  body.sidebar-collapsed .sidebar { width: 0; min-width: 0; }
+  body.sidebar-collapsed .sidebar { width: 0; min-width: 0; border: none; }
   .sidebar-inner { width: 240px; }
-  .sidebar-brand {
-    display: flex; align-items: center; gap: 10px; padding: 18px 16px;
-    border-bottom: 1px solid var(--navy-line); white-space: nowrap;
-  }
-  .sidebar-brand .logo {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: linear-gradient(135deg, #3b6fd9, #7c5fd6);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0;
-  }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--sidebar-border); white-space: nowrap; }
+  .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #3b6fd9, #7c5fd6); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
   .sidebar-brand .name { font-size: 14px; font-weight: 700; color: #fff; }
   .sidebar-nav { padding: 12px 8px; flex: 1; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px;
-    border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: #aab2c5;
-    white-space: nowrap; transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1); min-height: 44px;
-  }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--sidebar-text); white-space: nowrap; transition: all 0.22s; min-height: 44px; }
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
-  .nav-item:hover { background: #1c2c4c; color: #fff; transform: translateX(3px); }
-  .nav-item.active { background: var(--blue); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(59, 111, 217, 0.3); }
-  .sidebar-foot { padding: 14px 16px; font-size: 11px; color: #6d768c; border-top: 1px solid var(--navy-line); white-space: nowrap; text-align: center; }
+  .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateX(3px); }
+  .nav-item.active { background: var(--color-blue); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3); }
+  .sidebar-foot { padding: 14px 16px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--sidebar-border); white-space: nowrap; text-align: center; }
 
   /* MAIN WORKSPACE */
   .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   .topbar {
-    background: var(--card); border-bottom: 1px solid var(--line); padding: 14px 24px;
+    background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    position: sticky; top: 0; z-index: 40;
+    position: sticky; top: 0; z-index: 40; transition: background 0.3s;
   }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .mobile-menu-btn { display: none; background: none; border: 1px solid var(--line); padding: 8px 12px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--ink); min-height: 40px; }
-  .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--ink); }
-  .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .mobile-menu-btn { display: none; background: none; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--text-main); min-height: 40px; }
+  .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--text-main); }
+  .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
 
-  .live-chip {
-    display: flex; align-items: center; gap: 6px; background: var(--good-dim); color: var(--good);
-    padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px;
-  }
+  .live-chip { display: flex; align-items: center; gap: 6px; background: var(--bg-good); color: var(--color-good); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px; }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  #refreshBtn { background: var(--blue); color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; min-height: 38px; transition: all 0.2s ease; }
+  
+  .theme-btn { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 14px; cursor: pointer; min-height: 38px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+  .theme-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  
+  #refreshBtn { background: var(--color-blue); color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; min-height: 38px; transition: all 0.2s ease; }
   #refreshBtn:hover { opacity: 0.9; transform: translateY(-1px); }
 
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
 
   .page { display: none; opacity: 0; }
-  .page.active {
-    display: block;
-    animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  @keyframes premiumPageFade {
-    0% { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(4px); }
-    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-  }
+  .page.active { display: block; animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes premiumPageFade { 0% { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 
   section { margin-bottom: 24px; }
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
-  .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--ink); }
+  .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-main); }
 
   .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
   .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
-  .filterbar label { font-size: 10.5px; color: var(--muted-dim); font-weight: 600; text-transform: uppercase; }
+  .filterbar label { font-size: 10.5px; color: var(--text-muted-dim); font-weight: 600; text-transform: uppercase; }
   .filterbar select, .filterbar input[type=text] {
-    background: #fff; color: var(--ink); border: 1px solid var(--line);
-    border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px;
-    transition: all 0.2s ease;
+    background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);
+    border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px; transition: all 0.2s ease;
   }
-  .filterbar select:focus, .filterbar input[type=text]:focus {
-    border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(59, 111, 217, 0.15);
-  }
+  .filterbar select:focus, .filterbar input[type=text]:focus { border-color: var(--color-blue); outline: none; box-shadow: 0 0 0 3px var(--bg-blue); }
 
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   .kpi-card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
     padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; text-align: center; align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-card); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(16, 29, 52, 0.08); }
+  .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--color-blue); }
   .kpi-card .kpi-top { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
   .kpi-icon { width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-  .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
-  .kpi-icon.good { background: var(--good-dim); color: var(--good); }
-  .kpi-icon.bad { background: var(--bad-dim); color: var(--bad); }
-  .kpi-icon.warn { background: var(--warn-dim); color: var(--warn); }
-  .kpi-icon.purple { background: #efe9fc; color: var(--purple); }
-  .kpi-card .kpi-label { font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-  .kpi-card .kpi-num { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .kpi-icon.blue { background: var(--bg-blue); color: var(--color-blue); }
+  .kpi-icon.good { background: var(--bg-good); color: var(--color-good); }
+  .kpi-icon.bad { background: var(--bg-bad); color: var(--color-bad); }
+  .kpi-icon.warn { background: var(--bg-warn); color: var(--color-warn); }
+  .kpi-icon.purple { background: var(--bg-blue); color: var(--color-blue); } /* Mapped to blue in dark */
+  .kpi-card .kpi-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+  .kpi-card .kpi-num { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text-main); }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
   /* Empathy Parameter Cards */
-  .empathy-param-card {
-    border-radius: 10px; padding: 12px; border: 1px solid var(--line);
-    text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-  }
-  .empathy-param-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
-  .empathy-param-card.green { background: var(--good-dim); border-color: #b7ebd3; }
-  .empathy-param-card.red { background: var(--bad-dim); border-color: #f3c7c1; }
-  .empathy-param-card .pname { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .empathy-param-card { border-radius: 12px; padding: 12px; border: 1px solid var(--border-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); box-shadow: var(--shadow-card); transition: all 0.25s ease; }
+  .empathy-param-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--color-blue); }
+  .empathy-param-card.green { background: var(--bg-good); border-color: transparent; }
+  .empathy-param-card.red { background: var(--bg-bad); border-color: transparent; }
+  .empathy-param-card .pname { font-size: 11.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
   .empathy-param-card .pval { font-size: 20px; font-weight: 800; }
-  .empathy-param-card.green .pval { color: var(--good); }
-  .empathy-param-card.red .pval { color: var(--bad); }
-  .empathy-param-card .ptarget { font-size: 10px; color: var(--muted-dim); margin-top: 2px; }
+  .empathy-param-card.green .pval { color: var(--color-good); }
+  .empathy-param-card.red .pval { color: var(--color-bad); }
+  .empathy-param-card .ptarget { font-size: 10px; color: var(--text-muted-dim); margin-top: 2px; }
 
   /* Leaderboard Cards */
-  .lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; transition: transform 0.2s ease; }
-  .lb-card:hover { transform: translateY(-2px); }
-  .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+  .lb-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; box-shadow: var(--shadow-card); transition: transform 0.2s ease; }
+  .lb-card:hover { transform: translateY(-2px); border-color: var(--color-blue); box-shadow: var(--shadow-hover); }
+  .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
 
-  /* KPI CARD CONTAINER */
+  /* ============================================================
+     ADVANCED CYBER/MINIMAL KPI CARD LAYOUT (With Circular Progress)
+     ============================================================ */
   .pdf-card-wrapper {
-    background: #ffffff;
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 24px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    max-width: 1000px;
-    margin: 10px auto;
-    box-shadow: 0 20px 40px -15px rgba(16, 29, 52, 0.12), 0 0 15px rgba(59, 111, 217, 0.05);
+    border: 1px solid var(--border-color);
+    max-width: 1000px; margin: 10px auto;
+    box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15);
     animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  @keyframes popupCard {
-    0% { opacity: 0; transform: scale(0.96) translateY(12px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
-  }
+  @keyframes popupCard { 0% { opacity: 0; transform: scale(0.96) translateY(12px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
   .pdf-header-bar {
     background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%);
-    color: #ffffff;
-    padding: 18px 22px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: left;
-    box-shadow: 0 8px 20px rgba(16, 29, 52, 0.15);
+    color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2);
   }
+  [data-theme="dark"] .pdf-header-bar { background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%); border: 1px solid #334155; }
   .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
-  .pdf-agent-sub { font-size: 11.5px; color: #aab2c5; }
+  .pdf-agent-sub { font-size: 11.5px; color: #94a3b8; }
 
   .pdf-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   
   .pdf-kpi-card {
-    background: #ffffff;
-    border: 1px solid #e8ecf4;
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 6px;
-    min-height: 120px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.25s ease;
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 120px;
+    box-shadow: var(--shadow-card); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .pdf-kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px -6px rgba(16, 29, 52, 0.12), 0 4px 8px -2px rgba(16, 29, 52, 0.06);
-    border-color: #cbd5e1;
-  }
+  .pdf-kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--color-blue); }
   
-  .kpi-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 2px;
-    flex-wrap: wrap;
-  }
-  .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; margin-top: 2px; }
-  .pdf-kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
-  .pdf-kpi-sub { font-size: 10px; color: #94a3b8; }
+  .kpi-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+  .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
   
-  .pdf-badge {
-    padding: 4px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 700; white-space: nowrap;
-  }
-  .pdf-badge.missed { background: #fdecea; color: #e0503f; }
-  .pdf-badge.delivered { background: #e6f7ef; color: #1fa971; }
-  .pdf-badge.nokpi { background: #f1f5f9; color: #475569; }
+  .kpi-card-body { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: 1; margin-top: 2px; }
+  .kpi-value-col { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
   
-  .pdf-score-badge {
-    margin-top: auto; align-self: flex-start;
-    padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
-    background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
-  }
+  .pdf-kpi-value { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; line-height: 1.1; }
+  .pdf-kpi-sub { font-size: 10px; color: var(--text-muted-dim); line-height: 1.3; white-space: normal; word-wrap: break-word; }
   
-  .predicted-bucket-card {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    color: #fff;
-    grid-column: span 2;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-  }
-  .predicted-bucket-card:hover {
-     box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.2);
-     border-color: #3b82f6;
-  }
+  .kpi-chart-col { flex-shrink: 0; }
+  .svg-chart-container { position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+  .svg-chart-val { position: absolute; font-size: 10.5px; font-weight: 800; color: var(--text-main); }
+  
+  .pdf-badge { padding: 4px 10px; border-radius: 20px; font-size: 9.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; letter-spacing: 0.02em; }
+  .pdf-badge.missed { background: var(--bg-bad); color: var(--color-bad); }
+  .pdf-badge.delivered { background: var(--bg-good); color: var(--color-good); }
+  .pdf-badge.nokpi { background: var(--bg-main); color: var(--text-muted); border-color: var(--border-color); }
+  
+  .pdf-score-badge { margin-top: auto; align-self: flex-start; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; background: var(--bg-main); color: var(--text-muted); border: 1px solid var(--border-color); }
+  
+  /* Specialized Span-2 Cards */
+  .predicted-bucket-card { background: var(--bucket-bg); color: var(--bucket-text); grid-column: span 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 16px 20px; border: none; box-shadow: 0 10px 20px -5px rgba(0,0,0, 0.3); }
+  .predicted-bucket-card:hover { box-shadow: 0 12px 24px -6px rgba(6, 182, 212, 0.3); border-color: var(--color-blue); border: 1px solid var(--color-blue); }
   .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; font-size: 11px; }
-  .predicted-bucket-card .pdf-kpi-value { color: #fff; font-size: 24px; margin: 2px 0; }
+  .predicted-bucket-card .pdf-kpi-value { color: #ffffff; font-size: 24px; margin: 4px 0; }
   .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 11px; }
-  .predicted-bucket-card .bucket-label {
-    font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-  }
+  .predicted-bucket-card .bucket-label { font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: var(--bucket-text); }
+  
+  .focus-card { background: var(--focus-bg); border-color: var(--focus-border); display: flex; flex-direction: column; justify-content: center; grid-column: span 1; }
+  .focus-card .pdf-kpi-title { color: var(--focus-title); font-size: 11.5px; }
+  .focus-list { margin: 10px 0 0 16px; padding: 0; font-size: 11.5px; font-weight: 700; color: var(--focus-title); }
+  .focus-list li { margin-bottom: 6px; }
 
-  /* NEED TO FOCUS CARD */
-  .focus-card {
-    background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
-    border-color: #ffc9c9;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    grid-column: span 1;
-  }
-  .focus-card .pdf-kpi-title { color: #c92a2a; font-size: 11.5px; }
-  .focus-list { margin: 8px 0 0 16px; padding: 0; font-size: 11.5px; font-weight: 700; color: #b00; }
-  .focus-list li { margin-bottom: 5px; }
+  .bucket-excellent { color: #10b981; border-color: #10b981; }
+  .bucket-good { color: #22d3ee; border-color: #22d3ee; }
+  .bucket-average { color: #f59e0b; border-color: #f59e0b; }
+  .bucket-poor { color: #f43f5e; border-color: #f43f5e; }
 
-  .bucket-excellent { color: #1fa971; border-color: #1fa971; }
-  .bucket-good { color: #3b82f6; border-color: #3b82f6; }
-  .bucket-average { color: #e0a021; border-color: #e0a021; }
-  .bucket-poor { color: #e0503f; border-color: #e0503f; }
-
-  /* STRICT PDF EXPORT PRINT STYLES */
-  .pdf-export-mode {
-    width: 960px !important;
-    max-width: 960px !important;
-    padding: 16px !important;
-    background: #f8fafc !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
-    animation: none !important;
-  }
-  .pdf-export-mode .pdf-header-bar {
-    padding: 12px 16px !important;
-    margin-bottom: 12px !important;
-  }
-  .pdf-export-mode .pdf-agent-name { font-size: 18px !important; }
-  .pdf-export-mode .pdf-grid-3 {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-  }
-  .pdf-export-mode .pdf-kpi-card {
-    height: auto !important;
-    min-height: 92px !important;
-    padding: 10px 12px !important;
-    box-shadow: none !important;
-    transform: none !important;
-  }
-  .pdf-export-mode .pdf-kpi-title { font-size: 9.5px !important; }
-  .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 2px 0 !important; }
-  .pdf-export-mode .pdf-kpi-sub { font-size: 8.5px !important; }
-  .pdf-export-mode .pdf-score-badge { font-size: 9px !important; padding: 2px 6px !important; margin-top: auto !important; }
-  .pdf-export-mode .predicted-bucket-card { height: auto !important; padding: 10px 14px !important; }
-  .pdf-export-mode .predicted-bucket-card .pdf-kpi-value { font-size: 20px !important; }
-  .pdf-export-mode .predicted-bucket-card .bucket-label { font-size: 9px !important; padding: 3px 6px !important; }
+  /* STRICT PDF EXPORT PRINT STYLES (Always forces Light/Clean format for PDF) */
+  .pdf-export-mode { width: 960px !important; max-width: 960px !important; padding: 16px !important; background: #ffffff !important; border-radius: 10px !important; box-shadow: none !important; animation: none !important; }
+  .pdf-export-mode * { color: #0f172a !important; }
+  .pdf-export-mode .pdf-header-bar { background: #101d34 !important; }
+  .pdf-export-mode .pdf-header-bar * { color: #ffffff !important; }
+  .pdf-export-mode .pdf-grid-3 { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+  .pdf-export-mode .pdf-kpi-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; min-height: 105px !important; padding: 10px 12px !important; box-shadow: none !important; transform: none !important; gap: 6px !important; }
+  .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 0 !important; }
+  .pdf-export-mode .svg-chart-container { width: 40px !important; height: 40px !important; }
+  .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; }
+  .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
+  .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; }
+  .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; }
 
   /* Tables */
-  table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 12px; }
-  thead th {
-    text-align: center; font-size: 10px; color: var(--muted); font-weight: 700;
-    padding: 9.5px 10px; border-bottom: 1.5px solid var(--line); position: sticky; top: 0; background: var(--card);
-    text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; z-index: 10;
-  }
-  tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; text-align: center; }
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); font-size: 12px; }
+  thead th { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 700; padding: 9.5px 10px; border-bottom: 1.5px solid var(--border-color); position: sticky; top: 0; background: var(--bg-card); text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; z-index: 10; }
+  tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--border-color); font-variant-numeric: tabular-nums; text-align: center; color: var(--text-main); }
   tbody tr { transition: background 0.15s ease; }
-  tbody tr:hover { background: #fafbfd; }
-  .table-wrap {
-    max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
-    -webkit-overflow-scrolling: touch; position: relative;
-  }
-
-  .table-wrap table th:first-child,
-  .table-wrap table td:first-child {
-    position: sticky; left: 0; z-index: 5; background: var(--card); box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-  }
+  tbody tr:hover { background: rgba(128, 128, 128, 0.05); }
+  .table-wrap { max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); -webkit-overflow-scrolling: touch; position: relative; }
+  .table-wrap table th:first-child, .table-wrap table td:first-child { position: sticky; left: 0; z-index: 5; background: var(--bg-card); box-shadow: 2px 0 6px rgba(0,0,0,0.05); }
   .table-wrap table th:first-child { z-index: 15; }
 
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .pill.pass, .pill.good { background: var(--good-dim); color: var(--good); }
-  .pill.fail, .pill.bad { background: var(--bad-dim); color: var(--bad); }
+  .pill.pass, .pill.good { background: var(--bg-good); color: var(--color-good); }
+  .pill.fail, .pill.bad { background: var(--bg-bad); color: var(--color-bad); }
+  tr.row-overbreak { background-color: var(--bg-bad) !important; }
+  .text-overbreak { color: var(--color-bad) !important; font-weight: 700; }
 
-  tr.row-overbreak { background-color: #fdecea !important; }
-  .text-overbreak { color: #e0503f !important; font-weight: 700; }
+  .btn-pdf { background: var(--color-blue); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; transition: all 0.2s ease; }
+  .btn-pdf:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-card); }
 
-  .btn-pdf {
-    background: #101d34; color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; transition: all 0.2s ease;
-  }
-  .btn-pdf:hover { background: #16243f; transform: translateY(-1px); }
-
-  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted-dim); font-family: var(--mono); }
+  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted-dim); font-family: var(--mono); }
 
   @media (max-width: 1280px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  
+  /* PERFECT MOBILE FIX: ALWAYS 2 COLUMNS, NO OVERLAP */
   @media (max-width: 820px) {
     .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
-    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; border: none; }
     body.sidebar-open .sidebar { transform: translateX(0); }
     body.sidebar-open .sidebar-overlay { display: block; }
     .topbar { padding: 10px 14px; }
     main { padding: 12px 10px 30px; }
-    .grid-2, .grid-4 { grid-template-columns: 1fr; }
     
-    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+    /* Strict 2 Column layout on ALL small devices */
+    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
 
+    /* Bulletproof Anti-Overlap using Flexbox tweaks */
+    .pdf-kpi-card { padding: 10px 12px !important; min-height: 115px; gap: 6px; }
+    .kpi-card-header { flex-direction: column; gap: 6px; } 
+    .pdf-kpi-title { font-size: 10px !important; margin: 0; }
+    .pdf-badge { align-self: flex-start; font-size: 8.5px !important; padding: 3px 8px !important; }
+    
+    .kpi-card-body { gap: 6px; }
+    .pdf-kpi-value { font-size: 18px !important; }
+    .pdf-kpi-sub { font-size: 9px !important; line-height: 1.25; }
+    
+    /* Resize circle chart heavily for mobile to prevent overflow */
+    .svg-chart-container { width: 36px; height: 36px; }
+    .svg-chart-container svg { width: 36px; height: 36px; }
+    .svg-chart-val { font-size: 8.5px; }
+    
+    .pdf-score-badge { font-size: 9.5px !important; padding: 3px 6px !important; margin-top: 6px; }
+    .focus-card .pdf-kpi-title { font-size: 11px !important; }
+    .focus-list { font-size: 10px !important; margin-left: 14px; }
+    
+    .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .predicted-bucket-card .bucket-label { align-self: flex-start; }
+    
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .kpi-card { padding: 10px 8px; }
-    .kpi-card .kpi-num { font-size: 15px; }
-    .kpi-card .kpi-label { font-size: 9.5px; }
-    .pdf-card-wrapper { padding: 14px; border-radius: 12px; }
+    .pdf-card-wrapper { padding: 16px; border-radius: 12px; }
     .btn-pdf { width: 100%; }
     .filterbar select, .filterbar input[type=text] { min-width: 100%; }
-    .table-wrap { max-height: 60vh; }
-    .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .predicted-bucket-card .bucket-label { align-self: flex-start; }
-  }
-  
-  /* STRICT MOBILE FIX */
-  @media (max-width: 480px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .kpi-card .kpi-num { font-size: 14px; }
-    
-    /* Forces 2-column layout */
-    .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
-    .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
-    
-    .pdf-kpi-card { padding: 8px 10px !important; min-height: 100px; gap: 4px; }
-    .kpi-card-header { flex-direction: column; gap: 4px; } 
-    .pdf-kpi-title { font-size: 9px !important; margin: 0; }
-    .pdf-badge { align-self: flex-start; font-size: 8px !important; padding: 2px 5px !important; }
-    
-    .pdf-kpi-value { font-size: 15px !important; }
-    .pdf-kpi-sub { font-size: 8px !important; line-height: 1.2; word-break: break-word; }
-    .pdf-score-badge { font-size: 9px !important; padding: 3px 6px !important; margin-top: 4px; }
-    
-    .focus-card .pdf-kpi-title { font-size: 10px !important; }
-    .focus-list { font-size: 9px !important; margin-left: 12px; }
   }
 </style>
 </head>
@@ -443,6 +388,10 @@
     </div>
     <div class="status-cluster">
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
+      <!-- NEW: Theme Switcher Button -->
+      <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        <i class="bi bi-moon-fill"></i>
+      </button>
       <button id="refreshBtn" onclick="loadDashboard(true)">Refresh now</button>
     </div>
   </div>
@@ -633,6 +582,31 @@
   let activeTab = 'Dashboard';
   let currentCardAgentName = '';
 
+  // Theme Toggle Logic
+  function toggleTheme() {
+    const body = document.documentElement;
+    const current = body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+    localStorage.setItem('aw_theme', next);
+    
+    const icon = document.querySelector('#themeToggle i');
+    if(next === 'dark') {
+      icon.className = 'bi bi-sun-fill';
+    } else {
+      icon.className = 'bi bi-moon-fill';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('aw_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    const icon = document.querySelector('#themeToggle i');
+    if(savedTheme === 'dark' && icon) icon.className = 'bi bi-sun-fill';
+    
+    loadDashboard(false);
+  });
+
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
 
   async function loadDashboard(manual = false) {
@@ -700,7 +674,6 @@
     const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
     const tl = appData.tlSummary || {};
 
-    // IF NO AGENT IS SELECTED, SHOW MASTER SUMMARY (INCLUDES INACTIVE AGENTS)
     if (!selectedAgent && !selectedParty) {
         document.getElementById('tlKpiGrid').innerHTML = `
           <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
@@ -717,7 +690,6 @@
         return;
     }
 
-    // SPECIFIC AGENT/PARTY FILTER CALCULATIONS
     const allCalls = appData.sheets['Audited Call Details'] || [];
     const filteredCalls = allCalls.filter(c => {
       const agentName = String(c.agentName || '').toLowerCase();
@@ -845,6 +817,7 @@
       return;
     }
 
+    // Common Audit Logics...
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
@@ -895,8 +868,16 @@
         }
 
         auditDetailsList.push({
-          agentName: agent['Name'], vdiId: agent['VDI ID'], id: agent['ID'], totalAudits: totalAudits,
-          totalPass: passes, totalFail: fails, cePercent: cePercent, empathyPass: empPassSum, empathyFail: empFailSum, empathyPassPercent: empPercent
+          agentName: agent['Name'],
+          vdiId: agent['VDI ID'],
+          id: agent['ID'],
+          totalAudits: totalAudits,
+          totalPass: passes,
+          totalFail: fails,
+          cePercent: cePercent,
+          empathyPass: empPassSum,
+          empathyFail: empFailSum,
+          empathyPassPercent: empPercent
         });
       });
 
@@ -930,7 +911,9 @@
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
       const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
-        'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'
+        'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity',
+        'Proper Listening', 'Personalization', 'Time / Hold Management',
+        'Emotional Tone with Courtesy', 'Closing Courtesy'
       ];
 
       let kpiHtml = '';
@@ -944,6 +927,7 @@
           </div>`;
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
+
       document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
         return `
@@ -1056,6 +1040,58 @@
     }
   }
 
+  // --- NEW RENDER CARD HELPER (Theme Adaptive & Responsive) ---
+  function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null) {
+    let chartHtml = '';
+    
+    if (percValue !== null) {
+      let p = parseFloat(String(percValue).replace('%', ''));
+      if (!isNaN(p)) {
+        let drawP = Math.min(Math.max(p, 0), 100);
+        
+        // Match stroke color via CSS Variables depending on status
+        let strokeVar = 'var(--color-blue)';
+        if (badgeStatus === 'delivered') strokeVar = 'var(--color-good)';
+        if (badgeStatus === 'missed') strokeVar = 'var(--color-bad)';
+
+        let radius = 18;
+        let circ = 2 * Math.PI * radius;
+        let offset = circ - (drawP / 100) * circ;
+
+        chartHtml = `
+          <div class="kpi-chart-col">
+            <div class="svg-chart-container">
+              <svg viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle>
+                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" 
+                        stroke-dasharray="${circ}" stroke-dashoffset="${offset}" 
+                        stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle>
+              </svg>
+              <div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    return `
+    <div class="pdf-kpi-card">
+      <div class="kpi-card-header">
+        <div class="pdf-kpi-title">${title}</div>
+        <span class="pdf-badge ${badgeStatus}">${badgeText}</span>
+      </div>
+      <div class="kpi-card-body">
+        <div class="kpi-value-col">
+          <div class="pdf-kpi-value ${valClass}">${value}</div>
+          <div class="pdf-kpi-sub">${sub}</div>
+        </div>
+        ${chartHtml}
+      </div>
+      <div class="pdf-score-badge">${scoreBadge}</div>
+    </div>
+    `;
+  }
+
   function renderAgentCard(agentName) {
     currentCardAgentName = agentName;
     const list = appData.sheets['KPI'] || [];
@@ -1125,7 +1161,7 @@
 
     const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined && s !== null ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
-    const renderBadge = (scoreStr, defaultClasses) => (scoreStr === 'NO KPI' ? 'nokpi' : defaultClasses);
+    const renderBadgeCls = (scoreStr, defClass) => scoreStr === 'NO KPI' ? 'nokpi' : defClass;
 
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
@@ -1135,126 +1171,114 @@
         </div>
 
         <div class="pdf-grid-3">
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Audit Fail Rate</div>
-              <span class="pdf-badge ${renderBadge(agent.score_criticalError, isFailMet ? 'delivered' : 'missed')}">${agent.score_criticalError === 'NO KPI' ? 'NO KPI' : (isFailMet ? 'Target Meet' : 'Fail Found')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isFailMet ? 'text-success' : 'text-danger'}">${agent.auditFailPct}</div>
-            <div class="pdf-kpi-sub">Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_criticalError)}</div>
-          </div>
+          ${renderCardHtml(
+            "Audit Fail Rate", agent.auditFailPct, 
+            `Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})`, 
+            `KPI: ${fmtScore(agent.score_criticalError)}`, 
+            renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), 
+            agent.score_criticalError === 'NO KPI' ? 'NO KPI' : (isFailMet ? 'Target Meet' : 'Fail Found'), 
+            isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Valid Complaint</div>
-              <span class="pdf-badge ${renderBadge(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed')}">${agent.score_validComplaint === 'NO KPI' ? 'NO KPI' : (agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found')}</span>
-            </div>
-            <div class="pdf-kpi-value ${agent.validCompCount === 0 ? 'text-success' : 'text-danger'}">${agent.validCompCount || 0}</div>
-            <div class="pdf-kpi-sub">Valid complaints against service</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_validComplaint)}</div>
-          </div>
+          ${renderCardHtml(
+            "Valid Complaint", agent.validCompCount || 0, 
+            "Valid complaints against service", 
+            `KPI: ${fmtScore(agent.score_validComplaint)}`, 
+            renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), 
+            agent.score_validComplaint === 'NO KPI' ? 'NO KPI' : (agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found'), 
+            agent.validCompCount === 0 ? 'text-success' : 'text-danger'
+          )}
 
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Empathy Pass %</div>
-              <span class="pdf-badge ${renderBadge(agent.score_empathy, isEmpMet ? 'delivered' : 'missed')}">${agent.score_empathy === 'NO KPI' ? 'NO KPI' : (isEmpMet ? 'Target Meet' : 'Below Target')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isEmpMet ? 'text-success' : 'text-danger'}">${agent.empathyPct}</div>
-            <div class="pdf-kpi-sub">Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_empathy)}</div>
-          </div>
+          ${renderCardHtml(
+            "Empathy Pass %", agent.empathyPct, 
+            `Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}`, 
+            `KPI: ${fmtScore(agent.score_empathy)}`, 
+            renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), 
+            agent.score_empathy === 'NO KPI' ? 'NO KPI' : (isEmpMet ? 'Target Meet' : 'Below Target'), 
+            isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct
+          )}
 
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">CSAT / CFS %</div>
-              <span class="pdf-badge ${renderBadge(agent.score_cfs, isCfsMet ? 'delivered' : 'missed')}">${agent.score_cfs === 'NO KPI' ? 'NO KPI' : (isCfsMet ? 'Target Meet' : 'Below Target')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isCfsMet ? 'text-success' : 'text-danger'}">${agent.cfsPct || agent.cfsPercent || 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: ${T.csat || '>= 90%'}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_cfs)}</div>
-          </div>
+          ${renderCardHtml(
+            "CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', 
+            `Target: ${T.csat || '>= 90%'}`, 
+            `KPI: ${fmtScore(agent.score_cfs)}`, 
+            renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), 
+            agent.score_cfs === 'NO KPI' ? 'NO KPI' : (isCfsMet ? 'Target Meet' : 'Below Target'), 
+            isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">FCR %</div>
-              <span class="pdf-badge ${renderBadge(agent.score_fcr, isFcrMet ? 'delivered' : 'missed')}">${agent.score_fcr === 'NO KPI' ? 'NO KPI' : (isFcrMet ? 'Target Meet' : 'Below Target')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isFcrMet ? 'text-success' : 'text-danger'}">${agent.fcrPercent || agent.fcrPct || 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: ${T.fcr || '>= 93%'}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_fcr)}</div>
-          </div>
+          ${renderCardHtml(
+            "FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', 
+            `Target: ${T.fcr || '>= 93%'}`, 
+            `KPI: ${fmtScore(agent.score_fcr)}`, 
+            renderBadgeCls(agent.score_fcr, isFcrMet ? 'delivered' : 'missed'), 
+            agent.score_fcr === 'NO KPI' ? 'NO KPI' : (isFcrMet ? 'Target Meet' : 'Below Target'), 
+            isFcrMet ? 'text-success' : 'text-danger', agent.fcrPercent || agent.fcrPct
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Adherence %</div>
-              <span class="pdf-badge ${renderBadge(agent.score_adherence, isAdhMet ? 'delivered' : 'missed')}">${agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? 'Target Meet' : 'Below Target')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isAdhMet ? 'text-success' : 'text-warning'}">${agent.adherencePct}</div>
-            <div class="pdf-kpi-sub">Target: ${T.adh || '>= 100%'}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_adherence)}</div>
-          </div>
+          ${renderCardHtml(
+            "Adherence %", agent.adherencePct, 
+            `Target: ${T.adh || '>= 100%'}`, 
+            `KPI: ${fmtScore(agent.score_adherence)}`, 
+            renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), 
+            agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? 'Target Meet' : 'Below Target'), 
+            isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct
+          )}
 
-          <div class="pdf-kpi-card">
-             <div class="kpi-card-header">
-               <div class="pdf-kpi-title">Login Hour Compliance</div>
-               <span class="pdf-badge ${renderBadge(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed')}">${agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target')}</span>
-             </div>
-            <div class="pdf-kpi-value ${agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger'}">${agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: ${T.login || '>= 100%'}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_loginHour)}</div>
-          </div>
+          ${renderCardHtml(
+            "Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', 
+            `Target: ${T.login || '>= 100%'}`, 
+            `KPI: ${fmtScore(agent.score_loginHour)}`, 
+            renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), 
+            agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), 
+            agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance
+          )}
 
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Over Break</div>
-              <span class="pdf-badge ${renderBadge(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed')}">${agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken')}</span>
-            </div>
-            <div class="pdf-kpi-value ${agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger'}">${agent.overBreak}</div>
-            <div class="pdf-kpi-sub">Target: As Per Schedule</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_breakTime)}</div>
-          </div>
+          ${renderCardHtml(
+            "Over Break", agent.overBreak, 
+            "Target: As Per Schedule", 
+            `KPI: ${fmtScore(agent.score_breakTime)}`, 
+            renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), 
+            agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), 
+            agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger'
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">AHT (Seconds)</div>
-              <span class="pdf-badge ${renderBadge(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${agent.score_aht === 'NO KPI' ? 'NO KPI' : (isAhtMet ? 'Target Meet' : 'Exceeds Target')}</span>
-            </div>
-            <div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div>
-            <div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : 'N/A'}</div>
-            <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
-          </div>
+          ${renderCardHtml(
+            "AHT (Seconds)", agent.aht, 
+            `Target: ${T.aht ? T.aht + 's' : 'N/A'}`, 
+            `KPI: ${fmtScore(agent.score_aht)}`, 
+            renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed'), 
+            agent.score_aht === 'NO KPI' ? 'NO KPI' : (isAhtMet ? 'Target Meet' : 'Exceeds Target'), 
+            isAhtMet ? 'text-success' : 'text-warning'
+          )}
           
           <!-- Bonus / Penalty Cards -->
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">DKB % (Attendance)</div>
-              <span class="pdf-badge ${renderBadge(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed')}">${agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'))}</span>
-            </div>
-            <div class="pdf-kpi-value ${isDkbMet ? 'text-success' : 'text-danger'}">${agent.dkbPct}</div>
-            <div class="pdf-kpi-sub">Target: ${T.dkb || '>= 95%'}</div>
-            <div class="pdf-score-badge">Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}</div>
-          </div>
+          ${renderCardHtml(
+            "DKB % (Attendance)", agent.dkbPct, 
+            `Target: ${T.dkb || '>= 95%'}`, 
+            `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, 
+            renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), 
+            agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None')), 
+            isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Quiz Score %</div>
-              <span class="pdf-badge ${renderBadge(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed')}">${agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None'))}</span>
-            </div>
-            <div class="pdf-kpi-value ${(typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger'}">${agent.quizScore !== undefined ? agent.quizScore : 'N/A'}</div>
-            <div class="pdf-kpi-sub">Target: ${T.quiz || '>= 95%'}</div>
-            <div class="pdf-score-badge">Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}</div>
-          </div>
+          ${renderCardHtml(
+            "Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', 
+            `Target: ${T.quiz || '>= 95%'}`, 
+            `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, 
+            renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), 
+            agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), 
+            (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore
+          )}
           
-          <div class="pdf-kpi-card">
-            <div class="kpi-card-header">
-              <div class="pdf-kpi-title">Complaint Escalation</div>
-              <span class="pdf-badge ${renderBadge(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed')}">${(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc) === 'NO KPI' ? 'NO KPI' : (isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'))}</span>
-            </div>
-            <div class="pdf-kpi-value ${isEscMet ? 'text-success' : 'text-danger'}">${agent.escalationAccuracyPct}</div>
-            <div class="pdf-kpi-sub">Target: ${T.esc || '>= 95%'}</div>
-            <div class="pdf-score-badge">${agent.tenure.toLowerCase() === 'ojt' ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)}</div>
-          </div>
+          ${renderCardHtml(
+            "Complaint Escalation", agent.escalationAccuracyPct, 
+            `Target: ${T.esc || '>= 95%'}`, 
+            agent.tenure.toLowerCase() === 'ojt' ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc), 
+            renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), 
+            (isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc) === 'NO KPI' ? 'NO KPI' : (isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None')), 
+            isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct
+          )}
           
           <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
@@ -1331,7 +1355,6 @@
     });
   }
 
-  window.addEventListener('DOMContentLoaded', () => { loadDashboard(false); });
 </script>
 </body>
 </html>
