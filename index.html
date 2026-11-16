@@ -174,7 +174,7 @@
   .lb-card:hover { transform: translateY(-2px); }
   .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
 
-  /* KPI CARD CONTAINER (Previously Performance Card) */
+  /* KPI CARD CONTAINER */
   .pdf-card-wrapper {
     background: #ffffff;
     border-radius: 16px;
@@ -232,7 +232,7 @@
     align-items: flex-start;
     gap: 8px;
     margin-bottom: 2px;
-    flex-wrap: wrap; /* Allows text to drop without overlapping */
+    flex-wrap: wrap;
   }
   .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; margin-top: 2px; }
   .pdf-kpi-value { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
@@ -385,7 +385,7 @@
     .predicted-bucket-card .bucket-label { align-self: flex-start; }
   }
   
-  /* STRICT MOBILE FIX (Prevents Overlap & Forces 2 Columns) */
+  /* STRICT MOBILE FIX */
   @media (max-width: 480px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .kpi-card .kpi-num { font-size: 14px; }
@@ -394,13 +394,11 @@
     .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
     
-    /* Bulletproof overlapping fix: Switch flex direction to column on card headers */
     .pdf-kpi-card { padding: 8px 10px !important; min-height: 100px; gap: 4px; }
     .kpi-card-header { flex-direction: column; gap: 4px; } 
     .pdf-kpi-title { font-size: 9px !important; margin: 0; }
     .pdf-badge { align-self: flex-start; font-size: 8px !important; padding: 2px 5px !important; }
     
-    /* Optimize font scales for 2 columns */
     .pdf-kpi-value { font-size: 15px !important; }
     .pdf-kpi-sub { font-size: 8px !important; line-height: 1.2; word-break: break-word; }
     .pdf-score-badge { font-size: 9px !important; padding: 3px 6px !important; margin-top: 4px; }
@@ -700,37 +698,47 @@
 
     const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
     const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
+    const tl = appData.tlSummary || {};
 
+    // IF NO AGENT IS SELECTED, SHOW MASTER SUMMARY (INCLUDES INACTIVE AGENTS)
+    if (!selectedAgent && !selectedParty) {
+        document.getElementById('tlKpiGrid').innerHTML = `
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hash"></i></div><span class="kpi-label">Total Audits</span></div><div class="kpi-num">${tl.totalAudit || 0}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Total Pass / Pass %</span></div><div class="kpi-num text-success">${tl.totalPass || 0} (${tl.passPercent || '0%'})</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon bad"><i class="bi bi-x-circle-fill"></i></div><span class="kpi-label">Audit Fail / Fail %</span></div><div class="kpi-num text-danger">${tl.totalFail || 0} (${tl.failPercent || '0%'})</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon purple"><i class="bi bi-heart-fill"></i></div><span class="kpi-label">Empathy %</span></div><div class="kpi-num text-purple">${tl.empathyPercent || '0%'}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-pie-chart-fill"></i></div><span class="kpi-label">Team CFS %</span></div><div class="kpi-num">${tl.teamCfs || 'N/A'}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-clock-fill"></i></div><span class="kpi-label">Team AHT</span></div><div class="kpi-num">${tl.aht || 'N/A'}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-graph-up-arrow"></i></div><span class="kpi-label">Team FCR %</span></div><div class="kpi-num text-success">${tl.fcr || 'N/A'}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon warn"><i class="bi bi-shield-exclamation"></i></div><span class="kpi-label">Complaint Valid %</span></div><div class="kpi-num">${tl.complaintEscalationPct || '0%'}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-truck"></i></div><span class="kpi-label">SD Count</span></div><div class="kpi-num text-success">${tl.sdCount || 0}</div></div>
+          <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">Team DKB %</span></div><div class="kpi-num text-info">${tl.dkbPercent || 'N/A'}</div></div>
+        `;
+        return;
+    }
+
+    // SPECIFIC AGENT/PARTY FILTER CALCULATIONS
     const allCalls = appData.sheets['Audited Call Details'] || [];
-
     const filteredCalls = allCalls.filter(c => {
       const agentName = String(c.agentName || '').toLowerCase();
       const vdi = String(c.vdiId || '').toLowerCase();
       const party = String(c.auditParty || '').toLowerCase();
-
       const matchAgent = !selectedAgent || agentName === selectedAgent || vdi === selectedAgent;
       const matchParty = !selectedParty || party.includes(selectedParty);
-
       return matchAgent && matchParty;
     });
 
     const totalAudit = filteredCalls.length;
-    let totalPass = 0;
-    let totalFail = 0;
-    let ceFails = 0;
-
+    let totalPass = 0, totalFail = 0, ceFails = 0;
     filteredCalls.forEach(c => {
       const resVal = String(c.result || '').trim().toLowerCase();
-      if (resVal === 'pass') totalPass++;
-      else if (resVal === 'fail') totalFail++;
-
+      if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++;
       const ceVal = String(c.criticalError || '').trim().toLowerCase();
       if (ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail')) ceFails++;
     });
 
     const passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
     const failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
-
     const passPercent = passPercentVal.toFixed(1) + '%';
     const failPercent = failPercentVal.toFixed(1) + '%';
 
@@ -742,20 +750,13 @@
 
     if (empPassSum === 0 && empFailSum === 0) {
       const perfList = appData.sheets['KPI'] || [];
-      const relevantPerf = selectedAgent 
-        ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent)
-        : perfList;
-
-      relevantPerf.forEach(a => {
-        empPassSum += (parseInt(a.empathyPassSum) || 0);
-        empFailSum += (parseInt(a.empathyFailSum) || 0);
-      });
+      const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
+      relevantPerf.forEach(a => { empPassSum += (parseInt(a.empathyPassSum) || 0); empFailSum += (parseInt(a.empathyFailSum) || 0); });
     }
 
     const empTotal = empPassSum + empFailSum;
     const empathyPercent = empTotal > 0 ? ((empPassSum / empTotal) * 100).toFixed(1) + '%' : '0.0%';
 
-    const tl = appData.tlSummary || {};
     let cfsVal = tl.teamCfs || 'N/A';
     let ahtVal = tl.aht || 'N/A';
     let fcrVal = tl.fcr || 'N/A'; 
@@ -766,10 +767,8 @@
     if (selectedAgent) {
       const perfList = appData.sheets['KPI'] || [];
       const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-      
       const fcrSdList = appData.sheets['FCR, Quiz & SD']?.list || [];
       const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-
       const ahtCfsList = appData.sheets['AHT & CFS']?.list || [];
       const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
 
@@ -849,7 +848,7 @@
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
-      const activeAgents = appData.sheets['Alignment'] || [];
+      const activeAgents = appData.sheets['Alignment'] || []; 
 
       const filteredAudits = allCalls.filter(c => {
         if (!partyFilter) return true;
@@ -857,10 +856,7 @@
       });
 
       let auditDetailsList = [];
-      let failCountAgent = 0;
-      let failFreeCountAgent = 0;
-      let empathyMetCount = 0;
-      let empathyBelowTargetAgent = 0;
+      let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
 
       activeAgents.forEach(agent => {
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
@@ -899,16 +895,8 @@
         }
 
         auditDetailsList.push({
-          agentName: agent['Name'],
-          vdiId: agent['VDI ID'],
-          id: agent['ID'],
-          totalAudits: totalAudits,
-          totalPass: passes,
-          totalFail: fails,
-          cePercent: cePercent,
-          empathyPass: empPassSum,
-          empathyFail: empFailSum,
-          empathyPassPercent: empPercent
+          agentName: agent['Name'], vdiId: agent['VDI ID'], id: agent['ID'], totalAudits: totalAudits,
+          totalPass: passes, totalFail: fails, cePercent: cePercent, empathyPass: empPassSum, empathyFail: empFailSum, empathyPassPercent: empPercent
         });
       });
 
@@ -942,9 +930,7 @@
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
       const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
-        'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity',
-        'Proper Listening', 'Personalization', 'Time / Hold Management',
-        'Emotional Tone with Courtesy', 'Closing Courtesy'
+        'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'
       ];
 
       let kpiHtml = '';
@@ -952,32 +938,22 @@
         let valStr = emp.teamAvg[p] || 'N/A';
         let valNum = parseFloat(String(valStr).replace('%', ''));
         let isGood = !isNaN(valNum) && valNum >= 87.5;
-
         kpiHtml += `
           <div class="empathy-param-card ${isGood ? 'green' : 'red'}">
-            <div class="pname">${p}</div>
-            <div class="pval ${isGood ? 'text-success' : 'text-danger'}">${valStr}</div>
-            <div class="ptarget">Target 87.5%</div>
+            <div class="pname">${p}</div><div class="pval ${isGood ? 'text-success' : 'text-danger'}">${valStr}</div><div class="ptarget">Target 87.5%</div>
           </div>`;
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
-
       document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
-
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
         return `
         <tr>
-          <td class="num fw-bold">${agent.vdiId || 'N/A'}</td>
-          <td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>
+          <td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>
           ${headers.map(h => {
             let cellVal = agent[h] || 'N/A';
             let numVal = parseFloat(String(cellVal).replace('%', ''));
             let colorClass = 'text-muted';
-
-            if (!isNaN(numVal)) {
-              colorClass = numVal < 87.5 ? 'text-danger fw-bold' : 'text-success fw-bold';
-            }
-
+            if (!isNaN(numVal)) colorClass = numVal < 87.5 ? 'text-danger fw-bold' : 'text-success fw-bold';
             return `<td class="num ${colorClass}">${cellVal}</td>`;
           }).join('')}
         </tr>`;
@@ -995,18 +971,14 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-award-fill"></i></div><span class="kpi-label">FCR Target meet (>= 92%)</span></div><div class="kpi-num text-success">${sum.fcrMeet92Count || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-truck"></i></div><span class="kpi-label">With Service Delivery</span></div><div class="kpi-num text-info">${sum.agentsWithSdCount || 0} / ${tot}</div></div>
       `;
-
       document.getElementById('fcrSdTable').innerHTML = list.map(a => {
         let fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
         let isFcrGood = !isNaN(fcrNum) && fcrNum >= 92.0;
-
         return `
         <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.vdiId}</td>
+          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td>
           <td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td>
-          <td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td>
-          <td class="num">${a.serviceDeliveryCount}</td>
+          <td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td>
         </tr>`;
       }).join('');
       return;
@@ -1022,11 +994,9 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-shield-check"></i></div><span class="kpi-label">Complaint Target meet (>=95%)</span></div><div class="kpi-num text-success">${sum.compMetCount || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-calendar-check-fill"></i></div><span class="kpi-label">DKB Target meet (>=95%)</span></div><div class="kpi-num text-info">${sum.dkbMetCount || 0} / ${tot}</div></div>
       `;
-
       document.getElementById('complaintTable').innerHTML = list.map(a => `
         <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>
       `).join('');
-
       document.getElementById('dkbTable').innerHTML = list.map(a => `
         <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>
       `).join('');
@@ -1044,15 +1014,12 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon blue"><i class="bi bi-hourglass-bottom"></i></div><span class="kpi-label">Lag Time Target Meet</span></div><div class="kpi-num text-info">${sum.lagZeroCount || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-circle-fill"></i></div><span class="kpi-label">Adherence 100% Meet</span></div><div class="kpi-num text-success">${sum.adhMetCount || 0} / ${tot}</div></div>
       `;
-
       document.getElementById('lagAdhTable').innerHTML = list.map(a => {
         const isOver = a.hasOverBreak;
         return `
         <tr class="${isOver ? 'row-overbreak' : ''}">
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.adherence}</td>
-          <td class="num ${isOver ? 'text-overbreak' : ''}">${a.extraBreak}</td>
-          <td class="num">${a.lagTime}</td>
+          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td>
+          <td class="num ${isOver ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td>
         </tr>`;
       }).join('');
       return;
@@ -1069,15 +1036,12 @@
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-speedometer"></i></div><span class="kpi-label">AHT Target meet (<=170s)</span></div><div class="kpi-num text-success">${sum.ahtMetCount || 0} / ${tot}</div></div>
         <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon good"><i class="bi bi-check-all"></i></div><span class="kpi-label">CFS Target meet (>=90%)</span></div><div class="kpi-num text-success">${sum.cfsMetCount || 0} / ${validCfsCount}</div></div>
       `;
-
       document.getElementById('ahtCfsTable').innerHTML = list.map(a => {
         const isAhtTargetMeet = String(a.ahtStatus).toLowerCase().includes('target meet');
         const isCfsTargetMeet = String(a.cfsStatus).toLowerCase().includes('target meet');
-
         return `
         <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.ahtSec}</td>
+          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td>
           <td><span class="pill ${isAhtTargetMeet ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
           <td class="num">${a.cfsPercent}</td>
           <td><span class="pill ${isCfsTargetMeet ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
@@ -1302,7 +1266,7 @@
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
 
-          <!-- NEED TO FOCUS CARD (Auto-identifies exactly 3 parameters) -->
+          <!-- NEED TO FOCUS CARD -->
           <div class="pdf-kpi-card focus-card">
             <div class="pdf-kpi-title"><i class="bi bi-bullseye"></i> Need to Focus</div>
             <ul class="focus-list">
