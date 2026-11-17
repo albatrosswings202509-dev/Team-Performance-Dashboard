@@ -11,108 +11,42 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- html2pdf Library for PDF Export -->
+<!-- html2pdf Library for PDF Export & Chart.js for Analytics -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
   /* =========================================
      CSS VARIABLES: DAY & NIGHT MODES
      ========================================= */
   :root {
-    /* DEFAULT DAY MODE (Light Theme) */
-    --bg-main: #f8fafc;
-    --bg-card: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --text-muted-dim: #94a3b8;
-    --border-color: #e2e8f0;
-    
-    --sidebar-bg: #101d34;
-    --sidebar-text: #dde3ef;
-    --sidebar-border: rgba(255, 255, 255, 0.1);
-    
+    --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --text-muted-dim: #94a3b8; --border-color: #e2e8f0;
+    --sidebar-bg: #101d34; --sidebar-text: #dde3ef; --sidebar-border: rgba(255, 255, 255, 0.1);
     --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
     --shadow-hover: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.15);
-    
-    --color-good: #059669;
-    --bg-good: #d1fae5;
-    --color-bad: #e11d48;
-    --bg-bad: #ffe4e6;
-    --color-warn: #d97706;
-    --bg-warn: #fef3c7;
-    --color-blue: #3b82f6;
-    --bg-blue: #dbeafe;
-    
-    --chart-bg: #e2e8f0;
-    --bucket-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    --bucket-text: #ffffff;
-    --focus-bg: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
-    --focus-border: #ffc9c9;
-    --focus-title: #c92a2a;
-    
-    --sans: 'Inter', -apple-system, sans-serif;
-    --mono: 'IBM Plex Mono', monospace;
+    --color-good: #059669; --bg-good: #d1fae5; --color-bad: #e11d48; --bg-bad: #ffe4e6;
+    --color-warn: #d97706; --bg-warn: #fef3c7; --color-blue: #3b82f6; --bg-blue: #dbeafe;
+    --chart-bg: #e2e8f0; --bucket-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); --bucket-text: #ffffff;
+    --focus-bg: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); --focus-border: #ffc9c9; --focus-title: #c92a2a;
+    --sans: 'Inter', -apple-system, sans-serif; --mono: 'IBM Plex Mono', monospace;
   }
-
   [data-theme="dark"] {
-    /* CYBER DARK MODE (Linear Vibe) */
-    --bg-main: #0b0f19;
-    --bg-card: linear-gradient(145deg, #111827 0%, #0f172a 100%);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --text-muted-dim: #64748b;
-    --border-color: #1e293b;
-    
-    --sidebar-bg: #0b0f19;
-    --sidebar-text: #94a3b8;
-    --sidebar-border: #1e293b;
-    
-    --shadow-card: 0 10px 25px -5px rgba(6, 182, 212, 0.10);
-    --shadow-hover: 0 12px 24px -8px rgba(6, 182, 212, 0.25), 0 0 0 1px rgba(6, 182, 212, 0.3);
-
-    --color-good: #10b981;
-    --bg-good: rgba(16, 185, 129, 0.15);
-    --color-bad: #f43f5e;
-    --bg-bad: rgba(244, 63, 94, 0.15);
-    --color-warn: #f59e0b;
-    --bg-warn: rgba(245, 158, 11, 0.15);
-    --color-blue: #22d3ee;
-    --bg-blue: rgba(34, 211, 238, 0.15);
-    
-    --chart-bg: #1e293b;
-    --bucket-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    --bucket-text: #22d3ee;
-    --focus-bg: linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%);
-    --focus-border: #450a0a;
-    --focus-title: #f87171;
+    --bg-main: #0b0f19; --bg-card: linear-gradient(145deg, #111827 0%, #0f172a 100%); --text-main: #f8fafc; --text-muted: #94a3b8; --text-muted-dim: #64748b; --border-color: #1e293b;
+    --sidebar-bg: #0b0f19; --sidebar-text: #94a3b8; --sidebar-border: #1e293b;
+    --shadow-card: 0 10px 25px -5px rgba(6, 182, 212, 0.10); --shadow-hover: 0 12px 24px -8px rgba(6, 182, 212, 0.25), 0 0 0 1px rgba(6, 182, 212, 0.3);
+    --color-good: #10b981; --bg-good: rgba(16, 185, 129, 0.15); --color-bad: #f43f5e; --bg-bad: rgba(244, 63, 94, 0.15);
+    --color-warn: #f59e0b; --bg-warn: rgba(245, 158, 11, 0.15); --color-blue: #22d3ee; --bg-blue: rgba(34, 211, 238, 0.15);
+    --chart-bg: #1e293b; --bucket-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bucket-text: #22d3ee;
+    --focus-bg: linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%); --focus-border: #450a0a; --focus-title: #f87171;
   }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--bg-main);
-    color: var(--text-main);
-    font-family: var(--sans);
-    font-size: 13.5px; line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    display: flex; min-height: 100vh;
-    transition: background 0.3s, color 0.3s;
-  }
-
-  /* Utility Classes for Theme Colors */
-  .text-success { color: var(--color-good) !important; }
-  .text-danger { color: var(--color-bad) !important; }
-  .text-warning { color: var(--color-warn) !important; }
-  .text-info, .text-primary, .text-purple { color: var(--color-blue) !important; }
+  * { box-sizing: border-box; } html, body { margin: 0; padding: 0; }
+  body { background: var(--bg-main); color: var(--text-main); font-family: var(--sans); font-size: 13.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; display: flex; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+  .text-success { color: var(--color-good) !important; } .text-danger { color: var(--color-bad) !important; } .text-warning { color: var(--color-warn) !important; } .text-info, .text-primary, .text-purple { color: var(--color-blue) !important; }
 
   /* SIDEBAR */
   .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 80; }
-  .sidebar {
-    width: 240px; background: var(--sidebar-bg); color: var(--sidebar-text); flex-shrink: 0;
-    display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
-    border-right: 1px solid var(--sidebar-border);
-    overflow-x: hidden; overflow-y: auto; z-index: 90; transition: transform 0.25s ease, width 0.25s ease, background 0.3s;
-  }
+  .sidebar { width: 240px; background: var(--sidebar-bg); color: var(--sidebar-text); flex-shrink: 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; border-right: 1px solid var(--sidebar-border); overflow-x: hidden; overflow-y: auto; z-index: 90; transition: transform 0.25s ease, width 0.25s ease, background 0.3s; }
   body.sidebar-collapsed .sidebar { width: 0; min-width: 0; border: none; }
   .sidebar-inner { width: 240px; }
   .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--sidebar-border); white-space: nowrap; }
@@ -123,36 +57,26 @@
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
   .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateX(3px); }
   .nav-item.active { background: var(--color-blue); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3); }
+  .nav-item.highlight { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--color-blue); margin-top: 10px; }
   .sidebar-foot { padding: 14px 16px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--sidebar-border); white-space: nowrap; text-align: center; }
 
   /* MAIN WORKSPACE */
   .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .topbar {
-    background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 14px 24px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    position: sticky; top: 0; z-index: 40; transition: background 0.3s;
-  }
+  .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 40; transition: background 0.3s; }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
   .mobile-menu-btn { display: none; background: none; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--text-main); min-height: 40px; }
   .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; color: var(--text-main); }
   .status-cluster { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
-
   .live-chip { display: flex; align-items: center; gap: 6px; background: var(--bg-good); color: var(--color-good); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px; }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .theme-btn, .btn-action { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 38px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .theme-btn:hover, .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  #refreshBtn { background: var(--color-blue); color: #fff; }
   
-  .theme-btn { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 14px; cursor: pointer; min-height: 38px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-  .theme-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-  
-  #refreshBtn { background: var(--color-blue); color: #fff; border: none; padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; min-height: 38px; transition: all 0.2s ease; }
-  #refreshBtn:hover { opacity: 0.9; transform: translateY(-1px); }
-
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
-
-  .page { display: none; opacity: 0; }
-  .page.active { display: block; animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .page { display: none; opacity: 0; } .page.active { display: block; animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes premiumPageFade { 0% { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
-
   section { margin-bottom: 24px; }
   
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
@@ -163,118 +87,96 @@
   .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
   .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
   .filterbar label { font-size: 10.5px; color: var(--text-muted-dim); font-weight: 600; text-transform: uppercase; }
-  .filterbar select, .filterbar input[type=text] {
-    background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);
-    border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px; transition: all 0.2s ease;
-  }
+  .filterbar select, .filterbar input[type=text] { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px; transition: all 0.2s ease; }
   .filterbar select:focus, .filterbar input[type=text]:focus { border-color: var(--color-blue); outline: none; box-shadow: 0 0 0 3px var(--bg-blue); }
-  
-  /* FIXED DARK MODE DROPDOWN TEXT VISIBILITY */
-  [data-theme="dark"] .filterbar select, [data-theme="dark"] .filterbar input[type=text] {
-    background-color: #0f172a !important; 
-    background-image: none !important;
-    color: #f8fafc !important;
-  }
-  [data-theme="dark"] .filterbar select option {
-    background-color: #0f172a !important;
-    color: #f8fafc !important;
-  }
+  [data-theme="dark"] .filterbar select, [data-theme="dark"] .filterbar input[type=text] { background-color: #0f172a !important; background-image: none !important; color: #f8fafc !important; }
+  [data-theme="dark"] .filterbar select option { background-color: #0f172a !important; color: #f8fafc !important; }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .pdf-grid-3, .kpi-row, .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 
-  /* Leaderboard Cards */
-  .lb-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; box-shadow: var(--shadow-card); transition: transform 0.2s ease; }
+  /* Leaderboard & Gamification Cards */
+  .lb-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; box-shadow: var(--shadow-card); transition: transform 0.2s ease; }
   .lb-card:hover { transform: translateY(-2px); border-color: var(--color-blue); box-shadow: var(--shadow-hover); }
-  .lb-card .pname { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+  .lb-card .pname { font-size: 12px; font-weight: 800; margin-bottom: 10px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+  .award-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-bottom: 10px; display: inline-block; }
 
-  /* ============================================================
-     ADVANCED CYBER/MINIMAL KPI CARD LAYOUT (With Circular Progress)
-     ============================================================ */
-  .pdf-card-wrapper {
-    background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color);
-    max-width: 1000px; margin: 10px auto; box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15); animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  /* KPI CARD SYSTEM */
+  .pdf-card-wrapper { background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); max-width: 1000px; margin: 10px auto; box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15); animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes popupCard { 0% { opacity: 0; transform: scale(0.96) translateY(12px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-
-  .pdf-header-bar {
-    background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px;
-    display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2);
-  }
+  .pdf-header-bar { background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2); }
   [data-theme="dark"] .pdf-header-bar { background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%); border: 1px solid #334155; }
   .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
   .pdf-agent-sub { font-size: 11.5px; color: #94a3b8; }
-
-  .pdf-kpi-card {
-    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
-    padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 120px;
-    box-shadow: var(--shadow-card); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  .pdf-kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 120px; box-shadow: var(--shadow-card); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
   .pdf-kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--color-blue); }
-  
   .kpi-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
   .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-  
   .kpi-card-body { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: 1; margin-top: 2px; }
   .kpi-value-col { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-  
   .pdf-kpi-value { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; line-height: 1.1; }
   .pdf-kpi-sub { font-size: 10px; color: var(--text-muted-dim); line-height: 1.3; white-space: normal; word-wrap: break-word; }
-  
   .kpi-chart-col { flex-shrink: 0; }
   .svg-chart-container { position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
   .svg-chart-val { position: absolute; font-size: 10.5px; font-weight: 800; color: var(--text-main); }
-  
   .pdf-badge { padding: 4px 10px; border-radius: 20px; font-size: 9.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; letter-spacing: 0.02em; }
-  .pdf-badge.missed { background: var(--bg-bad); color: var(--color-bad); }
-  .pdf-badge.delivered { background: var(--bg-good); color: var(--color-good); }
-  .pdf-badge.warn { background: var(--bg-warn); color: var(--color-warn); }
-  .pdf-badge.nokpi { background: var(--bg-main); color: var(--text-muted); border-color: var(--border-color); }
-  
+  .pdf-badge.missed { background: var(--bg-bad); color: var(--color-bad); } .pdf-badge.delivered { background: var(--bg-good); color: var(--color-good); } .pdf-badge.warn { background: var(--bg-warn); color: var(--color-warn); } .pdf-badge.nokpi { background: var(--bg-main); color: var(--text-muted); border-color: var(--border-color); }
   .pdf-score-badge { margin-top: auto; align-self: flex-start; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; background: var(--bg-main); color: var(--text-muted); border: 1px solid var(--border-color); }
   
-  /* Specialized Span-2 Cards for Overall & Focus */
   .predicted-bucket-card { background: var(--bucket-bg); color: var(--bucket-text); grid-column: span 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 16px 20px; border: none; box-shadow: 0 10px 20px -5px rgba(0,0,0, 0.3); }
   .predicted-bucket-card:hover { box-shadow: 0 12px 24px -6px rgba(6, 182, 212, 0.3); border-color: var(--color-blue); border: 1px solid var(--color-blue); }
-  .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; font-size: 11px; }
-  .predicted-bucket-card .pdf-kpi-value { color: #ffffff; font-size: 24px; margin: 4px 0; }
-  .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 11px; }
-  .predicted-bucket-card .bucket-label { font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: var(--bucket-text); }
+  .predicted-bucket-card .pdf-kpi-title { color: #94a3b8; font-size: 11px; } .predicted-bucket-card .pdf-kpi-value { color: #ffffff; font-size: 24px; margin: 4px 0; } .predicted-bucket-card .pdf-kpi-sub { color: #cbd5e1; font-size: 11px; }
+  .predicted-bucket-card .bucket-label { font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: var(--bucket-text); }
   
   .focus-card { background: var(--focus-bg); border-color: var(--focus-border); display: flex; flex-direction: column; justify-content: center; grid-column: span 1; }
-  .focus-card .pdf-kpi-title { color: var(--focus-title); font-size: 11.5px; }
-  .focus-list { margin: 10px 0 0 16px; padding: 0; font-size: 11.5px; font-weight: 700; color: var(--focus-title); }
-  .focus-list li { margin-bottom: 6px; }
+  .focus-card .pdf-kpi-title { color: var(--focus-title); font-size: 11.5px; } .focus-list { margin: 10px 0 0 16px; padding: 0; font-size: 11.5px; font-weight: 700; color: var(--focus-title); } .focus-list li { margin-bottom: 6px; }
+  .bucket-excellent { color: #10b981; border-color: #10b981; } .bucket-good { color: #22d3ee; border-color: #22d3ee; } .bucket-average { color: #f59e0b; border-color: #f59e0b; } .bucket-poor { color: #f43f5e; border-color: #f43f5e; }
 
-  .bucket-excellent { color: #10b981; border-color: #10b981; }
-  .bucket-good { color: #22d3ee; border-color: #22d3ee; }
-  .bucket-average { color: #f59e0b; border-color: #f59e0b; }
-  .bucket-poor { color: #f43f5e; border-color: #f43f5e; }
+  /* AGENT LOGIN & SIMULATOR */
+  .login-box { max-width: 400px; margin: 60px auto; text-align: center; }
+  .login-box i { font-size: 40px; color: var(--color-blue); margin-bottom: 10px; }
+  .login-input { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 10px; margin: 20px 0; text-align: center; background: var(--bg-card); color: var(--text-main); outline: none; transition: border-color 0.2s; }
+  .login-input:focus { border-color: var(--color-blue); }
+  .btn-login { width: 100%; background: var(--color-blue); color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+  .btn-login:hover { filter: brightness(1.1); box-shadow: var(--shadow-hover); }
 
-  /* STRICT PDF EXPORT PRINT STYLES (Always Light format for PDF) */
+  .simulator-panel { background: var(--bg-main); border: 1px dashed var(--border-color); padding: 16px; border-radius: 12px; margin-top: 15px; }
+  .sim-title { font-size: 12px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .sim-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .sim-label { font-size: 11px; font-weight: 600; width: 60px; color: var(--text-muted); }
+  .sim-slider { flex: 1; cursor: pointer; }
+  .sim-val { font-size: 12px; font-weight: 800; width: 45px; text-align: right; font-family: var(--mono); color: var(--color-blue); }
+
+  /* CHARTS */
+  .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-card); height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode { width: 960px !important; max-width: 960px !important; padding: 16px !important; background: #ffffff !important; border-radius: 10px !important; box-shadow: none !important; animation: none !important; }
   .pdf-export-mode * { color: #0f172a !important; }
-  .pdf-export-mode .pdf-header-bar { background: #101d34 !important; }
-  .pdf-export-mode .pdf-header-bar * { color: #ffffff !important; }
+  .pdf-export-mode .pdf-header-bar { background: #101d34 !important; } .pdf-export-mode .pdf-header-bar * { color: #ffffff !important; }
   .pdf-export-mode .pdf-grid-3 { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
   .pdf-export-mode .pdf-kpi-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; min-height: 105px !important; padding: 10px 12px !important; box-shadow: none !important; transform: none !important; gap: 6px !important; }
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 0 !important; }
-  .pdf-export-mode .svg-chart-container { width: 40px !important; height: 40px !important; }
-  .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; }
-  .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
-  .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; }
-  .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; }
-  .pdf-export-mode .pdf-badge.warn { background: #fef3c7 !important; color: #d97706 !important; }
+  .pdf-export-mode .svg-chart-container, .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; } .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
+  .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; } .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; } .pdf-export-mode .pdf-badge.warn { background: #fef3c7 !important; color: #d97706 !important; }
+  .pdf-export-mode .simulator-panel { display: none !important; } /* Hide simulator in PDF */
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--bg-card); font-size: 12px; }
-  thead th { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 700; padding: 9.5px 10px; border-bottom: 1.5px solid var(--border-color); position: sticky; top: 0; background: var(--bg-card); text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; z-index: 10; }
+  thead th { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 700; padding: 9.5px 10px; border-bottom: 1.5px solid var(--border-color); position: sticky; top: 0; background: var(--bg-card); text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; z-index: 10; cursor: pointer; transition: background 0.2s; }
+  thead th:hover { background: var(--bg-main); color: var(--color-blue); }
+  thead th i { margin-left: 4px; font-size: 9px; opacity: 0.5; }
   tbody td { padding: 8.5px 10px; border-bottom: 1px solid var(--border-color); font-variant-numeric: tabular-nums; text-align: center; color: var(--text-main); }
   tbody tr { transition: background 0.15s ease; }
   tbody tr:hover { background: rgba(128, 128, 128, 0.05); }
   .table-wrap { max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); -webkit-overflow-scrolling: touch; position: relative; }
   .table-wrap table th:first-child, .table-wrap table td:first-child { position: sticky; left: 0; z-index: 5; background: var(--bg-card); box-shadow: 2px 0 6px rgba(0,0,0,0.05); }
   .table-wrap table th:first-child { z-index: 15; }
+  
+  /* Heatmap Colors for Matrix */
+  .heat-good { background: rgba(16, 185, 129, 0.08); }
+  .heat-warn { background: rgba(245, 158, 11, 0.08); }
+  .heat-bad { background: rgba(244, 63, 94, 0.08); }
 
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -283,49 +185,24 @@
   tr.row-overbreak { background-color: var(--bg-bad) !important; }
   .text-overbreak { color: var(--color-bad) !important; font-weight: 700; }
 
-  .btn-pdf { background: var(--color-blue); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; transition: all 0.2s ease; }
-  .btn-pdf:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-card); }
-
   footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted-dim); font-family: var(--mono); }
 
-  /* PERFECT MOBILE FIX: ALWAYS 2 COLUMNS, NO OVERLAP */
   @media (max-width: 820px) {
     .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; border: none; }
     body.sidebar-open .sidebar { transform: translateX(0); }
     body.sidebar-open .sidebar-overlay { display: block; }
-    .topbar { padding: 10px 14px; }
-    main { padding: 12px 10px 30px; }
-    
-    /* Strict 2 Column layout on ALL small devices */
+    .topbar { padding: 10px 14px; } main { padding: 12px 10px 30px; }
     .pdf-grid-3, .kpi-row, .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
-
-    /* Bulletproof Anti-Overlap using Flexbox tweaks */
     .pdf-kpi-card { padding: 10px 12px !important; min-height: 115px; gap: 6px; }
-    .kpi-card-header { flex-direction: column; gap: 6px; } 
-    .pdf-kpi-title { font-size: 10px !important; margin: 0; }
+    .kpi-card-header { flex-direction: column; gap: 6px; } .pdf-kpi-title { font-size: 10px !important; margin: 0; }
     .pdf-badge { align-self: flex-start; font-size: 8.5px !important; padding: 3px 8px !important; }
-    
-    .kpi-card-body { gap: 6px; }
-    .pdf-kpi-value { font-size: 18px !important; }
-    .pdf-kpi-sub { font-size: 9px !important; line-height: 1.25; }
-    
-    /* Resize circle chart heavily for mobile to prevent overflow */
-    .svg-chart-container { width: 36px; height: 36px; }
-    .svg-chart-container svg { width: 36px; height: 36px; }
-    .svg-chart-val { font-size: 8.5px; }
-    
+    .kpi-card-body { gap: 6px; } .pdf-kpi-value { font-size: 18px !important; } .pdf-kpi-sub { font-size: 9px !important; line-height: 1.25; }
+    .svg-chart-container, .svg-chart-container svg { width: 36px; height: 36px; } .svg-chart-val { font-size: 8.5px; }
     .pdf-score-badge { font-size: 9.5px !important; padding: 3px 6px !important; margin-top: 6px; }
-    .focus-card .pdf-kpi-title { font-size: 11px !important; }
-    .focus-list { font-size: 10px !important; margin-left: 14px; }
-    
-    .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .predicted-bucket-card .bucket-label { align-self: flex-start; }
-    
-    .pdf-card-wrapper { padding: 16px; border-radius: 12px; }
-    .btn-pdf { width: 100%; }
-    .filterbar select, .filterbar input[type=text] { min-width: 100%; }
+    .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 12px; } .predicted-bucket-card .bucket-label { align-self: flex-start; }
+    .pdf-card-wrapper { padding: 16px; border-radius: 12px; } .filterbar select, .filterbar input[type=text] { min-width: 100%; }
   }
 </style>
 </head>
@@ -342,7 +219,11 @@
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
-      <div class="nav-item" data-page="KPI" onclick="navTo('KPI')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>KPI</div>
+      <div class="nav-item highlight" data-page="My Performance" onclick="navTo('My Performance')"><span class="ic"><i class="bi bi-person-fill-lock"></i></span>My Performance (Agent)</div>
+      
+      <div style="margin-top:15px; margin-bottom:5px; padding-left:12px; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Manager Views</div>
+      
+      <div class="nav-item" data-page="KPI" onclick="navTo('KPI')"><span class="ic"><i class="bi bi-person-badge-fill"></i></span>KPI Details</div>
       <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
       <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
       <div class="nav-item" data-page="FCR, Quiz & SD" onclick="navTo('FCR, Quiz & SD')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR, Quiz &amp; SD</div>
@@ -364,59 +245,80 @@
     </div>
     <div class="status-cluster">
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
-      <!-- Theme Switcher Button -->
-      <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-        <i class="bi bi-moon-fill"></i>
-      </button>
-      <button id="refreshBtn" onclick="loadDashboard(true)">Refresh now</button>
+      <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="bi bi-moon-fill"></i></button>
+      <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i> Refresh now</button>
     </div>
   </div>
 
   <main>
-    <!-- 1. DASHBOARD OVERVIEW -->
+    <!-- 1. DASHBOARD OVERVIEW (TL VIEW) -->
     <div class="page active" id="page-Dashboard">
       <div class="filterbar">
         <div class="fgroup">
           <label>IB Agent Wise Filter</label>
-          <select id="dashAgentFilter" onchange="renderDashboardKpis()">
-            <option value="">All Agents (Entire TL Audits)</option>
-          </select>
+          <select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select>
         </div>
         <div class="fgroup">
           <label>Audit Party Filter</label>
-          <select id="dashAuditPartyFilter" onchange="renderDashboardKpis()">
-            <option value="">All Audit Parties</option>
-            <option value="GP">GP</option>
-            <option value="Genex">Genex</option>
-          </select>
+          <select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select>
         </div>
       </div>
+      
       <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Team Performance Summary</h2>
-            <span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
+        <div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div>
         <div class="kpi-row" id="tlKpiGrid"></div>
       </section>
+
+      <!-- ADVANCED FEATURES ROW (Analytics & Gamification) -->
       <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Agent Leaderboard (Top 05 Highlights)</h2>
+        <div class="grid-2">
+          <!-- Root Cause Pie Chart -->
+          <div>
+            <div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div>
+            <div class="chart-container"><canvas id="rootCauseChart"></canvas></div>
+          </div>
+          <!-- Gamification (Zero CE & CFS Champs) -->
+          <div>
+            <div class="section-head"><h2>Gamification & Awards</h2></div>
+            <div class="kpi-row" id="gamificationGrid">
+              <!-- Will be populated by JS -->
+            </div>
           </div>
         </div>
+      </section>
+      
+      <section>
+        <div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div>
         <div class="grid-4" id="leaderboardGrid"></div>
       </section>
+    </div>
+
+    <!-- 0. MY PERFORMANCE (AGENT LOGIN VIEW) -->
+    <div class="page" id="page-My Performance">
+      <!-- Login State -->
+      <div id="agentLoginArea" class="pdf-card-wrapper login-box">
+        <i class="bi bi-person-bounding-box"></i>
+        <h2>Welcome to Agent Portal</h2>
+        <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">Enter your VDI or Employee ID to view your personalized performance metrics.</p>
+        <input type="text" id="agentLoginInput" class="login-input" placeholder="e.g., genex.name or 20301111" onkeypress="if(event.key === 'Enter') handleAgentLogin()">
+        <button class="btn-login" onclick="handleAgentLogin()">Access My Dashboard</button>
+        <div id="loginError" style="color:var(--color-bad); margin-top:10px; font-weight:600; font-size:12px; display:none;">Agent not found. Try your exact VDI or ID.</div>
+      </div>
+      
+      <!-- Logged In State -->
+      <div id="agentPersonalArea" style="display:none;">
+        <div class="filterbar" style="justify-content: flex-end;">
+          <button class="btn-action" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);" onclick="logoutAgent()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+          <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download My Report</button>
+        </div>
+        <div id="myPerfCardBox"></div>
+      </div>
     </div>
 
     <!-- 2. KPI -->
     <div class="page" id="page-KPI">
       <div class="filterbar">
-        <div class="fgroup">
-          <label>Select Active Agent</label>
-          <select id="agentSelect" onchange="renderAgentCard(this.value)"></select>
-        </div>
+        <div class="fgroup"><label>Select Active Agent</label><select id="agentSelect" onchange="renderAgentCard(this.value, 'perfCardBox')"></select></div>
         <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download PDF</button>
       </div>
       <div id="perfCardBox"></div>
@@ -425,31 +327,15 @@
     <!-- 3. AUDIT DETAILS -->
     <div class="page" id="page-Audit Details">
       <div class="filterbar">
-        <div class="fgroup">
-          <label>Audit Party Filter</label>
-          <select id="auditPartyFilter" onchange="renderView('Audit Details')">
-            <option value="">All Audit Parties</option>
-            <option value="GP">GP</option>
-            <option value="Genex">Genex</option>
-          </select>
-        </div>
+        <div class="fgroup"><label>Audit Party Filter</label><select id="auditPartyFilter" onchange="renderView('Audit Details')"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
+        <button class="btn-action" onclick="exportTableToCSV('auditTableEl', 'Audit_Details_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
       </div>
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Audit Overview</h2>
-            <span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="auditSummaryKpis"></div>
-      </section>
+      <section><div class="section-head"><div class="section-head-left"><h2>Audit Overview</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="auditSummaryKpis"></div></section>
       <section>
         <div class="section-head"><h2>Active Agent Audit Summary Table</h2></div>
         <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Agent Name</th><th>Total Audit</th><th>Pass</th><th>Fail</th><th>CE% (Fail Rate)</th><th>Empathy Pass (Sum)</th><th>Empathy Fail (Sum)</th><th>Empathy Pass%</th></tr>
-            </thead>
+          <table id="auditTableEl">
+            <thead><tr><th onclick="sortTable('auditTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 1, true)">Total Audit <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 2, true)">Pass <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 3, true)">Fail <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 4, true)">CE% <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 5, true)">Emp Pass (Sum) <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 6, true)">Emp Fail (Sum) <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('auditTableEl', 7, true)">Emp Pass% <i class="bi bi-chevron-expand"></i></th></tr></thead>
             <tbody id="auditDetailsTable"></tbody>
           </table>
         </div>
@@ -458,19 +344,12 @@
 
     <!-- 4. PARAMETER WISE EMPATHY -->
     <div class="page" id="page-Parameter wise Empathy">
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Empathy Parameter — Team Average Pass %</h2>
-            <span class="update-stamp" data-sheet="Empathy"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="empathyTeamKpis"></div>
-      </section>
+      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('empathyTableEl', 'Empathy_Matrix.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <section><div class="section-head"><div class="section-head-left"><h2>Empathy Parameter — Team Average Pass %</h2><span class="update-stamp" data-sheet="Empathy"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="empathyTeamKpis"></div></section>
       <section>
         <div class="section-head"><h2>VDI ID &amp; Agent x Parameter Matrix</h2></div>
         <div class="table-wrap">
-          <table>
+          <table id="empathyTableEl">
             <thead id="empathyHeader"></thead>
             <tbody id="empathyBody"></tbody>
           </table>
@@ -480,20 +359,13 @@
 
     <!-- 5. FCR & SERVICE DELIVERY -->
     <div class="page" id="page-FCR, Quiz & SD">
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>FCR & Service Delivery Insights</h2>
-            <span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="fcrSdKpis"></div>
-      </section>
+      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('fcrTableEl', 'FCR_SD_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <section><div class="section-head"><div class="section-head-left"><h2>FCR & Service Delivery Insights</h2><span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
       <section>
         <div class="section-head"><h2>Agent FCR, Quiz & Service Delivery Data</h2></div>
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>VDI ID</th><th>FCR %</th><th>Quiz Score</th><th>Service Delivery Count</th></tr></thead>
+          <table id="fcrTableEl">
+            <thead><tr><th onclick="sortTable('fcrTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th>VDI ID</th><th onclick="sortTable('fcrTableEl', 2, true)">FCR % <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('fcrTableEl', 3, true)">Quiz Score <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('fcrTableEl', 4, true)">SD Count <i class="bi bi-chevron-expand"></i></th></tr></thead>
             <tbody id="fcrSdTable"></tbody>
           </table>
         </div>
@@ -502,31 +374,25 @@
 
     <!-- 6. COMPLAINT ESCALATION AND DKB % -->
     <div class="page" id="page-Complaint Escalation and DKB %">
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Complaint & DKB Overview</h2>
-            <span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="compDkbKpis"></div>
-      </section>
-
+      <div class="filterbar" style="justify-content: flex-end;">
+        <button class="btn-action" onclick="exportTableToCSV('compTableEl', 'Complaint_Escalation.csv')"><i class="bi bi-filetype-csv"></i> Export Complaints</button>
+        <button class="btn-action" onclick="exportTableToCSV('dkbTableEl', 'DKB_Attendance.csv')"><i class="bi bi-filetype-csv"></i> Export DKB</button>
+      </div>
+      <section><div class="section-head"><div class="section-head-left"><h2>Complaint & DKB Overview</h2><span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
       <section>
         <div class="section-head"><h2>Complaint Escalation Table</h2></div>
         <div class="table-wrap mb-4">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Valid</th><th>Invalid</th><th>Total Complaints</th><th>Escalation Accuracy %</th></tr></thead>
+          <table id="compTableEl">
+            <thead><tr><th onclick="sortTable('compTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('compTableEl', 1, true)">Valid <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('compTableEl', 2, true)">Invalid <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('compTableEl', 3, true)">Total <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('compTableEl', 4, true)">Accuracy % <i class="bi bi-chevron-expand"></i></th></tr></thead>
             <tbody id="complaintTable"></tbody>
           </table>
         </div>
       </section>
-
       <section>
         <div class="section-head"><h2>DKB % Attendance Table</h2></div>
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Present</th><th>Absent</th><th>DKB % (Present%)</th><th>Health Status</th></tr></thead>
+          <table id="dkbTableEl">
+            <thead><tr><th onclick="sortTable('dkbTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('dkbTableEl', 1, true)">Present <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('dkbTableEl', 2, true)">Absent <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('dkbTableEl', 3, true)">DKB % <i class="bi bi-chevron-expand"></i></th><th>Health Status</th></tr></thead>
             <tbody id="dkbTable"></tbody>
           </table>
         </div>
@@ -535,20 +401,13 @@
 
     <!-- 7. LAG ADHERENCE & OVER BREAK -->
     <div class="page" id="page-Lag Adherence & Over Break">
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>Lag, Adherence & Break Summary</h2>
-            <span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="lagAdhKpis"></div>
-      </section>
+      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('lagTableEl', 'Lag_Adherence.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <section><div class="section-head"><div class="section-head-left"><h2>Lag, Adherence & Break Summary</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="lagAdhKpis"></div></section>
       <section>
         <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>Adherence %</th><th>Extra Break</th><th>Lag Time</th></tr></thead>
+          <table id="lagTableEl">
+            <thead><tr><th onclick="sortTable('lagTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('lagTableEl', 1, true)">Adherence % <i class="bi bi-chevron-expand"></i></th><th>Extra Break</th><th>Lag Time</th></tr></thead>
             <tbody id="lagAdhTable"></tbody>
           </table>
         </div>
@@ -557,20 +416,13 @@
 
     <!-- 8. AHT & CFS -->
     <div class="page" id="page-AHT & CFS">
-      <section>
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2>AHT & CFS Insights</h2>
-            <span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
-          </div>
-        </div>
-        <div class="kpi-row mb-3" id="ahtCfsKpis"></div>
-      </section>
+      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('ahtTableEl', 'AHT_CFS_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <section><div class="section-head"><div class="section-head-left"><h2>AHT & CFS Insights</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="ahtCfsKpis"></div></section>
       <section>
         <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>Agent Name</th><th>AHT (Sec)</th><th>AHT Status / Reduction Required</th><th>CFS %</th><th>CFS Status</th></tr></thead>
+          <table id="ahtTableEl">
+            <thead><tr><th onclick="sortTable('ahtTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('ahtTableEl', 1, true)">AHT (Sec) <i class="bi bi-chevron-expand"></i></th><th>AHT Status</th><th onclick="sortTable('ahtTableEl', 3, true)">CFS % <i class="bi bi-chevron-expand"></i></th><th>CFS Status</th></tr></thead>
             <tbody id="ahtCfsTable"></tbody>
           </table>
         </div>
@@ -580,197 +432,280 @@
     <!-- 9. AUDITED CALL DETAILS -->
     <div class="page" id="page-Audited Call Details">
       <div class="filterbar">
-        <div class="fgroup">
-          <label>Search Record</label>
-          <input type="text" id="callSearch" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()">
-        </div>
-        <div class="fgroup">
-          <label>Result Filter</label>
-          <select id="resultFilter" onchange="filterCalls()">
-            <option value="">All Results (Pass & Fail)</option>
-            <option value="pass">Pass Only</option>
-            <option value="fail">Fail Only</option>
-          </select>
-        </div>
+        <div class="fgroup"><label>Search Record</label><input type="text" id="callSearch" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
+        <div class="fgroup"><label>Result Filter</label><select id="resultFilter" onchange="filterCalls()"><option value="">All Results (Pass & Fail)</option><option value="pass">Pass Only</option><option value="fail">Fail Only</option></select></div>
+        <button class="btn-action" style="align-self: flex-end;" onclick="exportTableToCSV('callLogTableEl', 'Raw_Call_Logs.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
       </div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Agent Name</th><th>Contact Date</th><th>Audit Party</th><th>ANI</th><th>Call Topic</th><th>Fail Remarks</th><th>Result</th></tr>
-          </thead>
+        <table id="callLogTableEl">
+          <thead><tr><th onclick="sortTable('callLogTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th>Contact Date</th><th>Audit Party</th><th>ANI</th><th>Call Topic</th><th>Fail Remarks</th><th>Result</th></tr></thead>
           <tbody id="callTableBody"></tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <footer id="footerNote">—</footer>
+  <footer id="footerNote">Albatross Wings — Better Quality, Stronger Performance</footer>
 </div>
 
 <script>
   let appData = null;
   let activeTab = 'Dashboard';
   let currentCardAgentName = '';
+  let rootCauseChartInstance = null; // Chart.js instance tracking
 
-  // Helper: Determine badge classes
+  /* ===============================
+     THEME & NAVIGATION
+     =============================== */
+  function toggleTheme() {
+    const body = document.documentElement;
+    const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+    localStorage.setItem('aw_theme', next);
+    document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    if(rootCauseChartInstance) renderRootCauseChart(); // Re-render chart to match theme colors
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('aw_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if(savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
+    loadDashboard(false);
+  });
+
+  function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
+
+  function navTo(tabName) {
+    activeTab = tabName;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById('page-' + tabName).classList.add('active');
+    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
+    if(activeNav) activeNav.classList.add('active');
+    
+    document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
+    document.body.classList.remove('sidebar-open');
+    renderView(tabName);
+  }
+
+  /* ===============================
+     DATA LOADING & MAPPING
+     =============================== */
+  async function loadDashboard(manual = false) {
+    const btn = document.getElementById('refreshBtn');
+    if (manual && btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Refreshing...'; }
+
+    try {
+      const res = await fetch('./data.json?t=' + new Date().getTime());
+      appData = await res.json();
+      const dt = new Date(appData.lastUpdated);
+      
+      document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
+      document.getElementById('liveChip').classList.remove('stale');
+      
+      const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      const globalDateStr = dt.toLocaleString('en-GB', options);
+      
+      document.querySelectorAll('.update-stamp').forEach(el => {
+          const sheetKey = el.getAttribute('data-sheet');
+          const timeText = el.querySelector('.update-time-text');
+          if (sheetKey && appData.sheetTimestamps && appData.sheetTimestamps[sheetKey]) {
+              const sheetDt = new Date(appData.sheetTimestamps[sheetKey]);
+              timeText.innerText = sheetDt.toLocaleString('en-GB', options);
+          } else {
+              timeText.innerText = globalDateStr;
+          }
+      });
+
+      renderView(activeTab);
+    } catch (err) {
+      console.error(err);
+      document.getElementById('liveChip').classList.add('stale');
+      document.getElementById('liveMeta').innerText = 'Connection Error';
+    } finally {
+      if (manual && btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Refresh now'; }
+    }
+  }
+
+  setInterval(() => { loadDashboard(false); }, 30000);
+
+  /* ===============================
+     UTILS: UI BADGES & CHARTS
+     =============================== */
   function renderBadgeCls(scoreStr, defClass) {
       return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass;
   }
 
-  // --- NEW RENDER CARD HELPER (Theme Adaptive, Responsive, Circular Chart) ---
   function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null) {
     let chartHtml = '';
-    
     if (percValue !== null && percValue !== 'N/A') {
       let p = parseFloat(String(percValue).replace('%', ''));
       if (!isNaN(p)) {
         let drawP = Math.min(Math.max(p, 0), 100);
-        
         let strokeVar = 'var(--color-blue)';
         if (badgeStatus === 'delivered' || valClass.includes('success')) strokeVar = 'var(--color-good)';
         if (badgeStatus === 'missed' || valClass.includes('danger')) strokeVar = 'var(--color-bad)';
         if (badgeStatus === 'warn' || valClass.includes('warning')) strokeVar = 'var(--color-warn)';
         if (valClass.includes('purple')) strokeVar = '#8b5cf6';
 
-        let radius = 18;
-        let circ = 2 * Math.PI * radius;
-        let offset = circ - (drawP / 100) * circ;
-
+        let radius = 18; let circ = 2 * Math.PI * radius; let offset = circ - (drawP / 100) * circ;
         chartHtml = `
           <div class="kpi-chart-col">
             <div class="svg-chart-container">
               <svg viewBox="0 0 48 48">
                 <circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle>
-                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" 
-                        stroke-dasharray="${circ}" stroke-dashoffset="${offset}" 
-                        stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle>
+                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle>
               </svg>
               <div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div>
             </div>
-          </div>
-        `;
+          </div>`;
       }
     }
-
     return `
     <div class="pdf-kpi-card w-100">
-      <div class="kpi-card-header">
-        <div class="pdf-kpi-title">${title}</div>
-        <span class="pdf-badge ${badgeStatus}">${badgeText}</span>
-      </div>
-      <div class="kpi-card-body">
-        <div class="kpi-value-col">
-          <div class="pdf-kpi-value ${valClass}">${value}</div>
-          <div class="pdf-kpi-sub">${sub}</div>
-        </div>
-        ${chartHtml}
-      </div>
+      <div class="kpi-card-header"><div class="pdf-kpi-title">${title}</div><span class="pdf-badge ${badgeStatus}">${badgeText}</span></div>
+      <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${valClass}">${value}</div><div class="pdf-kpi-sub">${sub}</div></div>${chartHtml}</div>
       <div class="pdf-score-badge">${scoreBadge}</div>
-    </div>
-    `;
+    </div>`;
   }
 
-  // Theme Toggle Logic
-  function toggleTheme() {
-    const body = document.documentElement;
-    const current = body.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-theme', next);
-    localStorage.setItem('aw_theme', next);
+  /* ===============================
+     EXPORT & SORT FEATURES (TL VIEW)
+     =============================== */
+  function exportTableToCSV(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if(!table) return;
+    let csv = [];
+    const rows = table.querySelectorAll("tr");
     
-    const icon = document.querySelector('#themeToggle i');
-    if(next === 'dark') {
-      icon.className = 'bi bi-sun-fill';
-    } else {
-      icon.className = 'bi bi-moon-fill';
+    for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) {
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+            // Wrap in quotes if it contains comma
+            if(data.includes(",")) data = `"${data}"`;
+            row.push(data);
+        }
+        csv.push(row.join(","));
     }
+    const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+    const downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('aw_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    const icon = document.querySelector('#themeToggle i');
-    if(savedTheme === 'dark' && icon) icon.className = 'bi bi-sun-fill';
+  function sortTable(tableId, n, isNumeric=false) {
+    const table = document.getElementById(tableId);
+    let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    switching = true;
+    dir = "desc"; // Default to desc for performance metrics
     
-    loadDashboard(false);
-  });
-
-  function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
-
-  async function loadDashboard(manual = false) {
-    const btn = document.getElementById('refreshBtn');
-    if (manual && btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
-
-    try {
-      const res = await fetch('./data.json?t=' + new Date().getTime());
-      appData = await res.json();
-
-      const chip = document.getElementById('liveChip');
-      const liveMeta = document.getElementById('liveMeta');
-
-      if (appData.lastUpdated) {
-        const dt = new Date(appData.lastUpdated);
-        liveMeta.innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
-        chip.classList.remove('stale');
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+        if(!x || !y) continue;
         
-        // Smart Data up to Date Mapper
-        const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-        const globalDateStr = dt.toLocaleString('en-GB', options);
+        let xVal = x.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
+        let yVal = y.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
         
-        document.querySelectorAll('.update-stamp').forEach(el => {
-            const sheetKey = el.getAttribute('data-sheet');
-            const timeText = el.querySelector('.update-time-text');
-            if (sheetKey && appData.sheetTimestamps && appData.sheetTimestamps[sheetKey]) {
-                const sheetDt = new Date(appData.sheetTimestamps[sheetKey]);
-                timeText.innerText = sheetDt.toLocaleString('en-GB', options);
-            } else {
-                timeText.innerText = globalDateStr;
-            }
-        });
+        if(isNumeric) {
+            xVal = parseFloat(xVal) || 0;
+            yVal = parseFloat(yVal) || 0;
+            if (dir === "asc") { if (xVal > yVal) { shouldSwitch = true; break; } } 
+            else if (dir === "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+        } else {
+            if (dir === "asc") { if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) { shouldSwitch = true; break; } } 
+            else if (dir === "desc") { if (x.innerText.toLowerCase() < y.innerText.toLowerCase()) { shouldSwitch = true; break; } }
+        }
       }
-
-      renderView(activeTab);
-    } catch (err) {
-      console.error("Data load failed:", err);
-      document.getElementById('liveChip').classList.add('stale');
-      document.getElementById('liveMeta').innerText = 'Connection Error';
-    } finally {
-      if (manual && btn) { btn.disabled = false; btn.textContent = 'Refresh now'; }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        switchcount ++;
+      } else {
+        if (switchcount === 0 && dir === "desc") { dir = "asc"; switching = true; }
+      }
     }
   }
 
-  setInterval(() => { loadDashboard(false); }, 30000);
+  /* ===============================
+     AGENT LOGIN & PERSONAL PORTAL
+     =============================== */
+  function handleAgentLogin() {
+    const input = document.getElementById('agentLoginInput').value.trim().toLowerCase();
+    if(!input || !appData) return;
+    
+    const activeAgents = appData.sheets['Alignment'] || [];
+    const agent = activeAgents.find(a => 
+      String(a['VDI ID']||'').toLowerCase() === input || 
+      String(a['ID']||'').toLowerCase() === input || 
+      String(a['Name']||'').toLowerCase() === input
+    );
 
-  function navTo(tabName) {
-    activeTab = tabName;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-    const activePage = document.getElementById('page-' + tabName);
-    if (activePage) activePage.classList.add('active');
-
-    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-    if (activeNav) activeNav.classList.add('active');
-
-    document.getElementById('pageTitle').innerText = tabName;
-    document.body.classList.remove('sidebar-open');
-    renderView(tabName);
+    if(agent) {
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('agentLoginArea').style.display = 'none';
+      document.getElementById('agentPersonalArea').style.display = 'block';
+      renderAgentCard(agent['Name'], 'myPerfCardBox', true);
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
   }
 
+  function logoutAgent() {
+    document.getElementById('agentLoginInput').value = '';
+    document.getElementById('agentLoginArea').style.display = 'block';
+    document.getElementById('agentPersonalArea').style.display = 'none';
+    document.getElementById('myPerfCardBox').innerHTML = '';
+  }
+
+  // Interactive Simulator Math
+  window.updateSimulator = function(agentName) {
+    if(!appData) return;
+    const ahtVal = document.getElementById('simAht').value;
+    const fcrVal = document.getElementById('simFcr').value;
+    const empVal = document.getElementById('simEmp').value;
+    
+    document.getElementById('lblAht').innerText = ahtVal + 's';
+    document.getElementById('lblFcr').innerText = fcrVal + '%';
+    document.getElementById('lblEmp').innerText = empVal + '%';
+
+    // Mock logic for Bucket shift based on typical standard (A>3.6, B>2.8, C>2.0)
+    // We'll calculate a mock Base Score
+    let mockScore = 1.0; 
+    if(ahtVal <= 170) mockScore += 0.8; else if(ahtVal <= 180) mockScore += 0.4;
+    if(fcrVal >= 93) mockScore += 1.0; else if(fcrVal >= 90) mockScore += 0.5;
+    if(empVal >= 87.5) mockScore += 1.0; else if(empVal >= 80) mockScore += 0.5;
+    // Add constant 0.5 for other metrics assuming average performance
+    mockScore += 0.5; 
+
+    let predictedBucket = 'D';
+    if(mockScore >= 3.6) predictedBucket = 'A (Excellent)';
+    else if(mockScore >= 2.8) predictedBucket = 'B (Good)';
+    else if(mockScore >= 2.0) predictedBucket = 'C (Average)';
+
+    document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
+  }
+
+  /* ===============================
+     VIEW ROUTING & RENDERING
+     =============================== */
   function renderDashboardKpis() {
     if (!appData) return;
-
     const agentSelect = document.getElementById('dashAgentFilter');
     if (agentSelect && agentSelect.options.length <= 1) {
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const agentNames = [...new Set(allCalls.map(c => c.agentName).filter(n => n && n !== 'N/A'))].sort();
-      
-      agentNames.forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        agentSelect.appendChild(opt);
-      });
+      agentNames.forEach(name => { agentSelect.appendChild(new Option(name, name)); });
     }
 
     const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
@@ -789,57 +724,27 @@
         const agentName = String(c.agentName || '').toLowerCase();
         const vdi = String(c.vdiId || '').toLowerCase();
         const party = String(c.auditParty || '').toLowerCase();
-        const matchAgent = !selectedAgent || agentName === selectedAgent || vdi === selectedAgent;
-        const matchParty = !selectedParty || party.includes(selectedParty);
-        return matchAgent && matchParty;
+        return (!selectedAgent || agentName === selectedAgent || vdi === selectedAgent) && (!selectedParty || party.includes(selectedParty));
       });
 
-      totalAudit = filteredCalls.length;
-      totalPass = 0; totalFail = 0; let ceFails = 0;
+      totalAudit = filteredCalls.length; totalPass = 0; totalFail = 0; let ceFails = 0;
       filteredCalls.forEach(c => {
         const resVal = String(c.result || '').trim().toLowerCase();
         if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++;
-        const ceVal = String(c.criticalError || '').trim().toLowerCase();
-        if (ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail')) ceFails++;
       });
 
       passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
       failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
-      passPercent = passPercentVal.toFixed(1) + '%';
-      failPercent = failPercentVal.toFixed(1) + '%';
+      passPercent = passPercentVal.toFixed(1) + '%'; failPercent = failPercentVal.toFixed(1) + '%';
 
       let empPassSum = 0, empFailSum = 0;
-      filteredCalls.forEach(c => {
-        empPassSum += (parseInt(c.empPass) || 0);
-        empFailSum += (parseInt(c.empFail) || 0);
-      });
-
+      filteredCalls.forEach(c => { empPassSum += (parseInt(c.empPass) || 0); empFailSum += (parseInt(c.empFail) || 0); });
       if (empPassSum === 0 && empFailSum === 0) {
         const perfList = appData.sheets['KPI'] || [];
         const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
         relevantPerf.forEach(a => { empPassSum += (parseInt(a.empathyPassSum) || 0); empFailSum += (parseInt(a.empathyFailSum) || 0); });
       }
-
-      const empTotal = empPassSum + empFailSum;
-      empathyPercent = empTotal > 0 ? ((empPassSum / empTotal) * 100).toFixed(1) + '%' : '0.0%';
-
-      if (selectedAgent) {
-        const perfList = appData.sheets['KPI'] || [];
-        const agentPerf = perfList.find(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-        const fcrSdList = appData.sheets['FCR, Quiz & SD']?.list || [];
-        const agentFcr = fcrSdList.find(a => String(a.agentName).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent);
-        const ahtCfsList = appData.sheets['AHT & CFS']?.list || [];
-        const agentAhtCfs = ahtCfsList.find(a => String(a.agentName).toLowerCase() === selectedAgent);
-
-        if (agentPerf) {
-          ahtVal = agentPerf.aht || 'N/A';
-          compPct = agentPerf.escalationAccuracyPct || '0%';
-          sdCount = agentPerf.sdCount || 0;
-          dkbPct = agentPerf.dkbPct || 'N/A';
-        }
-        if (agentAhtCfs) cfsVal = agentAhtCfs.cfsPercent || 'N/A';
-        if (agentFcr) fcrVal = agentFcr.fcrPercent || 'N/A';
-      }
+      empathyPercent = (empPassSum + empFailSum) > 0 ? ((empPassSum / (empPassSum + empFailSum)) * 100).toFixed(1) + '%' : '0.0%';
     }
 
     const grid = document.getElementById('tlKpiGrid');
@@ -859,38 +764,115 @@
     }
   }
 
+  function renderRootCauseChart() {
+    if(!appData) return;
+    const calls = appData.sheets['Audited Call Details'] || [];
+    
+    // Aggregate Fail Topics (CE Topics)
+    const topicCounts = {};
+    calls.forEach(c => {
+        const res = String(c.result || '').toLowerCase();
+        if(res === 'fail') {
+            const topic = c.failTopic && c.failTopic !== 'None' ? c.failTopic : 'Other Issue';
+            topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+        }
+    });
+
+    const labels = Object.keys(topicCounts);
+    const dataVals = Object.values(topicCounts);
+    
+    if(labels.length === 0) {
+        labels.push("No Fails Found");
+        dataVals.push(1);
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const colors = isDark 
+        ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6'] 
+        : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1'];
+
+    const ctx = document.getElementById('rootCauseChart');
+    if(!ctx) return;
+
+    if (rootCauseChartInstance) { rootCauseChartInstance.destroy(); }
+
+    rootCauseChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: dataVals,
+                backgroundColor: colors,
+                borderWidth: isDark ? 2 : 1,
+                borderColor: isDark ? '#0b0f19' : '#fff'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 11 } } }
+            }
+        }
+    });
+  }
+
+  function renderGamification() {
+    if(!appData) return;
+    const audits = appData.sheets['Audit Details']?.list || [];
+    const kpi = appData.sheets['KPI'] || [];
+    
+    // 1. Zero CE Club
+    const zeroCeAgents = audits.filter(a => a.totalAudits > 0 && a.totalFail === 0);
+    const zeroList = zeroCeAgents.length > 0 
+        ? zeroCeAgents.map(a => `<li>${a.agentName} <span style="opacity:0.6">(${a.totalAudits} audits)</span></li>`).join('') 
+        : "<li>No agents found yet</li>";
+
+    // 2. CFS Champions
+    const topCfs = [...kpi].filter(a => !isNaN(a.cfsRaw) && a.cfsRaw >= 90).sort((a,b) => b.cfsRaw - a.cfsRaw).slice(0, 3);
+    const cfsList = topCfs.length > 0
+        ? topCfs.map(a => `<li>${a.name} <span class="text-success fw-bold">(${a.cfsDisplay})</span></li>`).join('')
+        : "<li>No agents met target</li>";
+
+    document.getElementById('gamificationGrid').innerHTML = `
+        <div class="lb-card" style="border: 1px solid var(--color-warn);">
+          <div class="pname"><i class="bi bi-shield-fill-check text-warning"></i> ZERO CE CLUB (100% Pass)</div>
+          <ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${zeroList}</ul>
+        </div>
+        <div class="lb-card" style="border: 1px solid var(--color-blue);">
+          <div class="pname"><i class="bi bi-star-fill text-info"></i> CFS CHAMPIONS (>= 90%)</div>
+          <ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${cfsList}</ul>
+        </div>
+    `;
+  }
+
   function renderView(tab) {
     if (!appData) return;
 
     if (tab === 'Dashboard') {
       renderDashboardKpis();
+      renderRootCauseChart();
+      renderGamification();
+      
       const lb = appData.leaderboards || {};
-
       document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
           ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
-        </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
+          </tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
           ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
-        </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
+          </tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
           ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
-          </tbody></table></div>
-        </div>
-        <div class="lb-card">
-          <div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
+          </tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
           ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
-          </tbody></table></div>
-        </div>
+          </tbody></table></div></div>
       `;
       return;
     }
@@ -901,72 +883,39 @@
       const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
       if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
-      if (list.length > 0) renderAgentCard(select.value || list[0].name);
+      if (list.length > 0) renderAgentCard(select.value || list[0].name, 'perfCardBox');
       return;
     }
 
-    // Common Audit Logics...
+    // Other Tabs Logic...
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const activeAgents = appData.sheets['Alignment'] || []; 
-
-      const filteredAudits = allCalls.filter(c => {
-        if (!partyFilter) return true;
-        return String(c.auditParty || '').toLowerCase().includes(partyFilter);
-      });
+      const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
 
       let auditDetailsList = [];
       let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
 
       activeAgents.forEach(agent => {
-        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase();
-        const name = String(agent['Name'] || '').trim().toLowerCase();
-
-        const agentAudits = filteredAudits.filter(r => {
-          const rVdi = String(r.vdiId || r['VDI ID'] || '').trim().toLowerCase();
-          const rName = String(r.agentName || r['Agent Name'] || r['Evaluatee Name'] || '').trim().toLowerCase();
-          return (vdi && rVdi === vdi) || (name && rName === name);
-        });
-
+        const vdi = String(agent['VDI ID'] || '').trim().toLowerCase(); const name = String(agent['Name'] || '').trim().toLowerCase();
+        const agentAudits = filteredAudits.filter(r => (vdi && String(r.vdiId||'').toLowerCase()===vdi) || (name && String(r.agentName||'').toLowerCase()===name));
         const totalAudits = agentAudits.length;
-        const passes = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'pass').length;
-        const fails = agentAudits.filter(r => String(r.result || r['Pass or Fail'] || r['Pass'] || '').trim().toLowerCase() === 'fail').length;
-
-        const ceFails = agentAudits.filter(r => {
-          const ceVal = String(r.criticalError || r['Critical Error'] || r['Critical Error Free'] || '').toLowerCase();
-          return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail');
-        }).length;
-
+        const passes = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'pass').length;
+        const fails = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'fail').length;
+        const ceFails = agentAudits.filter(r => { const ceVal = String(r.criticalError||'').toLowerCase(); return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail'); }).length;
         const cePercent = totalAudits > 0 ? ((ceFails / totalAudits) * 100).toFixed(1) + '%' : '0.0%';
 
         let empPassSum = 0, empFailSum = 0;
-        agentAudits.forEach(call => {
-          empPassSum += parseInt(call.empPass || call['Total Emp Parameter Pass Count'] || call['Emp Pass'] || 0) || 0;
-          empFailSum += parseInt(call.empFail || call['Total Emp Parameter Fail Count'] || call['Emp Fail'] || 0) || 0;
-        });
-
-        const empTotal = empPassSum + empFailSum;
-        const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
-        const empPercent = empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%';
+        agentAudits.forEach(call => { empPassSum += parseInt(call.empPass || 0) || 0; empFailSum += parseInt(call.empFail || 0) || 0; });
+        const empTotal = empPassSum + empFailSum; const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
 
         if (totalAudits > 0) {
           if (fails === 0) failFreeCountAgent++; else failCountAgent++;
           if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++;
         }
 
-        auditDetailsList.push({
-          agentName: agent['Name'],
-          vdiId: agent['VDI ID'],
-          id: agent['ID'],
-          totalAudits: totalAudits,
-          totalPass: passes,
-          totalFail: fails,
-          cePercent: cePercent,
-          empathyPass: empPassSum,
-          empathyFail: empFailSum,
-          empathyPassPercent: empPercent
-        });
+        auditDetailsList.push({ agentName: agent['Name'], totalAudits: totalAudits, totalPass: passes, totalFail: fails, cePercent: cePercent, empathyPass: empPassSum, empathyFail: empFailSum, empathyPassPercent: empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%' });
       });
 
       const tot = activeAgents.length;
@@ -979,223 +928,138 @@
 
       document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => {
         const ceNum = parseFloat(String(a.cePercent).replace('%', ''));
-        const isCeZero = isNaN(ceNum) || ceNum === 0;
-
-        return `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td>
-          <td class="num">${a.totalAudits}</td>
-          <td class="num text-success">${a.totalPass}</td>
-          <td class="num text-danger">${a.totalFail}</td>
-          <td class="num ${isCeZero ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.cePercent}</td>
-          <td class="num text-primary">${a.empathyPass}</td>
-          <td class="num text-danger">${a.empathyFail}</td>
-          <td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td>
-        </tr>`;
+        return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.totalAudits}</td><td class="num text-success">${a.totalPass}</td><td class="num text-danger">${a.totalFail}</td><td class="num ${isNaN(ceNum) || ceNum === 0 ? 'text-success' : 'text-danger'} fw-bold">${a.cePercent}</td><td class="num text-primary">${a.empathyPass}</td><td class="num text-danger">${a.empathyFail}</td><td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td></tr>`;
       }).join('');
       return;
     }
 
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
-      const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : [
-        'Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity',
-        'Proper Listening', 'Personalization', 'Time / Hold Management',
-        'Emotional Tone with Courtesy', 'Closing Courtesy'
-      ];
+      const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
 
       let kpiHtml = '';
       headers.forEach(p => {
         let valStr = emp.teamAvg[p] || 'N/A';
         let valNum = parseFloat(String(valStr).replace('%', ''));
         let isGood = !isNaN(valNum) && valNum >= 87.5;
-        kpiHtml += renderCardHtml(
-          p, 
-          valStr, 
-          "Team Average Pass %", 
-          "Target: >=87.5%", 
-          renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'),
-          valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'),
-          isGood ? 'text-success' : 'text-danger',
-          valStr !== 'N/A' ? valStr : null
-        );
+        kpiHtml += renderCardHtml(p, valStr, "Team Average Pass %", "Target: >=87.5%", renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'), valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'), isGood ? 'text-success' : 'text-danger', valStr !== 'N/A' ? valStr : null);
       });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-      document.getElementById('empathyHeader').innerHTML = `<tr><th>VDI ID</th><th>Agent Name</th>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+      document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
+      
       document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
-        return `
-        <tr>
-          <td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>
+        return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>
           ${headers.map(h => {
-            let cellVal = agent[h] || 'N/A';
-            let numVal = parseFloat(String(cellVal).replace('%', ''));
-            let colorClass = 'text-muted';
-            if (!isNaN(numVal)) colorClass = numVal < 87.5 ? 'text-danger fw-bold' : 'text-success fw-bold';
-            return `<td class="num ${colorClass}">${cellVal}</td>`;
-          }).join('')}
-        </tr>`;
+            let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', ''));
+            let heatClass = ''; if (!isNaN(numVal)) { heatClass = numVal < 87.5 ? 'heat-bad text-danger fw-bold' : 'heat-good text-success fw-bold'; }
+            return `<td class="num ${heatClass}">${cellVal}</td>`;
+          }).join('')}</tr>`;
       }).join('');
       return;
     }
 
     if (tab === 'FCR, Quiz & SD') {
       const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] };
-      const sum = fcrSd.summary || {};
-      const list = fcrSd.list || [];
-      const tot = sum.totalAgents || list.length;
-
+      const tot = fcrSd.summary.totalAgents || fcrSd.list.length;
       document.getElementById('fcrSdKpis').innerHTML = `
-        ${renderCardHtml("FCR Target Meet", `${sum.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (sum.fcrMeet92Count/tot)*100)}
-        ${renderCardHtml("Service Delivery", `${sum.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (sum.agentsWithSdCount/tot)*100)}
+        ${renderCardHtml("FCR Target Meet", `${fcrSd.summary.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrSd.summary.fcrMeet92Count/tot)*100)}
+        ${renderCardHtml("Service Delivery", `${fcrSd.summary.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (fcrSd.summary.agentsWithSdCount/tot)*100)}
       `;
-      document.getElementById('fcrSdTable').innerHTML = list.map(a => {
-        let fcrNum = parseFloat(String(a.fcrPercent).replace('%', ''));
-        let isFcrGood = !isNaN(fcrNum) && fcrNum >= 92.0;
-        return `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td>
-          <td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td>
-          <td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td>
-        </tr>`;
+      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => {
+        let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0;
+        return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`;
       }).join('');
       return;
     }
 
     if (tab === 'Complaint Escalation and DKB %') {
       const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const sum = compDkb.summary || {};
-      const list = compDkb.list || [];
-      const tot = sum.totalAgents || list.length;
-
+      const tot = compDkb.summary.totalAgents || compDkb.list.length;
       document.getElementById('compDkbKpis').innerHTML = `
-        ${renderCardHtml("Complaint Target", `${sum.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (sum.compMetCount/tot)*100)}
-        ${renderCardHtml("DKB Target", `${sum.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (sum.dkbMetCount/tot)*100)}
+        ${renderCardHtml("Complaint Target", `${compDkb.summary.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compDkb.summary.compMetCount/tot)*100)}
+        ${renderCardHtml("DKB Target", `${compDkb.summary.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (compDkb.summary.dkbMetCount/tot)*100)}
       `;
-      document.getElementById('complaintTable').innerHTML = list.map(a => `
-        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>
-      `).join('');
-      document.getElementById('dkbTable').innerHTML = list.map(a => `
-        <tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>
-      `).join('');
+      document.getElementById('complaintTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
+      document.getElementById('dkbTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'Lag Adherence & Over Break') {
       const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const sum = lagAdh.summary || {};
-      const list = lagAdh.list || [];
-      const tot = sum.totalAgents || list.length;
-
+      const tot = lagAdh.summary.totalAgents || lagAdh.list.length;
       document.getElementById('lagAdhKpis').innerHTML = `
-        ${renderCardHtml("Over Break Target", `${sum.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (sum.overBreakZeroCount/tot)*100)}
-        ${renderCardHtml("Lag Time Target", `${sum.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (sum.lagZeroCount/tot)*100)}
-        ${renderCardHtml("Adherence Target", `${sum.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (sum.adhMetCount/tot)*100)}
+        ${renderCardHtml("Over Break Target", `${lagAdh.summary.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (lagAdh.summary.overBreakZeroCount/tot)*100)}
+        ${renderCardHtml("Lag Time Target", `${lagAdh.summary.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagAdh.summary.lagZeroCount/tot)*100)}
+        ${renderCardHtml("Adherence Target", `${lagAdh.summary.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (lagAdh.summary.adhMetCount/tot)*100)}
       `;
-      document.getElementById('lagAdhTable').innerHTML = list.map(a => {
-        const isOver = a.hasOverBreak;
-        return `
-        <tr class="${isOver ? 'row-overbreak' : ''}">
-          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td>
-          <td class="num ${isOver ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td>
-        </tr>`;
-      }).join('');
+      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'AHT & CFS') {
       const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const sum = ahtCfs.summary || {};
-      const list = ahtCfs.list || [];
-      const tot = sum.totalAgents || list.length;
-      const validCfsCount = sum.validCfsAgentCount !== undefined ? sum.validCfsAgentCount : tot;
-
+      const tot = ahtCfs.summary.totalAgents || ahtCfs.list.length;
       document.getElementById('ahtCfsKpis').innerHTML = `
-        ${renderCardHtml("AHT Target Meet", `${sum.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (sum.ahtMetCount/tot)*100)}
-        ${renderCardHtml("CFS Target Meet", `${sum.cfsMetCount || 0} / ${validCfsCount}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (sum.cfsMetCount/validCfsCount)*100)}
+        ${renderCardHtml("AHT Target Meet", `${ahtCfs.summary.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.ahtMetCount/tot)*100)}
+        ${renderCardHtml("CFS Target Meet", `${ahtCfs.summary.cfsMetCount || 0} / ${ahtCfs.summary.validCfsAgentCount || tot}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.cfsMetCount/(ahtCfs.summary.validCfsAgentCount||tot))*100)}
       `;
-      document.getElementById('ahtCfsTable').innerHTML = list.map(a => {
-        const isAhtTargetMeet = String(a.ahtStatus).toLowerCase().includes('target meet');
-        const isCfsTargetMeet = String(a.cfsStatus).toLowerCase().includes('target meet');
-        return `
-        <tr>
-          <td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td>
-          <td><span class="pill ${isAhtTargetMeet ? 'good' : 'bad'}">${a.ahtStatus}</span></td>
-          <td class="num">${a.cfsPercent}</td>
-          <td><span class="pill ${isCfsTargetMeet ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td>
-        </tr>`;
-      }).join('');
-      return;
-    }
-
-    if (tab === 'Audited Call Details') {
-      filterCalls();
+      document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
       return;
     }
   }
 
-  function renderAgentCard(agentName) {
+  function renderAgentCard(agentName, containerId = 'perfCardBox', isAgentPortal = false) {
     currentCardAgentName = agentName;
     const list = appData.sheets['KPI'] || [];
     const agent = list.find(a => a.name === agentName);
-    const box = document.getElementById('perfCardBox');
+    const box = document.getElementById(containerId);
 
     if (!agent) { box.innerHTML = ''; return; }
-    const M = agent.met || {}, T = agent.targets || {};
-    const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
-
-    const failPctNum = parseFloat(String(agent.auditFailPct).replace('%', ''));
-    const isFailMet = (M.ce != null) ? M.ce : (!isNaN(failPctNum) && failPctNum === 0);
-
-    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
-    const isEmpMet = (M.emp != null) ? M.emp : (!isNaN(empPctNum) && empPctNum >= 87.5);
-
+    
+    // --- SMART ACTION PLAN / TIPS GENERATION ---
     const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
-    const isAhtMet = (M.aht != null) ? M.aht : (!isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0);
+    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
+    const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct).replace('%', ''));
+    
+    let smartTips = [];
+    if (!isNaN(ahtNum) && ahtNum > 170) {
+        smartTips.push("AHT is high. Tip: Use shortcuts and macros in the CRM tool to reduce hold time.");
+    }
+    if (agent.failCount > 0) {
+        smartTips.push(`Critical Error found. Tip: Check the exact fail reason in Audit logs to avoid repeating.`);
+    }
+    if (!isNaN(empPctNum) && empPctNum < 87.5) {
+        smartTips.push("Empathy below target. Tip: Focus on Warm Greetings and Acknowledgment during calls.");
+    }
+    if (!isNaN(fcrPctNum) && fcrPctNum < 93.0) {
+        smartTips.push("FCR needs improvement. Tip: Ensure complete resolution on the first attempt before closing tickets.");
+    }
+    if (smartTips.length === 0) {
+        smartTips.push("Great Job! Maintain this consistency.");
+        smartTips.push("You are hitting targets, keep mentoring peers.");
+    }
 
+    // --- PEER BENCHMARKING (PERCENTILE CALC) ---
+    const allAgentsAHT = list.filter(a=>!isNaN(parseFloat(String(a.aht).replace('s','')))).map(a=>parseFloat(String(a.aht).replace('s',''))).sort((a,b)=>a-b);
+    let ahtRankText = '';
+    if(allAgentsAHT.length > 0 && !isNaN(ahtNum)) {
+        let rank = allAgentsAHT.indexOf(ahtNum);
+        let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100);
+        ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue);"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`;
+    }
+
+    const M = agent.met || {}, T = agent.targets || {};
+    const isFailMet = (M.ce != null) ? M.ce : (!isNaN(parseFloat(agent.auditFailPct)) && parseFloat(agent.auditFailPct) === 0);
+    const isEmpMet = (M.emp != null) ? M.emp : (!isNaN(empPctNum) && empPctNum >= 87.5);
+    const isAhtMet = (M.aht != null) ? M.aht : (!isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0);
     const cfsPctNum = parseFloat(String(agent.cfsPct || agent.cfsPercent || '').replace('%', ''));
     const isCfsMet = (M.csat != null) ? M.csat : (!isNaN(cfsPctNum) && cfsPctNum >= 90.0);
+    const isAdhMet = (M.adh != null) ? M.adh : (!isNaN(parseFloat(agent.adherencePct)) && parseFloat(agent.adherencePct) >= 100);
+    const isDkbMet = (typeof agent.bonusPenalty_dkb === 'number') ? agent.bonusPenalty_dkb > 0 : (!isNaN(parseFloat(agent.dkbPct)) && parseFloat(agent.dkbPct) >= 95);
+    const isEscMet = (M.esc != null) ? M.esc : (!isNaN(parseFloat(agent.escalationAccuracyPct)) && parseFloat(agent.escalationAccuracyPct) >= 95);
 
-    const escPctNum = parseFloat(String(agent.escalationAccuracyPct).replace('%', ''));
-    const isEscMet = (M.esc != null) ? M.esc : (!isNaN(escPctNum) && escPctNum >= 95);
-
-    const dkbPctNum = parseFloat(String(agent.dkbPct).replace('%', ''));
-    const isDkbMet = (typeof agent.bonusPenalty_dkb === 'number') ? agent.bonusPenalty_dkb > 0 : (!isNaN(dkbPctNum) && dkbPctNum >= 95);
-
-    const adhNum = parseFloat(String(agent.adherencePct).replace('%', ''));
-    const isAdhMet = (M.adh != null) ? M.adh : (!isNaN(adhNum) && adhNum >= 100);
-
-    const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct || '').replace('%', ''));
-    const isFcrMet = (M.fcr != null) ? M.fcr : (!isNaN(fcrPctNum) && fcrPctNum >= 93.0);
-    
-    let focusAreas = [];
-    if (!isFailMet) focusAreas.push("Audit Fail Rate (CE)");
-    if (agent.validCompCount > 0) focusAreas.push("Valid Complaints");
-    if (!isEmpMet) focusAreas.push("Empathy Pass %");
-    if (!isFcrMet) focusAreas.push("FCR %");
-    if (!isCfsMet) focusAreas.push("CSAT / CFS");
-    if (!isAdhMet) focusAreas.push("Schedule Adherence");
-    if (agent.loginHourCompliance < 100) focusAreas.push("Login Hour");
-    if (agent.overBreak !== '0m' && agent.overBreak !== '0' && agent.overBreak !== 'No Extra Break') focusAreas.push("Over Break");
-    if (!isAhtMet) focusAreas.push("AHT (Call Duration)");
-    if (!isDkbMet) focusAreas.push("DKB (Attendance)");
-    if (!isEscMet) focusAreas.push("Escalation Accuracy");
-    
-    if (focusAreas.length === 0) {
-        focusAreas = ["Maintain Consistency", "Peer Mentoring", "Advanced Skilling"];
-    } else if (focusAreas.length < 3) {
-        const fillers = ["Continuous Improvement", "Process Knowledge", "Customer Engagement"];
-        let i = 0;
-        while(focusAreas.length < 3) {
-            if(!focusAreas.includes(fillers[i])) focusAreas.push(fillers[i]);
-            i++;
-        }
-    }
-    focusAreas = focusAreas.slice(0, 3); 
-    
-    let rawScore = parseFloat(agent.finalScore || 0);
-    let finalDisplayScore = rawScore > 4.00 ? '4.00' : rawScore.toFixed(2);
-
+    let finalDisplayScore = parseFloat(agent.finalScore || 0) > 4.00 ? '4.00' : parseFloat(agent.finalScore || 0).toFixed(2);
     let bucketClass = 'bucket-poor';
     if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
     else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good';
@@ -1204,143 +1068,84 @@
     const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined && s !== null ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
+    // WHAT-IF SIMULATOR HTML (Only for Agent Portal)
+    let simulatorHtml = '';
+    if(isAgentPortal) {
+        simulatorHtml = `
+        <div class="simulator-panel pdf-card-wrapper" style="margin-top: 15px; background:var(--bg-main);">
+            <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
+            <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
+            
+            <div class="sim-row">
+                <div class="sim-label">AHT (s)</div>
+                <input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}')">
+                <div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div>
+            </div>
+            <div class="sim-row">
+                <div class="sim-label">FCR %</div>
+                <input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}')">
+                <div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div>
+            </div>
+            <div class="sim-row">
+                <div class="sim-label">Empathy %</div>
+                <input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}')">
+                <div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div>
+            </div>
+            
+            <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">
+                Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong>
+            </div>
+        </div>`;
+    }
+
     box.innerHTML = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
           <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor} | Tenure: ${agent.tenure} | Skill: ${agent.skill}</div>
+          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor} | Tenure: ${agent.tenure}</div>
         </div>
 
         <div class="pdf-grid-3">
-          ${renderCardHtml(
-            "Audit Fail Rate", agent.auditFailPct, 
-            `Total Audits: ${agent.totalAudits} (Pass: ${agent.passCount}, Fail: ${agent.failCount})`, 
-            `KPI: ${fmtScore(agent.score_criticalError)}`, 
-            renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), 
-            agent.score_criticalError === 'NO KPI' ? 'NO KPI' : (isFailMet ? 'Target Meet' : 'Fail Found'), 
-            isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct
-          )}
+          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct, `Pass: ${agent.passCount}, Fail: ${agent.failCount}`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct)}
+          ${renderCardHtml("Valid Complaint", agent.validCompCount || 0, "Valid complaints", `KPI: ${fmtScore(agent.score_validComplaint)}`, renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found', agent.validCompCount === 0 ? 'text-success' : 'text-danger')}
+          ${renderCardHtml("Empathy Pass %", agent.empathyPct, `Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct)}
           
-          ${renderCardHtml(
-            "Valid Complaint", agent.validCompCount || 0, 
-            "Valid complaints against service", 
-            `KPI: ${fmtScore(agent.score_validComplaint)}`, 
-            renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), 
-            agent.score_validComplaint === 'NO KPI' ? 'NO KPI' : (agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found'), 
-            agent.validCompCount === 0 ? 'text-success' : 'text-danger'
-          )}
+          <!-- Includes Benchmarking -->
+          ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent)}
+          ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'delivered' : 'missed'), (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'Target Meet' : 'Below Target', (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'text-success' : 'text-danger', agent.fcrPercent || agent.fcrPct)}
+          
+          <div class="pdf-kpi-card w-100" style="position:relative;">
+             <div class="kpi-card-header"><div class="pdf-kpi-title">AHT (Seconds)</div><span class="pdf-badge ${renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${isAhtMet ? 'Target Meet' : 'Exceeds'}</span></div>
+             <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div><div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : '<=170s'}</div>${isAgentPortal ? ahtRankText : ''}</div></div>
+             <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
+          </div>
 
-          ${renderCardHtml(
-            "Empathy Pass %", agent.empathyPct, 
-            `Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}`, 
-            `KPI: ${fmtScore(agent.score_empathy)}`, 
-            renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), 
-            agent.score_empathy === 'NO KPI' ? 'NO KPI' : (isEmpMet ? 'Target Meet' : 'Below Target'), 
-            isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct
-          )}
-
-          ${renderCardHtml(
-            "CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', 
-            `Target: ${T.csat || '>= 90%'}`, 
-            `KPI: ${fmtScore(agent.score_cfs)}`, 
-            renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), 
-            agent.score_cfs === 'NO KPI' ? 'NO KPI' : (isCfsMet ? 'Target Meet' : 'Below Target'), 
-            isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent
-          )}
+          ${renderCardHtml("Adherence %", agent.adherencePct, `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
+          ${renderCardHtml("DKB % (Attendance)", agent.dkbPct, `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
+          ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct, `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
           
-          ${renderCardHtml(
-            "FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', 
-            `Target: ${T.fcr || '>= 93%'}`, 
-            `KPI: ${fmtScore(agent.score_fcr)}`, 
-            renderBadgeCls(agent.score_fcr, isFcrMet ? 'delivered' : 'missed'), 
-            agent.score_fcr === 'NO KPI' ? 'NO KPI' : (isFcrMet ? 'Target Meet' : 'Below Target'), 
-            isFcrMet ? 'text-success' : 'text-danger', agent.fcrPercent || agent.fcrPct
-          )}
-          
-          ${renderCardHtml(
-            "Adherence %", agent.adherencePct, 
-            `Target: ${T.adh || '>= 100%'}`, 
-            `KPI: ${fmtScore(agent.score_adherence)}`, 
-            renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), 
-            agent.score_adherence === 'NO KPI' ? 'NO KPI' : (isAdhMet ? 'Target Meet' : 'Below Target'), 
-            isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct
-          )}
-
-          ${renderCardHtml(
-            "Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', 
-            `Target: ${T.login || '>= 100%'}`, 
-            `KPI: ${fmtScore(agent.score_loginHour)}`, 
-            renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), 
-            agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), 
-            agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance
-          )}
-
-          ${renderCardHtml(
-            "Over Break", agent.overBreak, 
-            "Target: As Per Schedule", 
-            `KPI: ${fmtScore(agent.score_breakTime)}`, 
-            renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), 
-            agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), 
-            agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger'
-          )}
-          
-          ${renderCardHtml(
-            "AHT (Seconds)", agent.aht, 
-            `Target: ${T.aht ? T.aht + 's' : 'N/A'}`, 
-            `KPI: ${fmtScore(agent.score_aht)}`, 
-            renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed'), 
-            agent.score_aht === 'NO KPI' ? 'NO KPI' : (isAhtMet ? 'Target Meet' : 'Exceeds Target'), 
-            isAhtMet ? 'text-success' : 'text-warning'
-          )}
-          
-          <!-- Bonus / Penalty Cards -->
-          ${renderCardHtml(
-            "DKB % (Attendance)", agent.dkbPct, 
-            `Target: ${T.dkb || '>= 95%'}`, 
-            `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, 
-            renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), 
-            agent.bonusPenalty_dkb === 'NO KPI' ? 'NO KPI' : (isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None')), 
-            isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct
-          )}
-          
-          ${renderCardHtml(
-            "Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', 
-            `Target: ${T.quiz || '>= 95%'}`, 
-            `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, 
-            renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), 
-            agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), 
-            (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore
-          )}
-          
-          ${renderCardHtml(
-            "Complaint Escalation", agent.escalationAccuracyPct, 
-            `Target: ${T.esc || '>= 95%'}`, 
-            agent.tenure.toLowerCase() === 'ojt' ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc), 
-            renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), 
-            (isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc) === 'NO KPI' ? 'NO KPI' : (isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None')), 
-            isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct
-          )}
-          
-          <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
               <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
               <div class="pdf-kpi-value">${finalDisplayScore}</div>
-              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | Bonus/Penalty: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'} (${parseFloat(agent.bonusPenaltyAmount || 0) > 0 ? '+' : ''}${agent.bonusPenaltyAmount || '0.00'}) | Grid: ${agent.kpiLob ? (agent.kpiLob === 'ojt' ? 'OJT' : agent.kpiLob.charAt(0).toUpperCase() + agent.kpiLob.slice(1)) : 'N/A'}</div>
+              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'}</div>
             </div>
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
 
-          <!-- NEED TO FOCUS CARD -->
           <div class="pdf-kpi-card focus-card">
-            <div class="pdf-kpi-title"><i class="bi bi-bullseye"></i> Need to Focus</div>
+            <div class="pdf-kpi-title"><i class="bi bi-lightning-charge-fill"></i> Smart Action Plan</div>
             <ul class="focus-list">
-              ${focusAreas.map(f => `<li>${f}</li>`).join('')}
+              ${smartTips.map(f => `<li>${f}</li>`).join('')}
             </ul>
           </div>
         </div>
+
+        ${simulatorHtml}
       </div>
     `;
+
+    if(isAgentPortal) updateSimulator(agentName);
   }
 
   function filterCalls() {
@@ -1348,54 +1153,13 @@
     const search = (document.getElementById('callSearch')?.value || '').toLowerCase();
     const resFilter = (document.getElementById('resultFilter')?.value || '').toLowerCase();
     const list = appData.sheets['Audited Call Details'] || [];
-
     const filtered = list.filter(c => {
-      const name = String(c.agentName || '').toLowerCase();
-      const ani = String(c.ani || '').toLowerCase();
-      const topic = String(c.callTopic || '').toLowerCase();
-      const res = String(c.result || '').toLowerCase();
-
-      const matchSearch = !search || name.includes(search) || ani.includes(search) || topic.includes(search);
-      const matchRes = !resFilter || res === resFilter;
-
+      const matchSearch = !search || String(c.agentName).toLowerCase().includes(search) || String(c.ani).toLowerCase().includes(search) || String(c.callTopic).toLowerCase().includes(search);
+      const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
       return matchSearch && matchRes;
     });
-
-    document.getElementById('callTableBody').innerHTML = filtered.map(c => `
-      <tr>
-        <td class="fw-bold text-start">${c.agentName}</td>
-        <td class="num">${c.contactDate}</td>
-        <td>${c.auditParty}</td>
-        <td class="num">${c.ani}</td>
-        <td class="text-start">${c.callTopic}</td>
-        <td class="text-start text-danger">${c.failTopic}</td>
-        <td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td>
-      </tr>
-    `).join('');
+    document.getElementById('callTableBody').innerHTML = filtered.map(c => `<tr><td class="fw-bold text-start">${c.agentName}</td><td class="num">${c.contactDate}</td><td>${c.auditParty}</td><td class="num">${c.ani}</td><td class="text-start">${c.callTopic}</td><td class="text-start text-danger">${c.failTopic}</td><td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td></tr>`).join('');
   }
-
-  function downloadKpiPdf() {
-    const cardEl = document.getElementById('pdfCardTarget');
-    if (!cardEl) return;
-
-    cardEl.classList.add('pdf-export-mode');
-
-    const opt = {
-      margin:       [0.2, 0.2, 0.2, 0.2],
-      filename:     `KPI_${currentCardAgentName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-    };
-
-    html2pdf().set(opt).from(cardEl).save().then(() => {
-      cardEl.classList.remove('pdf-export-mode');
-    }).catch(err => {
-      console.error("PDF generation failed:", err);
-      cardEl.classList.remove('pdf-export-mode');
-    });
-  }
-
 </script>
 </body>
 </html>
