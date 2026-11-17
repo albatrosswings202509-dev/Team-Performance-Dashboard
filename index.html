@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Albatross Wings — Enterprise Dashboard</title>
+<title>Albatross Wings Performance Tracker</title>
 
 <!-- Google Fonts: Inter & IBM Plex Mono -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +51,7 @@
   .sidebar-inner { width: 240px; }
   .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--sidebar-border); white-space: nowrap; }
   .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #3b6fd9, #7c5fd6); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
-  .sidebar-brand .name { font-size: 14px; font-weight: 700; color: #fff; }
+  .sidebar-brand .name { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; }
   .sidebar-nav { padding: 12px 8px; flex: 1; }
   .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--sidebar-text); white-space: nowrap; transition: all 0.22s; min-height: 44px; }
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
@@ -108,7 +108,7 @@
   [data-theme="dark"] .pdf-header-bar { background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%); border: 1px solid #334155; }
   .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
   .pdf-agent-sub { font-size: 11.5px; color: #94a3b8; }
-  .pdf-kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 120px; box-shadow: var(--shadow-card); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .pdf-kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 120px; box-shadow: var(--shadow-card); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
   .pdf-kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--color-blue); }
   .kpi-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
   .pdf-kpi-title { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
@@ -139,6 +139,30 @@
   .login-input:focus { border-color: var(--color-blue); }
   .btn-login { width: 100%; background: var(--color-blue); color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: 0.2s; }
   .btn-login:hover { filter: brightness(1.1); box-shadow: var(--shadow-hover); }
+  
+  /* NEW ADVANCED UI ELEMENTS */
+  .agent-advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
+  
+  /* 1. Milestone Galaxy */
+  .galaxy-track { position: relative; height: 6px; background: var(--border-color); margin: 35px 20px 15px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; }
+  .galaxy-node { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-card); border: 3px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color: var(--text-muted); z-index: 2; transition: all 0.3s ease; }
+  .node-D { left: 0%; transform: translateX(-50%); } .node-C { left: 33%; transform: translateX(-50%); } .node-B { left: 66%; transform: translateX(-50%); } .node-A { left: 100%; transform: translateX(-50%); }
+  .node-active { border-color: var(--color-blue); color: var(--color-blue); background: var(--bg-blue); box-shadow: 0 0 10px rgba(59,130,246,0.3); }
+  .rocket { position: absolute; top: -16px; font-size: 22px; transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 5; margin-left: -11px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+  
+  /* 2. Gap Analysis */
+  .gap-analysis-card { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); }
+  .gap-analysis-text { font-size: 12.5px; margin-top: 8px; font-weight: 600; color: var(--text-main); line-height: 1.5; }
+  
+  /* 3. Error Ledger */
+  .ledger-list { margin: 10px 0 0 0; padding: 0; list-style: none; font-size: 11.5px; color: var(--text-main); }
+  .ledger-list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border-color); }
+  .ledger-list li:last-child { border: none; }
+  .fail-pill { background: var(--bg-bad); color: var(--color-bad); padding: 2px 6px; border-radius: 12px; font-size: 9px; font-weight: 800; }
+  
+  /* 4. Score Bleed Chart Container */
+  .bleed-chart-container { height: 180px; width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; }
+
   .simulator-panel { background: var(--bg-main); border: 1px dashed var(--border-color); padding: 16px; border-radius: 12px; margin-top: 15px; }
   .sim-title { font-size: 12px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
   .sim-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
@@ -158,7 +182,7 @@
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 0 !important; }
   .pdf-export-mode .svg-chart-container, .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; } .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
   .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; } .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; } .pdf-export-mode .pdf-badge.warn { background: #fef3c7 !important; color: #d97706 !important; }
-  .pdf-export-mode .simulator-panel { display: none !important; } 
+  .pdf-export-mode .simulator-panel, .pdf-export-mode .agent-advanced-grid { display: none !important; } 
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--bg-card); font-size: 12px; }
@@ -182,30 +206,29 @@
   footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted-dim); font-family: var(--mono); }
 
   /* ==================================================
-     100% PERFECT MOBILE OPTIMIZATION
+     MOBILE OPTIMIZATION
      ================================================== */
   @media (max-width: 820px) {
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; border: none; }
     body.sidebar-open .sidebar { transform: translateX(0); } body.sidebar-open .sidebar-overlay { display: block; }
     .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+    
+    .pdf-grid-3, .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+    .grid-4, .grid-2 { grid-template-columns: 1fr !important; gap: 12px !important; }
   }
 
   @media (max-width: 600px) {
     .topbar { padding: 10px 14px; } main { padding: 12px 10px 30px; }
     
-    /* FIX 1: KPI Row (Top Metrics) always 2 columns side-by-side */
     .kpi-row, .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-    
-    /* FIX 2: Root Cause, Gamification, and Leaderboards strictly 1 column (downward stacked) */
-    .grid-2, .grid-4 { grid-template-columns: 1fr !important; gap: 16px !important; display: flex !important; flex-direction: column !important; }
-    
+    .grid-2, .grid-4 { grid-template-columns: 1fr !important; gap: 12px !important; display: flex !important; flex-direction: column !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
+    .agent-advanced-grid { grid-template-columns: 1fr; } /* Stack advanced UI on mobile */
     
     .pdf-kpi-card { padding: 10px 12px !important; min-height: 95px; gap: 6px; }
     .kpi-card-header { flex-direction: column; gap: 4px; } 
     .pdf-kpi-title { font-size: 10px !important; margin: 0; line-height: 1.2; }
     .pdf-badge { font-size: 8px !important; padding: 2px 6px !important; align-self:flex-start; }
-    
     .kpi-card-body { gap: 6px; } 
     .pdf-kpi-value { font-size: 18px !important; } 
     .pdf-kpi-sub { font-size: 9px !important; line-height: 1.2; }
@@ -217,12 +240,9 @@
     
     .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 10px; } 
     .predicted-bucket-card .bucket-label { align-self: flex-start; }
-    
     .pdf-card-wrapper { padding: 14px; border-radius: 12px; } 
     .btn-pdf { width: 100%; } 
     .filterbar select, .filterbar input[type=text] { min-width: 100%; }
-    
-    /* Extra spacing for Gamification items on mobile */
     #gamificationGrid .lb-card { margin-bottom: 10px; }
   }
 </style>
@@ -236,7 +256,7 @@
   <div class="sidebar-inner">
     <div class="sidebar-brand">
       <div class="logo">AW</div>
-      <div class="name">Albatross Wings</div>
+      <div class="name">Albatross Wings<br><span style="font-size:10px; font-weight:400;">Performance Tracker</span></div>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
@@ -279,16 +299,12 @@
         <div class="fgroup"><label>Audit Party Filter</label><select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
       </div>
       <section><div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row" id="tlKpiGrid"></div></section>
-      
-      <!-- Chart and Gamification Grid (Mobile: 1 Column Stacked) -->
       <section>
         <div class="grid-2">
           <div><div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
           <div><div class="section-head"><h2>Gamification & Awards</h2></div><div id="gamificationGrid" style="display:flex; flex-direction:column; gap:12px;"></div></div>
         </div>
       </section>
-      
-      <!-- Leaderboard Grid (Mobile: 1 Column Stacked) -->
       <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
     </div>
 
@@ -443,7 +459,7 @@
 </div>
 
 <script>
-  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = ''; let rootCauseChartInstance = null;
+  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = ''; let rootCauseChartInstance = null; let scoreBleedChartInstance = null;
 
   function toggleTheme() {
     const body = document.documentElement;
@@ -451,6 +467,10 @@
     body.setAttribute('data-theme', next); localStorage.setItem('aw_theme', next);
     document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
     if(rootCauseChartInstance) renderRootCauseChart();
+    if(scoreBleedChartInstance && currentCardAgentName) {
+        const agent = appData.sheets['KPI'].find(a => a.name === currentCardAgentName);
+        if(agent) renderScoreBleedChart(agent);
+    }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -581,6 +601,7 @@
     document.getElementById('agentLoginInput').value = ''; document.getElementById('agentLoginArea').style.display = 'block'; document.getElementById('agentPersonalArea').style.display = 'none'; document.getElementById('myPerfCardBox').innerHTML = '';
   }
 
+  // ADVANCED SIMULATOR: Handles Galaxy & Auto Gap Analysis
   window.updateSimulator = function(agentName, isOjt) {
     if(!appData) return;
     const ahtVal = parseFloat(document.getElementById('simAht').value); 
@@ -612,9 +633,97 @@
         mockScore += 0.7; // Balance score for missing sliders for OJT
     }
     
-    let predictedBucket = 'D';
-    if(mockScore >= 3.6) predictedBucket = 'A (Excellent)'; else if(mockScore >= 2.8) predictedBucket = 'B (Good)'; else if(mockScore >= 2.0) predictedBucket = 'C (Average)';
+    let predictedBucket = 'D'; let galPos = '0%';
+    if(mockScore >= 3.6) { predictedBucket = 'A (Excellent)'; galPos = '100%'; } 
+    else if(mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; } 
+    else if(mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
+    
+    // Update Text Result
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
+    
+    // Update Galaxy Road Map
+    document.querySelectorAll('.galaxy-node').forEach(n => n.classList.remove('node-active'));
+    if(mockScore >= 3.6) document.getElementById('gal-A').classList.add('node-active');
+    else if(mockScore >= 2.8) document.getElementById('gal-B').classList.add('node-active');
+    else if(mockScore >= 2.0) document.getElementById('gal-C').classList.add('node-active');
+    else document.getElementById('gal-D').classList.add('node-active');
+    document.getElementById('gal-rocket').style.left = galPos;
+
+    // Auto Gap Analysis Text
+    let gapText = "Keep it up! Maintain this consistency to secure your bonus.";
+    if (mockScore < 2.8) {
+        let missing = (2.8 - mockScore).toFixed(2);
+        gapText = `You need <strong>+${missing} score</strong> to reach Bucket B. `;
+        if (ahtVal > 170) gapText += `Try reducing AHT to <=170s. `;
+        else if (fcrVal < 93) gapText += `Try pushing FCR to >=93%. `;
+        else if (empVal < 87.5) gapText += `Focus on boosting Empathy >=87.5%.`;
+    } else if (mockScore < 3.6) {
+        let missing = (3.6 - mockScore).toFixed(2);
+        gapText = `You are close to Bucket A! Need <strong>+${missing} score</strong>. `;
+        if (ahtVal > 170) gapText += `Reduce AHT under 170s. `;
+        if (fcrVal < 93) gapText += `Ensure FCR stays >=93%.`;
+    }
+    document.getElementById('gapAnalysisText').innerHTML = gapText;
+  }
+
+  function renderScoreBleedChart(agent) {
+    const ctx = document.getElementById('scoreBleedChart'); if(!ctx) return;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; 
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const gridColor = isDark ? '#1e293b' : '#e2e8f0';
+
+    // Calculate strict negative impacts visually
+    const ahtNum = parseFloat(String(agent.aht).replace('s', '')); 
+    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', '')); 
+    const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct).replace('%', ''));
+
+    let ahtLoss = (!isNaN(ahtNum) && ahtNum > 180) ? -0.8 : ((!isNaN(ahtNum) && ahtNum > 170) ? -0.4 : 0);
+    let fcrLoss = (!isNaN(fcrPctNum) && fcrPctNum < 90) ? -0.8 : ((!isNaN(fcrPctNum) && fcrPctNum < 93) ? -0.4 : 0);
+    let empLoss = (!isNaN(empPctNum) && empPctNum < 80) ? -0.8 : ((!isNaN(empPctNum) && empPctNum < 87.5) ? -0.4 : 0);
+    let ceLoss = (agent.failCount > 0) ? -0.8 : 0; // Visual severe penalty representation
+
+    // Waterfall Data Structure (Floating Bars using min/max array for y-axis)
+    // Starting at 4.00, dropping down.
+    let currentMax = 4.00;
+    
+    // Arrays for chart
+    let ceBar = [currentMax + ceLoss, currentMax]; currentMax += ceLoss;
+    let ahtBar = [currentMax + ahtLoss, currentMax]; currentMax += ahtLoss;
+    let fcrBar = [currentMax + fcrLoss, currentMax]; currentMax += fcrLoss;
+    let empBar = [currentMax + empLoss, currentMax]; currentMax += empLoss;
+    
+    const trueFinalScore = Math.min(parseFloat(agent.finalScore) || 0, 4.00);
+
+    if (scoreBleedChartInstance) scoreBleedChartInstance.destroy();
+    
+    scoreBleedChartInstance = new Chart(ctx, { 
+        type: 'bar', 
+        data: { 
+            labels: ['Max (4.0)', 'CE Fail', 'AHT Loss', 'FCR Loss', 'Emp Loss', 'Earned'], 
+            datasets: [{ 
+                label: 'Score Bleed Waterfall',
+                data: [ [0, 4.00], ceBar, ahtBar, fcrBar, empBar, [0, trueFinalScore] ], 
+                backgroundColor: [ 
+                    isDark ? '#10b981' : '#059669', // Start Max (Green)
+                    isDark ? '#f43f5e' : '#e11d48', // CE
+                    isDark ? '#f43f5e' : '#e11d48', // AHT
+                    isDark ? '#f43f5e' : '#e11d48', // FCR
+                    isDark ? '#f43f5e' : '#e11d48', // EMP
+                    isDark ? '#3b82f6' : '#2563eb'  // Final (Blue)
+                ], 
+                borderRadius: 4
+            }] 
+        }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return "Points: " + (c.raw[1] - c.raw[0]).toFixed(2); } } } },
+            scales: { 
+                y: { beginAtZero: true, max: 4.0, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+                x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: "'Inter', sans-serif" } } }
+            }
+        } 
+    });
   }
 
   function renderDashboardKpis() {
@@ -675,21 +784,15 @@
     const calls = appData.sheets['Audited Call Details'] || [];
     const topicCounts = {};
     
-    // FIX 1: FOOLPROOF CE EXTRACTION LOGIC
     calls.forEach(c => { 
         if(String(c.result).toLowerCase() === 'fail') { 
             let failStr = String(c.failTopic || '');
             let parts = failStr.split(','); 
-            
             parts.forEach(part => {
                 let p = part.trim();
-                // Completely ignore any N-CE part
-                if (p.toUpperCase().includes('N-CE') || p.toUpperCase().includes('NCE')) return;
-                
-                // Match exactly CE: or CE :
+                if (p.toUpperCase().includes('N-CE') || p.toUpperCase().includes('NCE')) return; 
                 let ceIndex = p.toUpperCase().indexOf('CE:');
                 if (ceIndex === -1) ceIndex = p.toUpperCase().indexOf('CE :');
-                
                 if (ceIndex !== -1) {
                     let colonIndex = p.indexOf(':', ceIndex);
                     if (colonIndex !== -1) {
@@ -704,7 +807,6 @@
     const sortedTopics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a]).slice(0, 5);
     const labels = []; const dataVals = [];
     sortedTopics.forEach(k => { labels.push(k); dataVals.push(topicCounts[k]); });
-    
     if(labels.length === 0) { labels.push("No Fails / No CE Found"); dataVals.push(1); }
     
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#94a3b8' : '#475569';
@@ -869,8 +971,30 @@
     const fmtScore = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
+    // NEW ADVANCED FEATURES FOR AGENT PORTAL ONLY
+    let advancedHtml = '';
     let simulatorHtml = '';
+    
     if(isAgentPortal) {
+        // 1. Error Ledger Generation
+        const agentAudits = appData.sheets['Audited Call Details'].filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
+        const failedAudits = agentAudits.filter(c => c.result.toLowerCase() === 'fail');
+        const failTopicCounts = {};
+        failedAudits.forEach(c => {
+            const topic = (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue');
+            failTopicCounts[topic] = (failTopicCounts[topic] || 0) + 1;
+        });
+        
+        let ledgerListHtml = '';
+        if(Object.keys(failTopicCounts).length === 0) {
+            ledgerListHtml = `<li><span class="text-success fw-bold"><i class="bi bi-shield-check"></i> Perfect! No Points Lost</span></li>`;
+        } else {
+            for (let [topic, count] of Object.entries(failTopicCounts)) {
+                ledgerListHtml += `<li>${topic} <span class="fail-pill">-${count} Point(s)</span></li>`;
+            }
+        }
+
+        // 2. Simulator Sliders Generation
         let extraSliders = '';
         if(!isOjtAgent) {
             extraSliders = `
@@ -882,6 +1006,15 @@
         <div class="simulator-panel pdf-card-wrapper" style="margin-top: 15px; background:var(--bg-main);">
             <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
             <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
+            
+            <div class="galaxy-track">
+              <div class="galaxy-node" id="gal-D">D</div>
+              <div class="galaxy-node" id="gal-C">C</div>
+              <div class="galaxy-node" id="gal-B">B</div>
+              <div class="galaxy-node" id="gal-A">A</div>
+              <div class="rocket" id="gal-rocket">🚀</div>
+            </div>
+            
             <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
             <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
             <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
@@ -889,9 +1022,26 @@
             ${extraSliders}
             <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong></div>
         </div>`;
+        
+        advancedHtml = `
+        <div class="agent-advanced-grid">
+            <div class="pdf-kpi-card gap-analysis-card">
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-lightbulb-fill"></i> Auto Gap Analysis</div>
+               <div class="gap-analysis-text" id="gapAnalysisText">Loading insights...</div>
+            </div>
+            <div class="pdf-kpi-card">
+               <div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-journal-x"></i> Error Ledger (Where I Lost Points)</div>
+               <ul class="ledger-list">${ledgerListHtml}</ul>
+            </div>
+            <div class="pdf-kpi-card" style="grid-column: span 2;">
+               <div class="pdf-kpi-title"><i class="bi bi-bar-chart-steps"></i> Score Bleed Breakdown (Max Score 4.0)</div>
+               <div class="bleed-chart-container"><canvas id="scoreBleedChart"></canvas></div>
+            </div>
+        </div>`;
     }
 
     box.innerHTML = `
+      ${advancedHtml}
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
           <div class="pdf-agent-name">${agent.name}</div>
@@ -931,7 +1081,12 @@
         </div>
         ${simulatorHtml}
       </div>`;
-    if(isAgentPortal) updateSimulator(agentName, isOjtAgent);
+      
+    if(isAgentPortal) {
+        updateSimulator(agentName, isOjtAgent);
+        // Call the Chart.js function after HTML is injected
+        setTimeout(() => renderScoreBleedChart(agent), 100);
+    }
   }
 
   function filterCalls() {
