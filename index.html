@@ -155,7 +155,6 @@
 
   section { margin-bottom: 24px; }
   
-  /* Update stamp added to section head */
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
   .section-head-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .section-head h2 { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-main); }
@@ -172,7 +171,7 @@
   
   /* FIXED DARK MODE DROPDOWN TEXT VISIBILITY */
   [data-theme="dark"] .filterbar select, [data-theme="dark"] .filterbar input[type=text] {
-    background-color: #0f172a !important; /* solid color to avoid gradient blending bugs in select dropdowns */
+    background-color: #0f172a !important; 
     background-image: none !important;
     color: #f8fafc !important;
   }
@@ -182,8 +181,6 @@
   }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  
-  /* Use the exact same grid for all cards to keep width identical */
   .pdf-grid-3, .kpi-row, .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 
   /* Leaderboard Cards */
@@ -254,7 +251,7 @@
   .bucket-average { color: #f59e0b; border-color: #f59e0b; }
   .bucket-poor { color: #f43f5e; border-color: #f43f5e; }
 
-  /* STRICT PDF EXPORT PRINT STYLES */
+  /* STRICT PDF EXPORT PRINT STYLES (Always Light format for PDF) */
   .pdf-export-mode { width: 960px !important; max-width: 960px !important; padding: 16px !important; background: #ffffff !important; border-radius: 10px !important; box-shadow: none !important; animation: none !important; }
   .pdf-export-mode * { color: #0f172a !important; }
   .pdf-export-mode .pdf-header-bar { background: #101d34 !important; }
@@ -398,7 +395,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>Team Performance Summary</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row" id="tlKpiGrid"></div>
@@ -441,7 +438,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>Audit Overview</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="auditSummaryKpis"></div>
@@ -465,7 +462,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>Empathy Parameter — Team Average Pass %</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="Empathy"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="empathyTeamKpis"></div>
@@ -487,7 +484,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>FCR & Service Delivery Insights</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="fcrSdKpis"></div>
@@ -509,7 +506,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>Complaint & DKB Overview</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="compDkbKpis"></div>
@@ -542,7 +539,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>Lag, Adherence & Break Summary</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="lagAdhKpis"></div>
@@ -564,7 +561,7 @@
         <div class="section-head">
           <div class="section-head-left">
             <h2>AHT & CFS Insights</h2>
-            <span class="update-stamp"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
+            <span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span>
           </div>
         </div>
         <div class="kpi-row mb-3" id="ahtCfsKpis"></div>
@@ -716,11 +713,19 @@
         liveMeta.innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
         chip.classList.remove('stale');
         
-        // Update all date stamps across the app
+        // Smart Data up to Date Mapper
         const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-        const dateStr = dt.toLocaleString('en-GB', options);
-        document.querySelectorAll('.update-time-text').forEach(el => {
-            el.innerText = dateStr;
+        const globalDateStr = dt.toLocaleString('en-GB', options);
+        
+        document.querySelectorAll('.update-stamp').forEach(el => {
+            const sheetKey = el.getAttribute('data-sheet');
+            const timeText = el.querySelector('.update-time-text');
+            if (sheetKey && appData.sheetTimestamps && appData.sheetTimestamps[sheetKey]) {
+                const sheetDt = new Date(appData.sheetTimestamps[sheetKey]);
+                timeText.innerText = sheetDt.toLocaleString('en-GB', options);
+            } else {
+                timeText.innerText = globalDateStr;
+            }
         });
       }
 
@@ -900,6 +905,7 @@
       return;
     }
 
+    // Common Audit Logics...
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
       const allCalls = appData.sheets['Audited Call Details'] || [];
