@@ -159,7 +159,7 @@
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 0 !important; }
   .pdf-export-mode .svg-chart-container, .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; } .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
   .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; } .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; } .pdf-export-mode .pdf-badge.warn { background: #fef3c7 !important; color: #d97706 !important; }
-  .pdf-export-mode .simulator-panel { display: none !important; } /* Hide simulator in PDF */
+  .pdf-export-mode .simulator-panel { display: none !important; } 
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--bg-card); font-size: 12px; }
@@ -173,25 +173,19 @@
   .table-wrap table th:first-child, .table-wrap table td:first-child { position: sticky; left: 0; z-index: 5; background: var(--bg-card); box-shadow: 2px 0 6px rgba(0,0,0,0.05); }
   .table-wrap table th:first-child { z-index: 15; }
   
-  /* Heatmap Colors for Matrix */
-  .heat-good { background: rgba(16, 185, 129, 0.08); }
-  .heat-warn { background: rgba(245, 158, 11, 0.08); }
-  .heat-bad { background: rgba(244, 63, 94, 0.08); }
-
+  .heat-good { background: rgba(16, 185, 129, 0.08); } .heat-warn { background: rgba(245, 158, 11, 0.08); } .heat-bad { background: rgba(244, 63, 94, 0.08); }
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
   .pill.pass, .pill.good { background: var(--bg-good); color: var(--color-good); }
   .pill.fail, .pill.bad { background: var(--bg-bad); color: var(--color-bad); }
-  tr.row-overbreak { background-color: var(--bg-bad) !important; }
-  .text-overbreak { color: var(--color-bad) !important; font-weight: 700; }
+  tr.row-overbreak { background-color: var(--bg-bad) !important; } .text-overbreak { color: var(--color-bad) !important; font-weight: 700; }
 
   footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted-dim); font-family: var(--mono); }
 
   @media (max-width: 820px) {
     .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; border: none; }
-    body.sidebar-open .sidebar { transform: translateX(0); }
-    body.sidebar-open .sidebar-overlay { display: block; }
+    body.sidebar-open .sidebar { transform: translateX(0); } body.sidebar-open .sidebar-overlay { display: block; }
     .topbar { padding: 10px 14px; } main { padding: 12px 10px 30px; }
     .pdf-grid-3, .kpi-row, .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
@@ -202,7 +196,7 @@
     .svg-chart-container, .svg-chart-container svg { width: 36px; height: 36px; } .svg-chart-val { font-size: 8.5px; }
     .pdf-score-badge { font-size: 9.5px !important; padding: 3px 6px !important; margin-top: 6px; }
     .predicted-bucket-card { flex-direction: column; align-items: flex-start; gap: 12px; } .predicted-bucket-card .bucket-label { align-self: flex-start; }
-    .pdf-card-wrapper { padding: 16px; border-radius: 12px; } .filterbar select, .filterbar input[type=text] { min-width: 100%; }
+    .pdf-card-wrapper { padding: 16px; border-radius: 12px; } .btn-pdf { width: 100%; } .filterbar select, .filterbar input[type=text] { min-width: 100%; }
   }
 </style>
 </head>
@@ -254,58 +248,28 @@
     <!-- 1. DASHBOARD OVERVIEW (TL VIEW) -->
     <div class="page active" id="page-Dashboard">
       <div class="filterbar">
-        <div class="fgroup">
-          <label>IB Agent Wise Filter</label>
-          <select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select>
-        </div>
-        <div class="fgroup">
-          <label>Audit Party Filter</label>
-          <select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select>
-        </div>
+        <div class="fgroup"><label>IB Agent Wise Filter</label><select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select></div>
+        <div class="fgroup"><label>Audit Party Filter</label><select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
       </div>
-      
-      <section>
-        <div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div>
-        <div class="kpi-row" id="tlKpiGrid"></div>
-      </section>
-
-      <!-- ADVANCED FEATURES ROW (Analytics & Gamification) -->
+      <section><div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row" id="tlKpiGrid"></div></section>
       <section>
         <div class="grid-2">
-          <!-- Root Cause Pie Chart -->
-          <div>
-            <div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div>
-            <div class="chart-container"><canvas id="rootCauseChart"></canvas></div>
-          </div>
-          <!-- Gamification (Zero CE & CFS Champs) -->
-          <div>
-            <div class="section-head"><h2>Gamification & Awards</h2></div>
-            <div class="kpi-row" id="gamificationGrid">
-              <!-- Will be populated by JS -->
-            </div>
-          </div>
+          <div><div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
+          <div><div class="section-head"><h2>Gamification & Awards</h2></div><div class="kpi-row" id="gamificationGrid"></div></div>
         </div>
       </section>
-      
-      <section>
-        <div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div>
-        <div class="grid-4" id="leaderboardGrid"></div>
-      </section>
+      <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
     </div>
 
     <!-- 0. MY PERFORMANCE (AGENT LOGIN VIEW) -->
     <div class="page" id="page-My Performance">
-      <!-- Login State -->
       <div id="agentLoginArea" class="pdf-card-wrapper login-box">
-        <i class="bi bi-person-bounding-box"></i>
-        <h2>Welcome to Agent Portal</h2>
+        <i class="bi bi-person-bounding-box"></i><h2>Welcome to Agent Portal</h2>
         <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">Enter your VDI or Employee ID to view your personalized performance metrics.</p>
         <input type="text" id="agentLoginInput" class="login-input" placeholder="e.g., genex.name or 20301111" onkeypress="if(event.key === 'Enter') handleAgentLogin()">
         <button class="btn-login" onclick="handleAgentLogin()">Access My Dashboard</button>
         <div id="loginError" style="color:var(--color-bad); margin-top:10px; font-weight:600; font-size:12px; display:none;">Agent not found. Try your exact VDI or ID.</div>
       </div>
-      
-      <!-- Logged In State -->
       <div id="agentPersonalArea" style="display:none;">
         <div class="filterbar" style="justify-content: flex-end;">
           <button class="btn-action" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);" onclick="logoutAgent()"><i class="bi bi-box-arrow-right"></i> Logout</button>
@@ -315,10 +279,10 @@
       </div>
     </div>
 
-    <!-- 2. KPI -->
+    <!-- 2. KPI DETAILS -->
     <div class="page" id="page-KPI">
       <div class="filterbar">
-        <div class="fgroup"><label>Select Active Agent</label><select id="agentSelect" onchange="renderAgentCard(this.value, 'perfCardBox')"></select></div>
+        <div class="fgroup"><label>Select Active Agent</label><select id="agentSelect" onchange="renderAgentCardSafe(this.value, 'perfCardBox')"></select></div>
         <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download PDF</button>
       </div>
       <div id="perfCardBox"></div>
@@ -444,26 +408,18 @@
       </div>
     </div>
   </main>
-
   <footer id="footerNote">Albatross Wings — Better Quality, Stronger Performance</footer>
 </div>
 
 <script>
-  let appData = null;
-  let activeTab = 'Dashboard';
-  let currentCardAgentName = '';
-  let rootCauseChartInstance = null; // Chart.js instance tracking
+  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = ''; let rootCauseChartInstance = null;
 
-  /* ===============================
-     THEME & NAVIGATION
-     =============================== */
   function toggleTheme() {
     const body = document.documentElement;
     const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-theme', next);
-    localStorage.setItem('aw_theme', next);
+    body.setAttribute('data-theme', next); localStorage.setItem('aw_theme', next);
     document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-    if(rootCauseChartInstance) renderRootCauseChart(); // Re-render chart to match theme colors
+    if(rootCauseChartInstance) renderRootCauseChart();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -474,33 +430,24 @@
   });
 
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
-
   function navTo(tabName) {
     activeTab = tabName;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
     document.getElementById('page-' + tabName).classList.add('active');
     const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
     if(activeNav) activeNav.classList.add('active');
-    
     document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
-    document.body.classList.remove('sidebar-open');
-    renderView(tabName);
+    document.body.classList.remove('sidebar-open'); renderView(tabName);
   }
 
-  /* ===============================
-     DATA LOADING & MAPPING
-     =============================== */
   async function loadDashboard(manual = false) {
     const btn = document.getElementById('refreshBtn');
     if (manual && btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Refreshing...'; }
-
     try {
       const res = await fetch('./data.json?t=' + new Date().getTime());
       appData = await res.json();
       const dt = new Date(appData.lastUpdated);
-      
       document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
       document.getElementById('liveChip').classList.remove('stale');
       
@@ -513,16 +460,11 @@
           if (sheetKey && appData.sheetTimestamps && appData.sheetTimestamps[sheetKey]) {
               const sheetDt = new Date(appData.sheetTimestamps[sheetKey]);
               timeText.innerText = sheetDt.toLocaleString('en-GB', options);
-          } else {
-              timeText.innerText = globalDateStr;
-          }
+          } else { timeText.innerText = globalDateStr; }
       });
-
       renderView(activeTab);
     } catch (err) {
-      console.error(err);
-      document.getElementById('liveChip').classList.add('stale');
-      document.getElementById('liveMeta').innerText = 'Connection Error';
+      console.error(err); document.getElementById('liveChip').classList.add('stale'); document.getElementById('liveMeta').innerText = 'Connection Error';
     } finally {
       if (manual && btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Refresh now'; }
     }
@@ -530,12 +472,7 @@
 
   setInterval(() => { loadDashboard(false); }, 30000);
 
-  /* ===============================
-     UTILS: UI BADGES & CHARTS
-     =============================== */
-  function renderBadgeCls(scoreStr, defClass) {
-      return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass;
-  }
+  function renderBadgeCls(scoreStr, defClass) { return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass; }
 
   function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null) {
     let chartHtml = '';
@@ -548,18 +485,9 @@
         if (badgeStatus === 'missed' || valClass.includes('danger')) strokeVar = 'var(--color-bad)';
         if (badgeStatus === 'warn' || valClass.includes('warning')) strokeVar = 'var(--color-warn)';
         if (valClass.includes('purple')) strokeVar = '#8b5cf6';
-
         let radius = 18; let circ = 2 * Math.PI * radius; let offset = circ - (drawP / 100) * circ;
         chartHtml = `
-          <div class="kpi-chart-col">
-            <div class="svg-chart-container">
-              <svg viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle>
-                <circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle>
-              </svg>
-              <div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div>
-            </div>
-          </div>`;
+          <div class="kpi-chart-col"><div class="svg-chart-container"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle><circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle></svg><div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div></div></div>`;
       }
     }
     return `
@@ -570,135 +498,72 @@
     </div>`;
   }
 
-  /* ===============================
-     EXPORT & SORT FEATURES (TL VIEW)
-     =============================== */
   function exportTableToCSV(tableId, filename) {
-    const table = document.getElementById(tableId);
-    if(!table) return;
-    let csv = [];
-    const rows = table.querySelectorAll("tr");
-    
+    const table = document.getElementById(tableId); if(!table) return;
+    let csv = []; const rows = table.querySelectorAll("tr");
     for (let i = 0; i < rows.length; i++) {
         let row = [], cols = rows[i].querySelectorAll("td, th");
         for (let j = 0; j < cols.length; j++) {
             let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
-            // Wrap in quotes if it contains comma
-            if(data.includes(",")) data = `"${data}"`;
-            row.push(data);
+            if(data.includes(",")) data = `"${data}"`; row.push(data);
         }
         csv.push(row.join(","));
     }
     const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-    const downloadLink = document.createElement("a");
-    downloadLink.download = filename;
-    downloadLink.href = window.URL.createObjectURL(csvFile);
-    downloadLink.style.display = "none";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    const downloadLink = document.createElement("a"); downloadLink.download = filename; downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none"; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
   }
 
   function sortTable(tableId, n, isNumeric=false) {
     const table = document.getElementById(tableId);
-    let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    switching = true;
-    dir = "desc"; // Default to desc for performance metrics
-    
+    let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0; switching = true; dir = "desc";
     while (switching) {
-      switching = false;
-      rows = table.rows;
+      switching = false; rows = table.rows;
       for (i = 1; i < (rows.length - 1); i++) {
-        shouldSwitch = false;
-        x = rows[i].getElementsByTagName("TD")[n];
-        y = rows[i + 1].getElementsByTagName("TD")[n];
+        shouldSwitch = false; x = rows[i].getElementsByTagName("TD")[n]; y = rows[i + 1].getElementsByTagName("TD")[n];
         if(!x || !y) continue;
-        
-        let xVal = x.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
-        let yVal = y.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
-        
+        let xVal = x.innerText.toLowerCase().replace(/[^0-9.\-]/g, ''); let yVal = y.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
         if(isNumeric) {
-            xVal = parseFloat(xVal) || 0;
-            yVal = parseFloat(yVal) || 0;
-            if (dir === "asc") { if (xVal > yVal) { shouldSwitch = true; break; } } 
-            else if (dir === "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+            xVal = parseFloat(xVal) || 0; yVal = parseFloat(yVal) || 0;
+            if (dir === "asc") { if (xVal > yVal) { shouldSwitch = true; break; } } else if (dir === "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
         } else {
-            if (dir === "asc") { if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) { shouldSwitch = true; break; } } 
-            else if (dir === "desc") { if (x.innerText.toLowerCase() < y.innerText.toLowerCase()) { shouldSwitch = true; break; } }
+            if (dir === "asc") { if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) { shouldSwitch = true; break; } } else if (dir === "desc") { if (x.innerText.toLowerCase() < y.innerText.toLowerCase()) { shouldSwitch = true; break; } }
         }
       }
-      if (shouldSwitch) {
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
-        switchcount ++;
-      } else {
-        if (switchcount === 0 && dir === "desc") { dir = "asc"; switching = true; }
-      }
+      if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount ++; } 
+      else { if (switchcount === 0 && dir === "desc") { dir = "asc"; switching = true; } }
     }
   }
 
-  /* ===============================
-     AGENT LOGIN & PERSONAL PORTAL
-     =============================== */
   function handleAgentLogin() {
     const input = document.getElementById('agentLoginInput').value.trim().toLowerCase();
     if(!input || !appData) return;
-    
     const activeAgents = appData.sheets['Alignment'] || [];
-    const agent = activeAgents.find(a => 
-      String(a['VDI ID']||'').toLowerCase() === input || 
-      String(a['ID']||'').toLowerCase() === input || 
-      String(a['Name']||'').toLowerCase() === input
-    );
-
+    const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
-      document.getElementById('loginError').style.display = 'none';
-      document.getElementById('agentLoginArea').style.display = 'none';
-      document.getElementById('agentPersonalArea').style.display = 'block';
-      renderAgentCard(agent['Name'], 'myPerfCardBox', true);
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
+      document.getElementById('loginError').style.display = 'none'; document.getElementById('agentLoginArea').style.display = 'none'; document.getElementById('agentPersonalArea').style.display = 'block';
+      renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true);
+    } else { document.getElementById('loginError').style.display = 'block'; }
   }
 
   function logoutAgent() {
-    document.getElementById('agentLoginInput').value = '';
-    document.getElementById('agentLoginArea').style.display = 'block';
-    document.getElementById('agentPersonalArea').style.display = 'none';
-    document.getElementById('myPerfCardBox').innerHTML = '';
+    document.getElementById('agentLoginInput').value = ''; document.getElementById('agentLoginArea').style.display = 'block'; document.getElementById('agentPersonalArea').style.display = 'none'; document.getElementById('myPerfCardBox').innerHTML = '';
   }
 
-  // Interactive Simulator Math
   window.updateSimulator = function(agentName) {
     if(!appData) return;
-    const ahtVal = document.getElementById('simAht').value;
-    const fcrVal = document.getElementById('simFcr').value;
-    const empVal = document.getElementById('simEmp').value;
-    
-    document.getElementById('lblAht').innerText = ahtVal + 's';
-    document.getElementById('lblFcr').innerText = fcrVal + '%';
-    document.getElementById('lblEmp').innerText = empVal + '%';
-
-    // Mock logic for Bucket shift based on typical standard (A>3.6, B>2.8, C>2.0)
-    // We'll calculate a mock Base Score
+    const ahtVal = document.getElementById('simAht').value; const fcrVal = document.getElementById('simFcr').value; const empVal = document.getElementById('simEmp').value;
+    document.getElementById('lblAht').innerText = ahtVal + 's'; document.getElementById('lblFcr').innerText = fcrVal + '%'; document.getElementById('lblEmp').innerText = empVal + '%';
     let mockScore = 1.0; 
     if(ahtVal <= 170) mockScore += 0.8; else if(ahtVal <= 180) mockScore += 0.4;
     if(fcrVal >= 93) mockScore += 1.0; else if(fcrVal >= 90) mockScore += 0.5;
     if(empVal >= 87.5) mockScore += 1.0; else if(empVal >= 80) mockScore += 0.5;
-    // Add constant 0.5 for other metrics assuming average performance
     mockScore += 0.5; 
-
     let predictedBucket = 'D';
-    if(mockScore >= 3.6) predictedBucket = 'A (Excellent)';
-    else if(mockScore >= 2.8) predictedBucket = 'B (Good)';
-    else if(mockScore >= 2.0) predictedBucket = 'C (Average)';
-
+    if(mockScore >= 3.6) predictedBucket = 'A (Excellent)'; else if(mockScore >= 2.8) predictedBucket = 'B (Good)'; else if(mockScore >= 2.0) predictedBucket = 'C (Average)';
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
   }
 
-  /* ===============================
-     VIEW ROUTING & RENDERING
-     =============================== */
   function renderDashboardKpis() {
     if (!appData) return;
     const agentSelect = document.getElementById('dashAgentFilter');
@@ -707,11 +572,9 @@
       const agentNames = [...new Set(allCalls.map(c => c.agentName).filter(n => n && n !== 'N/A'))].sort();
       agentNames.forEach(name => { agentSelect.appendChild(new Option(name, name)); });
     }
-
     const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
     const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
     const tl = appData.tlSummary || {};
-
     let totalAudit = tl.totalAudit || 0, totalPass = tl.totalPass || 0, totalFail = tl.totalFail || 0;
     let passPercent = tl.passPercent || '0%', failPercent = tl.failPercent || '0%';
     let empathyPercent = tl.empathyPercent || '0%', cfsVal = tl.teamCfs || 'N/A', ahtVal = tl.aht || 'N/A';
@@ -721,28 +584,19 @@
     if (selectedAgent || selectedParty) {
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const filteredCalls = allCalls.filter(c => {
-        const agentName = String(c.agentName || '').toLowerCase();
-        const vdi = String(c.vdiId || '').toLowerCase();
-        const party = String(c.auditParty || '').toLowerCase();
-        return (!selectedAgent || agentName === selectedAgent || vdi === selectedAgent) && (!selectedParty || party.includes(selectedParty));
+        const matchAgent = !selectedAgent || String(c.agentName).toLowerCase() === selectedAgent || String(c.vdiId).toLowerCase() === selectedAgent;
+        const matchParty = !selectedParty || String(c.auditParty).toLowerCase().includes(selectedParty);
+        return matchAgent && matchParty;
       });
-
-      totalAudit = filteredCalls.length; totalPass = 0; totalFail = 0; let ceFails = 0;
-      filteredCalls.forEach(c => {
-        const resVal = String(c.result || '').trim().toLowerCase();
-        if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++;
-      });
-
-      passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0;
-      failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
+      totalAudit = filteredCalls.length; totalPass = 0; totalFail = 0;
+      filteredCalls.forEach(c => { const resVal = String(c.result).toLowerCase(); if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++; });
+      passPercentVal = totalAudit > 0 ? ((totalPass / totalAudit) * 100) : 0; failPercentVal = totalAudit > 0 ? ((totalFail / totalAudit) * 100) : 0;
       passPercent = passPercentVal.toFixed(1) + '%'; failPercent = failPercentVal.toFixed(1) + '%';
-
       let empPassSum = 0, empFailSum = 0;
-      filteredCalls.forEach(c => { empPassSum += (parseInt(c.empPass) || 0); empFailSum += (parseInt(c.empFail) || 0); });
+      filteredCalls.forEach(c => { empPassSum += parseInt(c.empPass) || 0; empFailSum += parseInt(c.empFail) || 0; });
       if (empPassSum === 0 && empFailSum === 0) {
-        const perfList = appData.sheets['KPI'] || [];
-        const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
-        relevantPerf.forEach(a => { empPassSum += (parseInt(a.empathyPassSum) || 0); empFailSum += (parseInt(a.empathyFailSum) || 0); });
+        const perfList = appData.sheets['KPI'] || []; const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
+        relevantPerf.forEach(a => { empPassSum += parseInt(a.empathyPassSum) || 0; empFailSum += parseInt(a.empathyFailSum) || 0; });
       }
       empathyPercent = (empPassSum + empFailSum) > 0 ? ((empPassSum / (empPassSum + empFailSum)) * 100).toFixed(1) + '%' : '0.0%';
     }
@@ -759,260 +613,135 @@
         ${renderCardHtml("Team FCR %", fcrVal, "First Call Resolution", "Metric", "delivered", "FCR", "text-success", fcrVal)}
         ${renderCardHtml("Complaint Valid %", compPct, "Valid Complaints Rate", "Metric", "warn", "Complaint", "text-warning", compPct)}
         ${renderCardHtml("SD Count", sdCount, "Service Delivery", "Metric", "delivered", "SD", "text-success")}
-        ${renderCardHtml("Team DKB %", dkbPct, "Attendance %", "Metric", "nokpi", "DKB", "text-info", dkbPct)}
-      `;
+        ${renderCardHtml("Team DKB %", dkbPct, "Attendance %", "Metric", "nokpi", "DKB", "text-info", dkbPct)}`;
     }
   }
 
   function renderRootCauseChart() {
     if(!appData) return;
     const calls = appData.sheets['Audited Call Details'] || [];
-    
-    // Aggregate Fail Topics (CE Topics)
     const topicCounts = {};
-    calls.forEach(c => {
-        const res = String(c.result || '').toLowerCase();
-        if(res === 'fail') {
-            const topic = c.failTopic && c.failTopic !== 'None' ? c.failTopic : 'Other Issue';
-            topicCounts[topic] = (topicCounts[topic] || 0) + 1;
-        }
-    });
-
-    const labels = Object.keys(topicCounts);
-    const dataVals = Object.values(topicCounts);
-    
-    if(labels.length === 0) {
-        labels.push("No Fails Found");
-        dataVals.push(1);
-    }
-
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#94a3b8' : '#475569';
-    const colors = isDark 
-        ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6'] 
-        : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1'];
-
-    const ctx = document.getElementById('rootCauseChart');
-    if(!ctx) return;
-
-    if (rootCauseChartInstance) { rootCauseChartInstance.destroy(); }
-
-    rootCauseChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: dataVals,
-                backgroundColor: colors,
-                borderWidth: isDark ? 2 : 1,
-                borderColor: isDark ? '#0b0f19' : '#fff'
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 11 } } }
-            }
-        }
-    });
+    calls.forEach(c => { if(String(c.result).toLowerCase() === 'fail') { const topic = c.failTopic && c.failTopic !== 'None' ? c.failTopic : 'Other Issue'; topicCounts[topic] = (topicCounts[topic] || 0) + 1; } });
+    const labels = Object.keys(topicCounts); const dataVals = Object.values(topicCounts);
+    if(labels.length === 0) { labels.push("No Fails Found"); dataVals.push(1); }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#94a3b8' : '#475569';
+    const colors = isDark ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6'] : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1'];
+    const ctx = document.getElementById('rootCauseChart'); if(!ctx) return;
+    if (rootCauseChartInstance) rootCauseChartInstance.destroy();
+    rootCauseChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataVals, backgroundColor: colors, borderWidth: isDark ? 2 : 1, borderColor: isDark ? '#0b0f19' : '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 11 } } } } } });
   }
 
   function renderGamification() {
     if(!appData) return;
-    const audits = appData.sheets['Audit Details']?.list || [];
-    const kpi = appData.sheets['KPI'] || [];
-    
-    // 1. Zero CE Club
+    const audits = appData.sheets['Audit Details']?.list || []; const kpi = appData.sheets['KPI'] || [];
     const zeroCeAgents = audits.filter(a => a.totalAudits > 0 && a.totalFail === 0);
-    const zeroList = zeroCeAgents.length > 0 
-        ? zeroCeAgents.map(a => `<li>${a.agentName} <span style="opacity:0.6">(${a.totalAudits} audits)</span></li>`).join('') 
-        : "<li>No agents found yet</li>";
-
-    // 2. CFS Champions
+    const zeroList = zeroCeAgents.length > 0 ? zeroCeAgents.map(a => `<li>${a.agentName} <span style="opacity:0.6">(${a.totalAudits} audits)</span></li>`).join('') : "<li>No agents found yet</li>";
     const topCfs = [...kpi].filter(a => !isNaN(a.cfsRaw) && a.cfsRaw >= 90).sort((a,b) => b.cfsRaw - a.cfsRaw).slice(0, 3);
-    const cfsList = topCfs.length > 0
-        ? topCfs.map(a => `<li>${a.name} <span class="text-success fw-bold">(${a.cfsDisplay})</span></li>`).join('')
-        : "<li>No agents met target</li>";
-
-    document.getElementById('gamificationGrid').innerHTML = `
-        <div class="lb-card" style="border: 1px solid var(--color-warn);">
-          <div class="pname"><i class="bi bi-shield-fill-check text-warning"></i> ZERO CE CLUB (100% Pass)</div>
-          <ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${zeroList}</ul>
-        </div>
-        <div class="lb-card" style="border: 1px solid var(--color-blue);">
-          <div class="pname"><i class="bi bi-star-fill text-info"></i> CFS CHAMPIONS (>= 90%)</div>
-          <ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${cfsList}</ul>
-        </div>
-    `;
+    const cfsList = topCfs.length > 0 ? topCfs.map(a => `<li>${a.name} <span class="text-success fw-bold">(${a.cfsDisplay})</span></li>`).join('') : "<li>No agents met target</li>";
+    document.getElementById('gamificationGrid').innerHTML = `<div class="lb-card" style="border: 1px solid var(--color-warn);"><div class="pname"><i class="bi bi-shield-fill-check text-warning"></i> ZERO CE CLUB (100% Pass)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${zeroList}</ul></div><div class="lb-card" style="border: 1px solid var(--color-blue);"><div class="pname"><i class="bi bi-star-fill text-info"></i> CFS CHAMPIONS (>= 90%)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${cfsList}</ul></div>`;
   }
 
   function renderView(tab) {
     if (!appData) return;
-
     if (tab === 'Dashboard') {
-      renderDashboardKpis();
-      renderRootCauseChart();
-      renderGamification();
-      
+      renderDashboardKpis(); renderRootCauseChart(); renderGamification();
       const lb = appData.leaderboards || {};
       document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>
-          ${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}
-          </tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>
-          ${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}
-          </tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>
-          ${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}
-          </tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>
-          ${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}
-          </tbody></table></div></div>
-      `;
+        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}</tbody></table></div></div>`;
       return;
     }
 
     if (tab === 'KPI') {
       const list = appData.sheets['KPI'] || [];
       const select = document.getElementById('agentSelect');
+      if(list.length === 0) { document.getElementById('perfCardBox').innerHTML = `<div style="padding:20px; text-align:center; color:var(--color-bad);">No KPI Data Generated by System yet.</div>`; return; }
       const prevVal = select.value;
       select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
       if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
-      if (list.length > 0) renderAgentCard(select.value || list[0].name, 'perfCardBox');
+      renderAgentCardSafe(select.value || list[0].name, 'perfCardBox');
       return;
     }
 
-    // Other Tabs Logic...
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
-      const allCalls = appData.sheets['Audited Call Details'] || [];
-      const activeAgents = appData.sheets['Alignment'] || []; 
+      const allCalls = appData.sheets['Audited Call Details'] || []; const activeAgents = appData.sheets['Alignment'] || []; 
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
-
-      let auditDetailsList = [];
-      let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
-
+      let auditDetailsList = []; let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
       activeAgents.forEach(agent => {
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase(); const name = String(agent['Name'] || '').trim().toLowerCase();
         const agentAudits = filteredAudits.filter(r => (vdi && String(r.vdiId||'').toLowerCase()===vdi) || (name && String(r.agentName||'').toLowerCase()===name));
-        const totalAudits = agentAudits.length;
-        const passes = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'pass').length;
-        const fails = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'fail').length;
+        const totalAudits = agentAudits.length; const passes = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'pass').length; const fails = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'fail').length;
         const ceFails = agentAudits.filter(r => { const ceVal = String(r.criticalError||'').toLowerCase(); return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail'); }).length;
         const cePercent = totalAudits > 0 ? ((ceFails / totalAudits) * 100).toFixed(1) + '%' : '0.0%';
-
-        let empPassSum = 0, empFailSum = 0;
-        agentAudits.forEach(call => { empPassSum += parseInt(call.empPass || 0) || 0; empFailSum += parseInt(call.empFail || 0) || 0; });
+        let empPassSum = 0, empFailSum = 0; agentAudits.forEach(call => { empPassSum += parseInt(call.empPass || 0) || 0; empFailSum += parseInt(call.empFail || 0) || 0; });
         const empTotal = empPassSum + empFailSum; const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
-
-        if (totalAudits > 0) {
-          if (fails === 0) failFreeCountAgent++; else failCountAgent++;
-          if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++;
-        }
-
+        if (totalAudits > 0) { if (fails === 0) failFreeCountAgent++; else failCountAgent++; if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++; }
         auditDetailsList.push({ agentName: agent['Name'], totalAudits: totalAudits, totalPass: passes, totalFail: fails, cePercent: cePercent, empathyPass: empPassSum, empathyFail: empFailSum, empathyPassPercent: empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%' });
       });
-
       const tot = activeAgents.length;
-      document.getElementById('auditSummaryKpis').innerHTML = `
-        ${renderCardHtml("Fail Free", `${failFreeCountAgent} / ${tot}`, "100% Pass Agents", "Count", "delivered", "Pass", "text-success", (failFreeCountAgent/tot)*100)}
-        ${renderCardHtml("Fail Found", `${failCountAgent} / ${tot}`, "Agents with Fails", "Count", "missed", "Fail", "text-danger", (failCountAgent/tot)*100)}
-        ${renderCardHtml("Empathy Met", `${empathyMetCount} / ${tot}`, "Target >= 87.5%", "Count", "delivered", "Good", "text-success", (empathyMetCount/tot)*100)}
-        ${renderCardHtml("Empathy Below", `${empathyBelowTargetAgent} / ${tot}`, "Target < 87.5%", "Count", "warn", "Warning", "text-warning", (empathyBelowTargetAgent/tot)*100)}
-      `;
-
-      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => {
-        const ceNum = parseFloat(String(a.cePercent).replace('%', ''));
-        return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.totalAudits}</td><td class="num text-success">${a.totalPass}</td><td class="num text-danger">${a.totalFail}</td><td class="num ${isNaN(ceNum) || ceNum === 0 ? 'text-success' : 'text-danger'} fw-bold">${a.cePercent}</td><td class="num text-primary">${a.empathyPass}</td><td class="num text-danger">${a.empathyFail}</td><td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td></tr>`;
-      }).join('');
+      document.getElementById('auditSummaryKpis').innerHTML = `${renderCardHtml("Fail Free", `${failFreeCountAgent} / ${tot}`, "100% Pass Agents", "Count", "delivered", "Pass", "text-success", (failFreeCountAgent/tot)*100)}${renderCardHtml("Fail Found", `${failCountAgent} / ${tot}`, "Agents with Fails", "Count", "missed", "Fail", "text-danger", (failCountAgent/tot)*100)}${renderCardHtml("Empathy Met", `${empathyMetCount} / ${tot}`, "Target >= 87.5%", "Count", "delivered", "Good", "text-success", (empathyMetCount/tot)*100)}${renderCardHtml("Empathy Below", `${empathyBelowTargetAgent} / ${tot}`, "Target < 87.5%", "Count", "warn", "Warning", "text-warning", (empathyBelowTargetAgent/tot)*100)}`;
+      document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => { const ceNum = parseFloat(String(a.cePercent).replace('%', '')); return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.totalAudits}</td><td class="num text-success">${a.totalPass}</td><td class="num text-danger">${a.totalFail}</td><td class="num ${isNaN(ceNum) || ceNum === 0 ? 'text-success' : 'text-danger'} fw-bold">${a.cePercent}</td><td class="num text-primary">${a.empathyPass}</td><td class="num text-danger">${a.empathyFail}</td><td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td></tr>`; }).join('');
       return;
     }
 
     if (tab === 'Parameter wise Empathy') {
       const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
       const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
-
       let kpiHtml = '';
-      headers.forEach(p => {
-        let valStr = emp.teamAvg[p] || 'N/A';
-        let valNum = parseFloat(String(valStr).replace('%', ''));
-        let isGood = !isNaN(valNum) && valNum >= 87.5;
-        kpiHtml += renderCardHtml(p, valStr, "Team Average Pass %", "Target: >=87.5%", renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'), valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'), isGood ? 'text-success' : 'text-danger', valStr !== 'N/A' ? valStr : null);
-      });
+      headers.forEach(p => { let valStr = emp.teamAvg[p] || 'N/A'; let valNum = parseFloat(String(valStr).replace('%', '')); let isGood = !isNaN(valNum) && valNum >= 87.5; kpiHtml += renderCardHtml(p, valStr, "Team Average Pass %", "Target: >=87.5%", renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'), valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'), isGood ? 'text-success' : 'text-danger', valStr !== 'N/A' ? valStr : null); });
       document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
-
       document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
-      
-      document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => {
-        return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>
-          ${headers.map(h => {
-            let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', ''));
-            let heatClass = ''; if (!isNaN(numVal)) { heatClass = numVal < 87.5 ? 'heat-bad text-danger fw-bold' : 'heat-good text-success fw-bold'; }
-            return `<td class="num ${heatClass}">${cellVal}</td>`;
-          }).join('')}</tr>`;
-      }).join('');
+      document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => { return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>${headers.map(h => { let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', '')); let heatClass = ''; if (!isNaN(numVal)) { heatClass = numVal < 87.5 ? 'heat-bad text-danger fw-bold' : 'heat-good text-success fw-bold'; } return `<td class="num ${heatClass}">${cellVal}</td>`; }).join('')}</tr>`; }).join('');
       return;
     }
 
     if (tab === 'FCR, Quiz & SD') {
-      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] };
-      const tot = fcrSd.summary.totalAgents || fcrSd.list.length;
-      document.getElementById('fcrSdKpis').innerHTML = `
-        ${renderCardHtml("FCR Target Meet", `${fcrSd.summary.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrSd.summary.fcrMeet92Count/tot)*100)}
-        ${renderCardHtml("Service Delivery", `${fcrSd.summary.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (fcrSd.summary.agentsWithSdCount/tot)*100)}
-      `;
-      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => {
-        let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0;
-        return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`;
-      }).join('');
+      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] }; const tot = fcrSd.summary.totalAgents || fcrSd.list.length;
+      document.getElementById('fcrSdKpis').innerHTML = `${renderCardHtml("FCR Target Meet", `${fcrSd.summary.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrSd.summary.fcrMeet92Count/tot)*100)}${renderCardHtml("Service Delivery", `${fcrSd.summary.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (fcrSd.summary.agentsWithSdCount/tot)*100)}`;
+      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => { let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0; return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`; }).join('');
       return;
     }
 
     if (tab === 'Complaint Escalation and DKB %') {
-      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const tot = compDkb.summary.totalAgents || compDkb.list.length;
-      document.getElementById('compDkbKpis').innerHTML = `
-        ${renderCardHtml("Complaint Target", `${compDkb.summary.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compDkb.summary.compMetCount/tot)*100)}
-        ${renderCardHtml("DKB Target", `${compDkb.summary.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (compDkb.summary.dkbMetCount/tot)*100)}
-      `;
+      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] }; const tot = compDkb.summary.totalAgents || compDkb.list.length;
+      document.getElementById('compDkbKpis').innerHTML = `${renderCardHtml("Complaint Target", `${compDkb.summary.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compDkb.summary.compMetCount/tot)*100)}${renderCardHtml("DKB Target", `${compDkb.summary.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (compDkb.summary.dkbMetCount/tot)*100)}`;
       document.getElementById('complaintTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
       document.getElementById('dkbTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'Lag Adherence & Over Break') {
-      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const tot = lagAdh.summary.totalAgents || lagAdh.list.length;
-      document.getElementById('lagAdhKpis').innerHTML = `
-        ${renderCardHtml("Over Break Target", `${lagAdh.summary.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (lagAdh.summary.overBreakZeroCount/tot)*100)}
-        ${renderCardHtml("Lag Time Target", `${lagAdh.summary.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagAdh.summary.lagZeroCount/tot)*100)}
-        ${renderCardHtml("Adherence Target", `${lagAdh.summary.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (lagAdh.summary.adhMetCount/tot)*100)}
-      `;
+      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] }; const tot = lagAdh.summary.totalAgents || lagAdh.list.length;
+      document.getElementById('lagAdhKpis').innerHTML = `${renderCardHtml("Over Break Target", `${lagAdh.summary.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (lagAdh.summary.overBreakZeroCount/tot)*100)}${renderCardHtml("Lag Time Target", `${lagAdh.summary.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagAdh.summary.lagZeroCount/tot)*100)}${renderCardHtml("Adherence Target", `${lagAdh.summary.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (lagAdh.summary.adhMetCount/tot)*100)}`;
       document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'AHT & CFS') {
-      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const tot = ahtCfs.summary.totalAgents || ahtCfs.list.length;
-      document.getElementById('ahtCfsKpis').innerHTML = `
-        ${renderCardHtml("AHT Target Meet", `${ahtCfs.summary.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.ahtMetCount/tot)*100)}
-        ${renderCardHtml("CFS Target Meet", `${ahtCfs.summary.cfsMetCount || 0} / ${ahtCfs.summary.validCfsAgentCount || tot}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.cfsMetCount/(ahtCfs.summary.validCfsAgentCount||tot))*100)}
-      `;
+      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] }; const tot = ahtCfs.summary.totalAgents || ahtCfs.list.length; const validCfsCount = ahtCfs.summary.validCfsAgentCount !== undefined ? ahtCfs.summary.validCfsAgentCount : tot;
+      document.getElementById('ahtCfsKpis').innerHTML = `${renderCardHtml("AHT Target Meet", `${ahtCfs.summary.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.ahtMetCount/tot)*100)}${renderCardHtml("CFS Target Meet", `${ahtCfs.summary.cfsMetCount || 0} / ${validCfsCount}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.cfsMetCount/(validCfsCount||tot))*100)}`;
       document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
       return;
     }
   }
 
+  // WRAPPER FUNCTION TO PREVENT CRASHES IF AGENT DATA IS INCOMPLETE
+  function renderAgentCardSafe(agentName, containerId = 'perfCardBox', isAgentPortal = false) {
+      try {
+          renderAgentCard(agentName, containerId, isAgentPortal);
+      } catch (err) {
+          console.error("Card Render Error:", err);
+          document.getElementById(containerId).innerHTML = `<div style="padding:24px; text-align:center; background:var(--bg-bad); color:var(--color-bad); border-radius:12px; font-weight:700;">Error displaying agent data: ${err.message}. The system is skipping missing data.</div>`;
+      }
+  }
+
   function renderAgentCard(agentName, containerId = 'perfCardBox', isAgentPortal = false) {
     currentCardAgentName = agentName;
     const list = appData.sheets['KPI'] || [];
-    const agent = list.find(a => a.name === agentName);
+    const agent = list.find(a => String(a.name) === String(agentName));
     const box = document.getElementById(containerId);
 
     if (!agent) { box.innerHTML = ''; return; }
@@ -1023,33 +752,27 @@
     const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct).replace('%', ''));
     
     let smartTips = [];
-    if (!isNaN(ahtNum) && ahtNum > 170) {
-        smartTips.push("AHT is high. Tip: Use shortcuts and macros in the CRM tool to reduce hold time.");
-    }
-    if (agent.failCount > 0) {
-        smartTips.push(`Critical Error found. Tip: Check the exact fail reason in Audit logs to avoid repeating.`);
-    }
-    if (!isNaN(empPctNum) && empPctNum < 87.5) {
-        smartTips.push("Empathy below target. Tip: Focus on Warm Greetings and Acknowledgment during calls.");
-    }
-    if (!isNaN(fcrPctNum) && fcrPctNum < 93.0) {
-        smartTips.push("FCR needs improvement. Tip: Ensure complete resolution on the first attempt before closing tickets.");
-    }
-    if (smartTips.length === 0) {
-        smartTips.push("Great Job! Maintain this consistency.");
-        smartTips.push("You are hitting targets, keep mentoring peers.");
-    }
+    if (!isNaN(ahtNum) && ahtNum > 170) { smartTips.push("AHT is high. Tip: Use shortcuts and macros in the CRM tool to reduce hold time."); }
+    if (agent.failCount > 0) { smartTips.push(`Critical Error found. Tip: Check the exact fail reason in Audit logs to avoid repeating.`); }
+    if (!isNaN(empPctNum) && empPctNum < 87.5) { smartTips.push("Empathy below target. Tip: Focus on Warm Greetings and Acknowledgment during calls."); }
+    if (!isNaN(fcrPctNum) && fcrPctNum < 93.0) { smartTips.push("FCR needs improvement. Tip: Ensure complete resolution on the first attempt before closing tickets."); }
+    if (smartTips.length === 0) { smartTips.push("Great Job! Maintain this consistency."); smartTips.push("You are hitting targets, keep mentoring peers."); }
+    smartTips = smartTips.slice(0, 3);
 
-    // --- PEER BENCHMARKING (PERCENTILE CALC) ---
+    // --- PEER BENCHMARKING ---
     const allAgentsAHT = list.filter(a=>!isNaN(parseFloat(String(a.aht).replace('s','')))).map(a=>parseFloat(String(a.aht).replace('s',''))).sort((a,b)=>a-b);
     let ahtRankText = '';
     if(allAgentsAHT.length > 0 && !isNaN(ahtNum)) {
         let rank = allAgentsAHT.indexOf(ahtNum);
-        let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100);
-        ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue);"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`;
+        if(rank >= 0) {
+            let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100);
+            ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue); font-weight:700;"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`;
+        }
     }
 
     const M = agent.met || {}, T = agent.targets || {};
+    const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
+
     const isFailMet = (M.ce != null) ? M.ce : (!isNaN(parseFloat(agent.auditFailPct)) && parseFloat(agent.auditFailPct) === 0);
     const isEmpMet = (M.emp != null) ? M.emp : (!isNaN(empPctNum) && empPctNum >= 87.5);
     const isAhtMet = (M.aht != null) ? M.aht : (!isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0);
@@ -1065,8 +788,8 @@
     else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good';
     else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
 
-    const fmtScore = (s) => (s === 'NO KPI' ? 'NO KPI' : (s !== undefined && s !== null ? s.toFixed(2) : '0.00'));
-    const fmtBp = (s) => (s === 'NO KPI' ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
+    const fmtScore = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? s.toFixed(2) : '0.00'));
+    const fmtBp = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
     // WHAT-IF SIMULATOR HTML (Only for Agent Portal)
     let simulatorHtml = '';
@@ -1075,26 +798,10 @@
         <div class="simulator-panel pdf-card-wrapper" style="margin-top: 15px; background:var(--bg-main);">
             <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
             <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
-            
-            <div class="sim-row">
-                <div class="sim-label">AHT (s)</div>
-                <input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}')">
-                <div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div>
-            </div>
-            <div class="sim-row">
-                <div class="sim-label">FCR %</div>
-                <input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}')">
-                <div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div>
-            </div>
-            <div class="sim-row">
-                <div class="sim-label">Empathy %</div>
-                <input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}')">
-                <div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div>
-            </div>
-            
-            <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">
-                Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong>
-            </div>
+            <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
+            <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
+            <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong></div>
         </div>`;
     }
 
@@ -1102,28 +809,33 @@
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
           <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId} | ID: ${agent.id} | Supervisor: ${agent.supervisor} | Tenure: ${agent.tenure}</div>
+          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId || 'N/A'} | ID: ${agent.id || 'N/A'} | Supervisor: ${agent.supervisor || 'N/A'} | Tenure: ${agent.tenure || 'N/A'}</div>
         </div>
 
         <div class="pdf-grid-3">
-          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct, `Pass: ${agent.passCount}, Fail: ${agent.failCount}`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct)}
+          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct)}
           ${renderCardHtml("Valid Complaint", agent.validCompCount || 0, "Valid complaints", `KPI: ${fmtScore(agent.score_validComplaint)}`, renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found', agent.validCompCount === 0 ? 'text-success' : 'text-danger')}
-          ${renderCardHtml("Empathy Pass %", agent.empathyPct, `Pass: ${agent.empathyPassSum} | Fail: ${agent.empathyFailSum}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct)}
-          
-          <!-- Includes Benchmarking -->
+          ${renderCardHtml("Empathy Pass %", agent.empathyPct || '0%', `Pass: ${agent.empathyPassSum || 0} | Fail: ${agent.empathyFailSum || 0}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct)}
           ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent)}
-          ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'delivered' : 'missed'), (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'Target Meet' : 'Below Target', (M.fcr != null) ? M.fcr : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0) ? 'text-success' : 'text-danger', agent.fcrPercent || agent.fcrPct)}
+          ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? (M.fcr ? 'delivered' : 'missed') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'delivered' : 'missed')), (M.fcr != null) ? (M.fcr ? 'Target Meet' : 'Below Target') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'Target Meet' : 'Below Target'), (M.fcr != null) ? (M.fcr ? 'text-success' : 'text-danger') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'text-success' : 'text-danger'), agent.fcrPercent || agent.fcrPct)}
           
           <div class="pdf-kpi-card w-100" style="position:relative;">
              <div class="kpi-card-header"><div class="pdf-kpi-title">AHT (Seconds)</div><span class="pdf-badge ${renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${isAhtMet ? 'Target Meet' : 'Exceeds'}</span></div>
-             <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht}</div><div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : '<=170s'}</div>${isAgentPortal ? ahtRankText : ''}</div></div>
+             <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht || 'N/A'}</div><div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : '<=170s'}</div>${isAgentPortal ? ahtRankText : ''}</div></div>
              <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
           </div>
 
-          ${renderCardHtml("Adherence %", agent.adherencePct, `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
-          ${renderCardHtml("DKB % (Attendance)", agent.dkbPct, `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
-          ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct, `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
+          <!-- RESTORED 3 MISSING CARDS -->
+          ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
+          ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance)}
+          ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger')}
           
+          <!-- BONUS CARDS -->
+          ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
+          ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
+          ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
+          
+          <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
             <div>
               <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
@@ -1133,6 +845,7 @@
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
 
+          <!-- NEED TO FOCUS CARD -->
           <div class="pdf-kpi-card focus-card">
             <div class="pdf-kpi-title"><i class="bi bi-lightning-charge-fill"></i> Smart Action Plan</div>
             <ul class="focus-list">
