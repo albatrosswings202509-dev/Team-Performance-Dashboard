@@ -99,7 +99,6 @@
   .lb-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; box-shadow: var(--shadow-card); transition: transform 0.2s ease; }
   .lb-card:hover { transform: translateY(-2px); border-color: var(--color-blue); box-shadow: var(--shadow-hover); }
   .lb-card .pname { font-size: 12px; font-weight: 800; margin-bottom: 10px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-  .award-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-bottom: 10px; display: inline-block; }
 
   /* KPI CARD SYSTEM */
   .pdf-card-wrapper { background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); max-width: 1000px; margin: 10px auto; box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15); animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -139,11 +138,10 @@
   .login-input:focus { border-color: var(--color-blue); }
   .btn-login { width: 100%; background: var(--color-blue); color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: 0.2s; }
   .btn-login:hover { filter: brightness(1.1); box-shadow: var(--shadow-hover); }
-
   .simulator-panel { background: var(--bg-main); border: 1px dashed var(--border-color); padding: 16px; border-radius: 12px; margin-top: 15px; }
   .sim-title { font-size: 12px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
   .sim-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .sim-label { font-size: 11px; font-weight: 600; width: 60px; color: var(--text-muted); }
+  .sim-label { font-size: 11px; font-weight: 600; width: 120px; color: var(--text-muted); }
   .sim-slider { flex: 1; cursor: pointer; }
   .sim-val { font-size: 12px; font-weight: 800; width: 45px; text-align: right; font-family: var(--mono); color: var(--color-blue); }
 
@@ -172,7 +170,6 @@
   .table-wrap { max-height: 480px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); -webkit-overflow-scrolling: touch; position: relative; }
   .table-wrap table th:first-child, .table-wrap table td:first-child { position: sticky; left: 0; z-index: 5; background: var(--bg-card); box-shadow: 2px 0 6px rgba(0,0,0,0.05); }
   .table-wrap table th:first-child { z-index: 15; }
-  
   .heat-good { background: rgba(16, 185, 129, 0.08); } .heat-warn { background: rgba(245, 158, 11, 0.08); } .heat-bad { background: rgba(244, 63, 94, 0.08); }
   .num { font-family: var(--mono); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -255,7 +252,7 @@
       <section>
         <div class="grid-2">
           <div><div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
-          <div><div class="section-head"><h2>Gamification & Awards</h2></div><div class="kpi-row" id="gamificationGrid"></div></div>
+          <div><div class="section-head"><h2>Gamification & Awards</h2></div><div class="kpi-row" id="gamificationGrid" style="display:flex; flex-direction:column;"></div></div>
         </div>
       </section>
       <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
@@ -550,15 +547,37 @@
     document.getElementById('agentLoginInput').value = ''; document.getElementById('agentLoginArea').style.display = 'block'; document.getElementById('agentPersonalArea').style.display = 'none'; document.getElementById('myPerfCardBox').innerHTML = '';
   }
 
-  window.updateSimulator = function(agentName) {
+  window.updateSimulator = function(agentName, isOjt) {
     if(!appData) return;
-    const ahtVal = document.getElementById('simAht').value; const fcrVal = document.getElementById('simFcr').value; const empVal = document.getElementById('simEmp').value;
-    document.getElementById('lblAht').innerText = ahtVal + 's'; document.getElementById('lblFcr').innerText = fcrVal + '%'; document.getElementById('lblEmp').innerText = empVal + '%';
-    let mockScore = 1.0; 
+    const ahtVal = parseFloat(document.getElementById('simAht').value); 
+    const fcrVal = parseFloat(document.getElementById('simFcr').value); 
+    const empVal = parseFloat(document.getElementById('simEmp').value);
+    const compVal = parseFloat(document.getElementById('simComp').value);
+    const cfsVal = isOjt ? 0 : parseFloat(document.getElementById('simCfs')?.value || 90);
+    const dkbVal = isOjt ? 0 : parseFloat(document.getElementById('simDkb')?.value || 95);
+
+    document.getElementById('lblAht').innerText = ahtVal + 's'; 
+    document.getElementById('lblFcr').innerText = fcrVal + '%'; 
+    document.getElementById('lblEmp').innerText = empVal + '%';
+    document.getElementById('lblComp').innerText = compVal + '%';
+    if(!isOjt) {
+        if(document.getElementById('lblCfs')) document.getElementById('lblCfs').innerText = cfsVal + '%';
+        if(document.getElementById('lblDkb')) document.getElementById('lblDkb').innerText = dkbVal + '%';
+    }
+
+    let mockScore = 0.5; 
     if(ahtVal <= 170) mockScore += 0.8; else if(ahtVal <= 180) mockScore += 0.4;
-    if(fcrVal >= 93) mockScore += 1.0; else if(fcrVal >= 90) mockScore += 0.5;
-    if(empVal >= 87.5) mockScore += 1.0; else if(empVal >= 80) mockScore += 0.5;
-    mockScore += 0.5; 
+    if(fcrVal >= 93) mockScore += 0.8; else if(fcrVal >= 90) mockScore += 0.4;
+    if(empVal >= 87.5) mockScore += 0.8; else if(empVal >= 80) mockScore += 0.4;
+    if(compVal >= 95) mockScore += 0.4;
+    
+    if(!isOjt) {
+        if(cfsVal >= 90) mockScore += 0.4;
+        if(dkbVal >= 95) mockScore += 0.3;
+    } else {
+        mockScore += 0.7; // Balance score for missing sliders for OJT
+    }
+    
     let predictedBucket = 'D';
     if(mockScore >= 3.6) predictedBucket = 'A (Excellent)'; else if(mockScore >= 2.8) predictedBucket = 'B (Good)'; else if(mockScore >= 2.0) predictedBucket = 'C (Average)';
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
@@ -622,23 +641,29 @@
     const calls = appData.sheets['Audited Call Details'] || [];
     const topicCounts = {};
     calls.forEach(c => { if(String(c.result).toLowerCase() === 'fail') { const topic = c.failTopic && c.failTopic !== 'None' ? c.failTopic : 'Other Issue'; topicCounts[topic] = (topicCounts[topic] || 0) + 1; } });
-    const labels = Object.keys(topicCounts); const dataVals = Object.values(topicCounts);
+    
+    // Sort and limit to top 5 errors to keep pie chart clean
+    const sortedTopics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a]).slice(0, 5);
+    const labels = []; const dataVals = [];
+    sortedTopics.forEach(k => { labels.push(k); dataVals.push(topicCounts[k]); });
+    
     if(labels.length === 0) { labels.push("No Fails Found"); dataVals.push(1); }
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#94a3b8' : '#475569';
     const colors = isDark ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6'] : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1'];
+    
     const ctx = document.getElementById('rootCauseChart'); if(!ctx) return;
     if (rootCauseChartInstance) rootCauseChartInstance.destroy();
-    rootCauseChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataVals, backgroundColor: colors, borderWidth: isDark ? 2 : 1, borderColor: isDark ? '#0b0f19' : '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 11 } } } } } });
+    rootCauseChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataVals, backgroundColor: colors, borderWidth: isDark ? 2 : 1, borderColor: isDark ? '#0b0f19' : '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 10 } } } } } });
   }
 
   function renderGamification() {
     if(!appData) return;
     const audits = appData.sheets['Audit Details']?.list || []; const kpi = appData.sheets['KPI'] || [];
     const zeroCeAgents = audits.filter(a => a.totalAudits > 0 && a.totalFail === 0);
-    const zeroList = zeroCeAgents.length > 0 ? zeroCeAgents.map(a => `<li>${a.agentName} <span style="opacity:0.6">(${a.totalAudits} audits)</span></li>`).join('') : "<li>No agents found yet</li>";
+    const zeroList = zeroCeAgents.length > 0 ? zeroCeAgents.map(a => `<li style="margin-bottom:4px;">${a.agentName} <span style="opacity:0.6; font-size:10px;">(${a.totalAudits} audits)</span></li>`).join('') : "<li>No agents found yet</li>";
     const topCfs = [...kpi].filter(a => !isNaN(a.cfsRaw) && a.cfsRaw >= 90).sort((a,b) => b.cfsRaw - a.cfsRaw).slice(0, 3);
-    const cfsList = topCfs.length > 0 ? topCfs.map(a => `<li>${a.name} <span class="text-success fw-bold">(${a.cfsDisplay})</span></li>`).join('') : "<li>No agents met target</li>";
-    document.getElementById('gamificationGrid').innerHTML = `<div class="lb-card" style="border: 1px solid var(--color-warn);"><div class="pname"><i class="bi bi-shield-fill-check text-warning"></i> ZERO CE CLUB (100% Pass)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${zeroList}</ul></div><div class="lb-card" style="border: 1px solid var(--color-blue);"><div class="pname"><i class="bi bi-star-fill text-info"></i> CFS CHAMPIONS (>= 90%)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.6;">${cfsList}</ul></div>`;
+    const cfsList = topCfs.length > 0 ? topCfs.map(a => `<li style="margin-bottom:4px;">${a.name} <span class="text-success fw-bold">(${a.cfsDisplay})</span></li>`).join('') : "<li>No agents met target</li>";
+    document.getElementById('gamificationGrid').innerHTML = `<div class="lb-card" style="border: 1px solid var(--color-warn); width:100%;"><div class="pname"><i class="bi bi-shield-fill-check text-warning"></i> ZERO CE CLUB (100% Pass)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.4;">${zeroList}</ul></div><div class="lb-card" style="border: 1px solid var(--color-blue); width:100%; margin-top:10px;"><div class="pname"><i class="bi bi-star-fill text-info"></i> CFS CHAMPIONS (>= 90%)</div><ul style="margin:0; padding-left:20px; font-size:12px; color:var(--text-main); line-height:1.4;">${cfsList}</ul></div>`;
   }
 
   function renderView(tab) {
@@ -655,11 +680,9 @@
     }
 
     if (tab === 'KPI') {
-      const list = appData.sheets['KPI'] || [];
-      const select = document.getElementById('agentSelect');
-      if(list.length === 0) { document.getElementById('perfCardBox').innerHTML = `<div style="padding:20px; text-align:center; color:var(--color-bad);">No KPI Data Generated by System yet.</div>`; return; }
-      const prevVal = select.value;
-      select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+      const list = appData.sheets['KPI'] || []; const select = document.getElementById('agentSelect');
+      if(list.length === 0) { document.getElementById('perfCardBox').innerHTML = `<div style="padding:20px; text-align:center; color:var(--color-bad);">No KPI Data Generated yet.</div>`; return; }
+      const prevVal = select.value; select.innerHTML = list.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
       if (prevVal && list.some(a => a.name === prevVal)) select.value = prevVal;
       renderAgentCardSafe(select.value || list[0].name, 'perfCardBox');
       return;
@@ -726,31 +749,25 @@
       document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
       return;
     }
+
+    if (tab === 'Audited Call Details') {
+      filterCalls();
+      return;
+    }
   }
 
-  // WRAPPER FUNCTION TO PREVENT CRASHES IF AGENT DATA IS INCOMPLETE
   function renderAgentCardSafe(agentName, containerId = 'perfCardBox', isAgentPortal = false) {
-      try {
-          renderAgentCard(agentName, containerId, isAgentPortal);
-      } catch (err) {
-          console.error("Card Render Error:", err);
-          document.getElementById(containerId).innerHTML = `<div style="padding:24px; text-align:center; background:var(--bg-bad); color:var(--color-bad); border-radius:12px; font-weight:700;">Error displaying agent data: ${err.message}. The system is skipping missing data.</div>`;
-      }
+      try { renderAgentCard(agentName, containerId, isAgentPortal); } 
+      catch (err) { console.error(err); document.getElementById(containerId).innerHTML = `<div style="padding:24px; text-align:center; background:var(--bg-bad); color:var(--color-bad); border-radius:12px; font-weight:700;">Error displaying agent data: ${err.message}.</div>`; }
   }
 
   function renderAgentCard(agentName, containerId = 'perfCardBox', isAgentPortal = false) {
     currentCardAgentName = agentName;
-    const list = appData.sheets['KPI'] || [];
-    const agent = list.find(a => String(a.name) === String(agentName));
+    const list = appData.sheets['KPI'] || []; const agent = list.find(a => String(a.name) === String(agentName));
     const box = document.getElementById(containerId);
-
     if (!agent) { box.innerHTML = ''; return; }
     
-    // --- SMART ACTION PLAN / TIPS GENERATION ---
-    const ahtNum = parseFloat(String(agent.aht).replace('s', ''));
-    const empPctNum = parseFloat(String(agent.empathyPct).replace('%', ''));
-    const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct).replace('%', ''));
-    
+    const ahtNum = parseFloat(String(agent.aht).replace('s', '')); const empPctNum = parseFloat(String(agent.empathyPct).replace('%', '')); const fcrPctNum = parseFloat(String(agent.fcrPercent || agent.fcrPct).replace('%', ''));
     let smartTips = [];
     if (!isNaN(ahtNum) && ahtNum > 170) { smartTips.push("AHT is high. Tip: Use shortcuts and macros in the CRM tool to reduce hold time."); }
     if (agent.failCount > 0) { smartTips.push(`Critical Error found. Tip: Check the exact fail reason in Audit logs to avoid repeating.`); }
@@ -759,48 +776,48 @@
     if (smartTips.length === 0) { smartTips.push("Great Job! Maintain this consistency."); smartTips.push("You are hitting targets, keep mentoring peers."); }
     smartTips = smartTips.slice(0, 3);
 
-    // --- PEER BENCHMARKING ---
     const allAgentsAHT = list.filter(a=>!isNaN(parseFloat(String(a.aht).replace('s','')))).map(a=>parseFloat(String(a.aht).replace('s',''))).sort((a,b)=>a-b);
     let ahtRankText = '';
     if(allAgentsAHT.length > 0 && !isNaN(ahtNum)) {
         let rank = allAgentsAHT.indexOf(ahtNum);
-        if(rank >= 0) {
-            let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100);
-            ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue); font-weight:700;"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`;
-        }
+        if(rank >= 0) { let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100); ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue); font-weight:700;"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`; }
     }
 
-    const M = agent.met || {}, T = agent.targets || {};
-    const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
-
+    const M = agent.met || {}, T = agent.targets || {}; const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
     const isFailMet = (M.ce != null) ? M.ce : (!isNaN(parseFloat(agent.auditFailPct)) && parseFloat(agent.auditFailPct) === 0);
     const isEmpMet = (M.emp != null) ? M.emp : (!isNaN(empPctNum) && empPctNum >= 87.5);
     const isAhtMet = (M.aht != null) ? M.aht : (!isNaN(ahtNum) && ahtNum <= 170 && ahtNum > 0);
-    const cfsPctNum = parseFloat(String(agent.cfsPct || agent.cfsPercent || '').replace('%', ''));
-    const isCfsMet = (M.csat != null) ? M.csat : (!isNaN(cfsPctNum) && cfsPctNum >= 90.0);
+    const cfsPctNum = parseFloat(String(agent.cfsPct || agent.cfsPercent || '').replace('%', '')); const isCfsMet = (M.csat != null) ? M.csat : (!isNaN(cfsPctNum) && cfsPctNum >= 90.0);
+    const escPctNum = parseFloat(String(agent.escalationAccuracyPct || '').replace('%', '')); const isEscMet = (M.esc != null) ? M.esc : (!isNaN(escPctNum) && escPctNum >= 95.0);
+    const dkbPctNum = parseFloat(String(agent.dkbPct || '').replace('%', ''));
     const isAdhMet = (M.adh != null) ? M.adh : (!isNaN(parseFloat(agent.adherencePct)) && parseFloat(agent.adherencePct) >= 100);
-    const isDkbMet = (typeof agent.bonusPenalty_dkb === 'number') ? agent.bonusPenalty_dkb > 0 : (!isNaN(parseFloat(agent.dkbPct)) && parseFloat(agent.dkbPct) >= 95);
-    const isEscMet = (M.esc != null) ? M.esc : (!isNaN(parseFloat(agent.escalationAccuracyPct)) && parseFloat(agent.escalationAccuracyPct) >= 95);
-
+    const isDkbMet = (typeof agent.bonusPenalty_dkb === 'number') ? agent.bonusPenalty_dkb > 0 : (!isNaN(dkbPctNum) && dkbPctNum >= 95);
+    
     let finalDisplayScore = parseFloat(agent.finalScore || 0) > 4.00 ? '4.00' : parseFloat(agent.finalScore || 0).toFixed(2);
     let bucketClass = 'bucket-poor';
-    if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent';
-    else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good';
-    else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
+    if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent'; else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good'; else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
 
     const fmtScore = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
-    // WHAT-IF SIMULATOR HTML (Only for Agent Portal)
     let simulatorHtml = '';
     if(isAgentPortal) {
+        let extraSliders = '';
+        if(!isOjtAgent) {
+            extraSliders = `
+            <div class="sim-row"><div class="sim-label">CFS %</div><input type="range" id="simCfs" class="sim-slider" min="70" max="100" value="${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblCfs">${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">DKB %</div><input type="range" id="simDkb" class="sim-slider" min="80" max="100" value="${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblDkb">${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}%</div></div>`;
+        }
+        
         simulatorHtml = `
         <div class="simulator-panel pdf-card-wrapper" style="margin-top: 15px; background:var(--bg-main);">
             <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
             <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
-            <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
-            <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
-            <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}')"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
+            <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">Complaint %</div><input type="range" id="simComp" class="sim-slider" min="70" max="100" value="${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblComp">${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}%</div></div>
+            ${extraSliders}
             <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong></div>
         </div>`;
     }
@@ -825,40 +842,27 @@
              <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
           </div>
 
-          <!-- RESTORED 3 MISSING CARDS -->
           ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
           ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance)}
           ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger')}
           
-          <!-- BONUS CARDS -->
           ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
           ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
           ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
           
-          <!-- OVERALL PREDICTED BUCKET CARD -->
           <div class="pdf-kpi-card predicted-bucket-card">
-            <div>
-              <div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div>
-              <div class="pdf-kpi-value">${finalDisplayScore}</div>
-              <div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'}</div>
-            </div>
+            <div><div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div><div class="pdf-kpi-value">${finalDisplayScore}</div><div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'}</div></div>
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
 
-          <!-- NEED TO FOCUS CARD -->
           <div class="pdf-kpi-card focus-card">
             <div class="pdf-kpi-title"><i class="bi bi-lightning-charge-fill"></i> Smart Action Plan</div>
-            <ul class="focus-list">
-              ${smartTips.map(f => `<li>${f}</li>`).join('')}
-            </ul>
+            <ul class="focus-list">${smartTips.map(f => `<li>${f}</li>`).join('')}</ul>
           </div>
         </div>
-
         ${simulatorHtml}
-      </div>
-    `;
-
-    if(isAgentPortal) updateSimulator(agentName);
+      </div>`;
+    if(isAgentPortal) updateSimulator(agentName, isOjtAgent);
   }
 
   function filterCalls() {
