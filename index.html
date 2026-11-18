@@ -70,9 +70,9 @@
   .live-chip { display: flex; align-items: center; gap: 6px; background: var(--bg-good); color: var(--color-good); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px; }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  .theme-btn, .btn-action { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 38px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-  .theme-btn:hover, .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
-  #refreshBtn { background: var(--color-blue); color: #fff; }
+  .theme-btn, .btn-action, .btn-pdf { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .theme-btn:hover, .btn-action:hover, .btn-pdf:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  #refreshBtn, .btn-pdf { background: var(--color-blue); color: #fff; }
   
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
   .page { display: none; opacity: 0; } .page.active { display: block; animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -141,7 +141,7 @@
   .btn-login:hover { filter: brightness(1.1); box-shadow: var(--shadow-hover); }
   
   /* NEW ADVANCED UI ELEMENTS */
-  .agent-advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
+  .agent-advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; max-width: 1000px; margin-left: auto; margin-right: auto; }
   
   /* 1. Milestone Galaxy */
   .galaxy-track { position: relative; height: 6px; background: var(--border-color); margin: 35px 20px 15px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; }
@@ -223,7 +223,8 @@
     .kpi-row, .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
     .grid-2, .grid-4 { grid-template-columns: 1fr !important; gap: 12px !important; display: flex !important; flex-direction: column !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
-    .agent-advanced-grid { grid-template-columns: 1fr; } /* Stack advanced UI on mobile */
+    .agent-advanced-grid { grid-template-columns: 1fr; }
+    .agent-advanced-grid > .pdf-kpi-card { grid-column: span 1 !important; }
     
     .pdf-kpi-card { padding: 10px 12px !important; min-height: 95px; gap: 6px; }
     .kpi-card-header { flex-direction: column; gap: 4px; } 
@@ -264,7 +265,6 @@
       
       <div style="margin-top:15px; margin-bottom:5px; padding-left:12px; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Manager Views</div>
       
-      <!-- KPI DETAILS PAGE REMOVED HERE -->
       <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
       <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
       <div class="nav-item" data-page="FCR, Quiz & SD" onclick="navTo('FCR, Quiz & SD')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR, Quiz &amp; SD</div>
@@ -325,8 +325,6 @@
         <div id="myPerfCardBox"></div>
       </div>
     </div>
-
-    <!-- KPI PAGE HTML REMOVED HERE -->
 
     <!-- 3. AUDIT DETAILS -->
     <div class="page" id="page-Audit Details">
@@ -452,7 +450,11 @@
 </div>
 
 <script>
-  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = ''; let rootCauseChartInstance = null;
+  // === PASTE YOUR DEPLOYED APPS SCRIPT WEB APP URL BELOW ===
+  const LOGIN_TRACKER_URL = "YOUR_WEB_APP_URL_HERE";
+
+  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = '';
+  let rootCauseChartInstance = null; let dailyTrendChartInstance = null;
 
   function toggleTheme() {
     const body = document.documentElement;
@@ -460,6 +462,10 @@
     body.setAttribute('data-theme', next); localStorage.setItem('aw_theme', next);
     document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
     if(rootCauseChartInstance) renderRootCauseChart();
+    if(dailyTrendChartInstance && currentCardAgentName && appData) {
+      const agent = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
+      if(agent) renderDailyTrendChart(agent, String(agent.tenure).toLowerCase() === 'ojt');
+    }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -511,6 +517,22 @@
   }
 
   setInterval(() => { loadDashboard(false); }, 30000);
+
+  function downloadKpiPdf() {
+    const el = document.getElementById('pdfCardTarget');
+    if (!el) return;
+    el.classList.add('pdf-export-mode');
+    const opt = {
+      margin: 0.25,
+      filename: `${currentCardAgentName || 'Agent'}_Performance_Card.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+    html2pdf().set(opt).from(el).save().then(() => {
+      el.classList.remove('pdf-export-mode');
+    });
+  }
 
   function renderBadgeCls(scoreStr, defClass) { return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass; }
 
@@ -581,13 +603,116 @@
     const activeAgents = appData.sheets['Alignment'] || [];
     const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
-      document.getElementById('loginError').style.display = 'none'; document.getElementById('agentLoginArea').style.display = 'none'; document.getElementById('agentPersonalArea').style.display = 'block';
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('agentLoginArea').style.display = 'none';
+      document.getElementById('agentPersonalArea').style.display = 'block';
+
+      // Silent Live Login Ping to Google Sheets (Login Logs)
+      if (LOGIN_TRACKER_URL && !LOGIN_TRACKER_URL.includes("YOUR_WEB_APP_URL")) {
+        fetch(LOGIN_TRACKER_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            name: agent['Name'] || '',
+            vdiId: agent['VDI ID'] || '',
+            id: agent['ID'] || ''
+          })
+        }).catch(err => console.log('Login ping error:', err));
+      }
+
       renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true);
     } else { document.getElementById('loginError').style.display = 'block'; }
   }
 
   function logoutAgent() {
-    document.getElementById('agentLoginInput').value = ''; document.getElementById('agentLoginArea').style.display = 'block'; document.getElementById('agentPersonalArea').style.display = 'none'; document.getElementById('myPerfCardBox').innerHTML = '';
+    document.getElementById('agentLoginInput').value = '';
+    document.getElementById('agentLoginArea').style.display = 'block';
+    document.getElementById('agentPersonalArea').style.display = 'none';
+    document.getElementById('myPerfCardBox').innerHTML = '';
+    if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
+  }
+
+  // DAILY PROGRESSION TREND CHART (Last 7 Days from ORT Day wise)
+  function renderDailyTrendChart(agent, isOjtAgent) {
+    const ctx = document.getElementById('dailyTrendChart');
+    if (!ctx || !appData || !appData.dailyTrend) return;
+
+    const idKey = String(agent.id || '').trim().toLowerCase();
+    const vdiKey = String(agent.vdiId || '').trim().toLowerCase();
+    const nameKey = String(agent.name || '').trim().toLowerCase();
+    const history = appData.dailyTrend[idKey] || appData.dailyTrend[vdiKey] || appData.dailyTrend[nameKey] || [];
+
+    if (dailyTrendChartInstance) dailyTrendChartInstance.destroy();
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const gridColor = isDark ? '#1e293b' : '#e2e8f0';
+
+    const labels = history.length ? history.map(d => d.date) : ['No Data'];
+    const ahtData = history.length ? history.map(d => d.aht) : [0];
+    const cfsData = history.length ? history.map(d => d.cfs) : [0];
+
+    const datasets = [
+      {
+        label: 'AHT (Sec)',
+        data: ahtData,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+        borderWidth: 2.5,
+        tension: 0.35,
+        fill: true,
+        yAxisID: 'yAht',
+        pointRadius: 3
+      }
+    ];
+
+    const scales = {
+      x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+      yAht: {
+        type: 'linear',
+        position: 'left',
+        grid: { color: gridColor },
+        ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => v + 's' }
+      }
+    };
+
+    // Regular agents get CFS line on right Y-axis; OJT gets AHT only
+    if (!isOjtAgent) {
+      datasets.push({
+        label: 'CFS (%)',
+        data: cfsData,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.10)',
+        borderWidth: 2.5,
+        tension: 0.35,
+        fill: false,
+        yAxisID: 'yCfs',
+        pointRadius: 3
+      });
+      scales.yCfs = {
+        type: 'linear',
+        position: 'right',
+        min: 0,
+        max: 100,
+        grid: { drawOnChartArea: false },
+        ticks: { color: '#10b981', font: { size: 10 }, callback: v => v + '%' }
+      };
+    }
+
+    dailyTrendChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: textColor, font: { size: 11 } } }
+        },
+        scales: scales
+      }
+    });
   }
 
   // ADVANCED SIMULATOR: Handles Galaxy & Auto Gap Analysis
@@ -619,7 +744,7 @@
         if(cfsVal >= 90) mockScore += 0.4;
         if(dkbVal >= 95) mockScore += 0.3;
     } else {
-        mockScore += 0.7; // Balance score for missing sliders for OJT
+        mockScore += 0.7;
     }
     
     let predictedBucket = 'D'; let galPos = '0%';
@@ -627,10 +752,8 @@
     else if(mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; } 
     else if(mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
     
-    // Update Text Result
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
     
-    // Update Galaxy Road Map
     document.querySelectorAll('.galaxy-node').forEach(n => n.classList.remove('node-active'));
     if(mockScore >= 3.6) document.getElementById('gal-A').classList.add('node-active');
     else if(mockScore >= 2.8) document.getElementById('gal-B').classList.add('node-active');
@@ -638,7 +761,6 @@
     else document.getElementById('gal-D').classList.add('node-active');
     document.getElementById('gal-rocket').style.left = galPos;
 
-    // Auto Gap Analysis Text
     let gapText = "Keep it up! Maintain this consistency to secure your bonus.";
     if (mockScore < 2.8) {
         let missing = (2.8 - mockScore).toFixed(2);
@@ -891,14 +1013,13 @@
     const fmtScore = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
-    // NEW ADVANCED FEATURES FOR AGENT PORTAL ONLY
     let advancedHtml = '';
     let simulatorHtml = '';
     
     if(isAgentPortal) {
         // 1. Error Ledger Generation
-        const agentAudits = appData.sheets['Audited Call Details'].filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
-        const failedAudits = agentAudits.filter(c => c.result.toLowerCase() === 'fail');
+        const agentAudits = (appData.sheets['Audited Call Details'] || []).filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
+        const failedAudits = agentAudits.filter(c => String(c.result).toLowerCase() === 'fail');
         const failTopicCounts = {};
         failedAudits.forEach(c => {
             const topic = (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue');
@@ -917,9 +1038,8 @@
         // 2. Elite Benchmark Delta (Top 10% Math)
         let eliteHtml = '';
         const allAhts = list.map(a => parseFloat(String(a.aht).replace('s', ''))).filter(n => !isNaN(n)).sort((a,b) => a - b);
-        const allFcrs = list.map(a => parseFloat(String(a.fcrPercent || a.fcrPct).replace('%', ''))).filter(n => !isNaN(n)).sort((a,b) => b - a); // descending
+        const allFcrs = list.map(a => parseFloat(String(a.fcrPercent || a.fcrPct).replace('%', ''))).filter(n => !isNaN(n)).sort((a,b) => b - a);
         
-        // Find Top 10% thresholds
         let eliteAhtIndex = Math.max(0, Math.ceil(allAhts.length * 0.1) - 1);
         let eliteFcrIndex = Math.max(0, Math.ceil(allFcrs.length * 0.1) - 1);
         let eliteAht = allAhts.length > 0 ? allAhts[eliteAhtIndex] : 170;
@@ -947,17 +1067,16 @@
             </div>`;
         }
 
-        // 3. Chronic Pattern Detector (Scanning recent habits)
+        // 3. Chronic Pattern Detector
         let chronicHtml = '';
         if(failedAudits.length >= 2) {
-            let recentFails = failedAudits.slice(-3); // Check last 3 fails
+            let recentFails = failedAudits.slice(-3);
             let topics = recentFails.map(c => (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue'));
-            
             let tCounts = {};
             let chronicTopic = null;
             topics.forEach(t => {
                 tCounts[t] = (tCounts[t] || 0) + 1;
-                if(tCounts[t] >= 2) chronicTopic = t; // Pattern if same topic missed 2+ times recently
+                if(tCounts[t] >= 2) chronicTopic = t;
             });
             
             if(chronicTopic) {
@@ -1010,6 +1129,10 @@
                <div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-journal-x"></i> Error Ledger (Where I Lost Points)</div>
                <ul class="ledger-list">${ledgerListHtml}</ul>
             </div>
+            <div class="pdf-kpi-card" style="grid-column: span 2;">
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-graph-up-arrow"></i> Daily Progression Trend (Last 7 Days ${isOjtAgent ? '- AHT Only' : '- AHT & CFS'})</div>
+               <div style="height: 200px; width: 100%; margin-top: 8px;"><canvas id="dailyTrendChart"></canvas></div>
+            </div>
         </div>`;
     }
 
@@ -1057,6 +1180,7 @@
       
     if(isAgentPortal) {
         updateSimulator(agentName, isOjtAgent);
+        setTimeout(() => renderDailyTrendChart(agent, isOjtAgent), 100);
     }
   }
 
