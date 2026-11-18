@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -313,6 +314,7 @@
         <input type="text" id="agentLoginInput" class="login-input" placeholder="e.g., genex.name or 20301111" onkeypress="if(event.key === 'Enter') handleAgentLogin()">
         <button class="btn-login" onclick="handleAgentLogin()">Access My Dashboard</button>
         <div id="loginError" style="color:var(--color-bad); margin-top:10px; font-weight:600; font-size:12px; display:none;">Agent not found. Try your exact VDI or ID.</div>
+        <div id="sessionExpiredMsg" style="color:var(--color-warn); margin-top:10px; font-weight:600; font-size:12px; display:none;">Session expired (10 mins). Please enter your ID again.</div>
       </div>
       <div id="agentPersonalArea" style="display:none;">
         <div class="filterbar" style="justify-content: flex-end;">
@@ -449,9 +451,25 @@
 <script>
   // === PASTE YOUR DEPLOYED APPS SCRIPT WEB APP URL BELOW ===
   const LOGIN_TRACKER_URL = "https://script.google.com/macros/s/AKfycbwD_usFFtERll_2gUPEUa-xVrW5ecNYrH-_18dcAybvQkwO2jvXH9Pd-Ap4tH93fm89Lg/exec";
+  const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes auto-logout
 
   let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = '';
   let rootCauseChartInstance = null; let dailyTrendChartInstance = null;
+
+  function checkSessionTimeout() {
+    const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
+    const personalArea = document.getElementById('agentPersonalArea');
+    const isLoggedIn = personalArea && personalArea.style.display === 'block';
+    if (isLoggedIn && (!loginTime || (Date.now() - loginTime >= SESSION_TIMEOUT_MS))) {
+      logoutAgent(true);
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkSessionTimeout();
+  });
+  window.addEventListener('focus', checkSessionTimeout);
+  setInterval(checkSessionTimeout, 15000);
 
   function toggleTheme() {
     const body = document.documentElement;
@@ -469,12 +487,14 @@
     const savedTheme = localStorage.getItem('aw_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     if(savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
+    localStorage.removeItem('aw_agent_login_time');
     loadDashboard(false);
   });
 
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
   function navTo(tabName) {
     activeTab = tabName;
+    if (tabName === 'My Performance') checkSessionTimeout();
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + tabName).classList.add('active');
@@ -600,7 +620,10 @@
     const activeAgents = appData.sheets['Alignment'] || [];
     const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
+      localStorage.setItem('aw_agent_login_time', String(Date.now()));
       document.getElementById('loginError').style.display = 'none';
+      const expiredMsg = document.getElementById('sessionExpiredMsg');
+      if (expiredMsg) expiredMsg.style.display = 'none';
       document.getElementById('agentLoginArea').style.display = 'none';
       document.getElementById('agentPersonalArea').style.display = 'block';
 
@@ -622,12 +645,16 @@
     } else { document.getElementById('loginError').style.display = 'block'; }
   }
 
-  function logoutAgent() {
+  function logoutAgent(isExpired = false) {
+    localStorage.removeItem('aw_agent_login_time');
+    currentCardAgentName = '';
     document.getElementById('agentLoginInput').value = '';
     document.getElementById('agentLoginArea').style.display = 'block';
     document.getElementById('agentPersonalArea').style.display = 'none';
     document.getElementById('myPerfCardBox').innerHTML = '';
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
+    const expiredMsg = document.getElementById('sessionExpiredMsg');
+    if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
   }
 
   // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
