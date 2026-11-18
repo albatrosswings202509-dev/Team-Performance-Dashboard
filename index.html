@@ -342,10 +342,18 @@
       </section>
     </div>
 
-    <!-- 4. PARAMETER WISE EMPATHY -->
+    <!-- 4. PARAMETER WISE EMPATHY (WITH AGENT FILTER) -->
     <div class="page" id="page-Parameter wise Empathy">
-      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('empathyTableEl', 'Empathy_Matrix.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
-      <section><div class="section-head"><div class="section-head-left"><h2>Empathy Parameter — Team Average Pass %</h2><span class="update-stamp" data-sheet="Empathy"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="empathyTeamKpis"></div></section>
+      <div class="filterbar">
+        <div class="fgroup">
+          <label>Agent Wise Filter</label>
+          <select id="empathyAgentFilter" onchange="renderEmpathyView()">
+            <option value="">All Agents (Team Average)</option>
+          </select>
+        </div>
+        <button class="btn-action" style="align-self: flex-end;" onclick="exportTableToCSV('empathyTableEl', 'Empathy_Matrix.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+      </div>
+      <section><div class="section-head"><div class="section-head-left"><h2 id="empathyKpiHeading">Empathy Parameter — Team Average Pass %</h2><span class="update-stamp" data-sheet="Empathy"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="empathyTeamKpis"></div></section>
       <section>
         <div class="section-head"><h2>VDI ID &amp; Agent x Parameter Matrix</h2></div>
         <div class="table-wrap">
@@ -505,6 +513,9 @@
   }
 
   function applyDashboardData(data) {
+    if (typeof data === 'string') {
+      data = JSON.parse(data);
+    }
     appData = data;
     const dt = new Date(appData.lastUpdated);
     document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
@@ -554,7 +565,7 @@
     }
   }
 
-  // Auto-refresh every 30s on GitHub Pages, every 2 mins on Apps Script (to keep it snappy)
+  // Auto-refresh every 30s on GitHub Pages, every 2 mins on Apps Script
   setInterval(() => { loadDashboard(false); }, IS_APPS_SCRIPT ? 120000 : 30000);
 
   function downloadKpiPdf() {
@@ -773,6 +784,47 @@
         scales: scales
       }
     });
+  }
+
+  // PARAMETER WISE EMPATHY VIEW WITH AGENT FILTER
+  function renderEmpathyView() {
+    if (!appData) return;
+    const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
+    const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
+
+    const selectEl = document.getElementById('empathyAgentFilter');
+    if (selectEl && selectEl.options.length <= 1) {
+      const names = [...new Set((emp.agentList || []).map(a => a.agentName).filter(Boolean))].sort();
+      names.forEach(n => selectEl.appendChild(new Option(n, n)));
+    }
+
+    const selectedAgent = selectEl ? selectEl.value : '';
+    const agentObj = selectedAgent ? (emp.agentList || []).find(a => a.agentName === selectedAgent) : null;
+
+    const headingEl = document.getElementById('empathyKpiHeading');
+    if (headingEl) {
+      headingEl.innerText = agentObj ? `Empathy Parameter — ${agentObj.agentName}` : 'Empathy Parameter — Team Average Pass %';
+    }
+
+    let kpiHtml = '';
+    headers.forEach(p => {
+      let valStr = agentObj ? (agentObj[p] || 'N/A') : (emp.teamAvg[p] || 'N/A');
+      let subLabel = agentObj ? "Agent Pass %" : "Team Average Pass %";
+      let valNum = parseFloat(String(valStr).replace('%', ''));
+      let isGood = !isNaN(valNum) && valNum >= 87.5;
+      kpiHtml += renderCardHtml(p, valStr, subLabel, "Target: >=87.5%", renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'), valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'), isGood ? 'text-success' : 'text-danger', valStr !== 'N/A' ? valStr : null);
+    });
+    document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
+
+    const tableRows = agentObj ? [agentObj] : (emp.agentList || []);
+    document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
+    document.getElementById('empathyBody').innerHTML = tableRows.map(agent => {
+      return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>${headers.map(h => {
+        let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', '')); let heatClass = '';
+        if (!isNaN(numVal)) { heatClass = numVal < 87.5 ? 'heat-bad text-danger fw-bold' : 'heat-good text-success fw-bold'; }
+        return `<td class="num ${heatClass}">${cellVal}</td>`;
+      }).join('')}</tr>`;
+    }).join('');
   }
 
   // ADVANCED SIMULATOR: Handles Galaxy & Auto Gap Analysis
@@ -994,13 +1046,7 @@
     }
 
     if (tab === 'Parameter wise Empathy') {
-      const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
-      const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
-      let kpiHtml = '';
-      headers.forEach(p => { let valStr = emp.teamAvg[p] || 'N/A'; let valNum = parseFloat(String(valStr).replace('%', '')); let isGood = !isNaN(valNum) && valNum >= 87.5; kpiHtml += renderCardHtml(p, valStr, "Team Average Pass %", "Target: >=87.5%", renderBadgeCls(valStr, isGood ? 'delivered' : 'missed'), valStr === 'N/A' ? 'NO DATA' : (isGood ? 'Target Meet' : 'Below Target'), isGood ? 'text-success' : 'text-danger', valStr !== 'N/A' ? valStr : null); });
-      document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
-      document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
-      document.getElementById('empathyBody').innerHTML = (emp.agentList || []).map(agent => { return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>${headers.map(h => { let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', '')); let heatClass = ''; if (!isNaN(numVal)) { heatClass = numVal < 87.5 ? 'heat-bad text-danger fw-bold' : 'heat-good text-success fw-bold'; } return `<td class="num ${heatClass}">${cellVal}</td>`; }).join('')}</tr>`; }).join('');
+      renderEmpathyView();
       return;
     }
 
@@ -1087,7 +1133,6 @@
     let simulatorHtml = '';
 
     if(isAgentPortal) {
-        // 1. Error Ledger Generation
         const agentAudits = (appData.sheets['Audited Call Details'] || []).filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
         const failedAudits = agentAudits.filter(c => String(c.result).toLowerCase() === 'fail');
         const failTopicCounts = {};
@@ -1105,7 +1150,6 @@
             }
         }
 
-        // 2. Elite Benchmark Delta (Top 10% Math)
         let eliteHtml = '';
         const allAhts = list.map(a => parseFloat(String(a.aht).replace('s', ''))).filter(n => !isNaN(n)).sort((a,b) => a - b);
         const allFcrs = list.map(a => parseFloat(String(a.fcrPercent || a.fcrPct).replace('%', ''))).filter(n => !isNaN(n)).sort((a,b) => b - a);
@@ -1137,7 +1181,6 @@
             </div>`;
         }
 
-        // 3. Chronic Pattern Detector
         let chronicHtml = '';
         if(failedAudits.length >= 2) {
             let recentFails = failedAudits.slice(-3);
@@ -1158,7 +1201,6 @@
             }
         }
 
-        // 4. Simulator Sliders Generation
         let extraSliders = '';
         if(!isOjtAgent) {
             extraSliders = `
