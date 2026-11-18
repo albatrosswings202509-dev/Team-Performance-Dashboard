@@ -57,7 +57,7 @@
   .nav-item .ic { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
   .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateX(3px); }
   .nav-item.active { background: var(--color-blue); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3); }
-  .nav-item.highlight { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--color-blue); margin-top: 10px; }
+  .nav-item.highlight { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--color-blue); margin-top: 6px; margin-bottom: 10px; }
   .sidebar-foot { padding: 14px 16px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--sidebar-border); white-space: nowrap; text-align: center; }
 
   /* MAIN WORKSPACE */
@@ -262,9 +262,6 @@
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><span class="ic"><i class="bi bi-grid-fill"></i></span>Dashboard</div>
       <div class="nav-item highlight" data-page="My Performance" onclick="navTo('My Performance')"><span class="ic"><i class="bi bi-person-fill-lock"></i></span>My Performance (Agent)</div>
-      
-      <div style="margin-top:15px; margin-bottom:5px; padding-left:12px; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Manager Views</div>
-      
       <div class="nav-item" data-page="Audit Details" onclick="navTo('Audit Details')"><span class="ic"><i class="bi bi-card-checklist"></i></span>Audit Details</div>
       <div class="nav-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span>Parameter Empathy</div>
       <div class="nav-item" data-page="FCR, Quiz & SD" onclick="navTo('FCR, Quiz & SD')"><span class="ic"><i class="bi bi-layers-fill"></i></span>FCR, Quiz &amp; SD</div>
@@ -292,7 +289,7 @@
   </div>
 
   <main>
-    <!-- 1. DASHBOARD OVERVIEW (TL VIEW) -->
+    <!-- 1. DASHBOARD OVERVIEW -->
     <div class="page active" id="page-Dashboard">
       <div class="filterbar">
         <div class="fgroup"><label>IB Agent Wise Filter</label><select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select></div>
@@ -301,14 +298,14 @@
       <section><div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row" id="tlKpiGrid"></div></section>
       <section>
         <div class="grid-2">
-          <div><div class="section-head"><h2>Root Cause Analytics (CE & Fails)</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
+          <div><div class="section-head"><h2>Fail Call Topics Breakdown</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
           <div><div class="section-head"><h2>Gamification & Awards</h2></div><div id="gamificationGrid" style="display:flex; flex-direction:column; gap:12px;"></div></div>
         </div>
       </section>
       <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
     </div>
 
-    <!-- 0. MY PERFORMANCE (AGENT LOGIN VIEW) -->
+    <!-- 2. MY PERFORMANCE (AGENT LOGIN VIEW) -->
     <div class="page" id="page-My Performance">
       <div id="agentLoginArea" class="pdf-card-wrapper login-box">
         <i class="bi bi-person-bounding-box"></i><h2>Welcome to Agent Portal</h2>
@@ -633,7 +630,7 @@
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
   }
 
-  // DAILY PROGRESSION TREND CHART (Last 7 Days from ORT Day wise)
+  // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
   function renderDailyTrendChart(agent, isOjtAgent) {
     const ctx = document.getElementById('dailyTrendChart');
     if (!ctx || !appData || !appData.dailyTrend) return;
@@ -657,38 +654,40 @@
       {
         label: 'AHT (Sec)',
         data: ahtData,
+        backgroundColor: 'rgba(245, 158, 11, 0.85)',
         borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245, 158, 11, 0.12)',
-        borderWidth: 2.5,
-        tension: 0.35,
-        fill: true,
-        yAxisID: 'yAht',
-        pointRadius: 3
+        borderWidth: 1,
+        borderRadius: 5,
+        maxBarThickness: 28,
+        yAxisID: 'yAht'
       }
     ];
 
     const scales = {
-      x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+      x: {
+        grid: { display: false },
+        ticks: { color: textColor, font: { size: 10 } }
+      },
       yAht: {
         type: 'linear',
         position: 'left',
+        beginAtZero: true,
         grid: { color: gridColor },
         ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => v + 's' }
       }
     };
 
-    // Regular agents get CFS line on right Y-axis; OJT gets AHT only
+    // Regular agents: side-by-side AHT + CFS bars; OJT: AHT bar only
     if (!isOjtAgent) {
       datasets.push({
         label: 'CFS (%)',
         data: cfsData,
+        backgroundColor: 'rgba(16, 185, 129, 0.85)',
         borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.10)',
-        borderWidth: 2.5,
-        tension: 0.35,
-        fill: false,
-        yAxisID: 'yCfs',
-        pointRadius: 3
+        borderWidth: 1,
+        borderRadius: 5,
+        maxBarThickness: 28,
+        yAxisID: 'yCfs'
       });
       scales.yCfs = {
         type: 'linear',
@@ -701,14 +700,23 @@
     }
 
     dailyTrendChartInstance = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { labels: { color: textColor, font: { size: 11 } } }
+          legend: { labels: { color: textColor, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: function(c) {
+                const val = c.parsed.y;
+                if (val === null || val === undefined) return c.dataset.label + ': N/A';
+                return c.dataset.label.includes('AHT') ? `AHT: ${val}s` : `CFS: ${val}%`;
+              }
+            }
+          }
         },
         scales: scales
       }
@@ -830,42 +838,52 @@
     }
   }
 
+  // PIE CHART BASED ON FAIL CALLS' CALL TOPICS
   function renderRootCauseChart() {
     if(!appData) return;
     const calls = appData.sheets['Audited Call Details'] || [];
     const topicCounts = {};
-    
-    calls.forEach(c => { 
-        if(String(c.result).toLowerCase() === 'fail') { 
-            let failStr = String(c.failTopic || '');
-            let parts = failStr.split(','); 
-            parts.forEach(part => {
-                let p = part.trim();
-                if (p.toUpperCase().includes('N-CE') || p.toUpperCase().includes('NCE')) return; 
-                let ceIndex = p.toUpperCase().indexOf('CE:');
-                if (ceIndex === -1) ceIndex = p.toUpperCase().indexOf('CE :');
-                if (ceIndex !== -1) {
-                    let colonIndex = p.indexOf(':', ceIndex);
-                    if (colonIndex !== -1) {
-                        let topic = p.substring(colonIndex + 1).trim();
-                        if (topic) topicCounts[topic] = (topicCounts[topic] || 0) + 1;
-                    }
-                }
-            });
-        } 
+
+    calls.forEach(c => {
+      if(String(c.result).toLowerCase() === 'fail') {
+        let topic = String(c.callTopic || '').trim();
+        if (!topic || topic.toUpperCase() === 'N/A') topic = 'Unspecified Topic';
+        topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+      }
     });
-    
-    const sortedTopics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a]).slice(0, 5);
+
+    const sortedTopics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a]).slice(0, 6);
     const labels = []; const dataVals = [];
     sortedTopics.forEach(k => { labels.push(k); dataVals.push(topicCounts[k]); });
-    if(labels.length === 0) { labels.push("No Fails / No CE Found"); dataVals.push(1); }
-    
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; const textColor = isDark ? '#94a3b8' : '#475569';
-    const colors = isDark ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6'] : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1'];
-    
+    if(labels.length === 0) { labels.push("No Fail Calls Found"); dataVals.push(1); }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const colors = isDark
+      ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6', '#ec4899']
+      : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1', '#db2777'];
+
     const ctx = document.getElementById('rootCauseChart'); if(!ctx) return;
     if (rootCauseChartInstance) rootCauseChartInstance.destroy();
-    rootCauseChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataVals, backgroundColor: colors, borderWidth: isDark ? 2 : 1, borderColor: isDark ? '#0b0f19' : '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 10 } } } } } });
+    rootCauseChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: dataVals,
+          backgroundColor: colors,
+          borderWidth: isDark ? 2 : 1,
+          borderColor: isDark ? '#0b0f19' : '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 10 } } }
+        }
+      }
+    });
   }
 
   function renderGamification() {
@@ -1130,8 +1148,8 @@
                <ul class="ledger-list">${ledgerListHtml}</ul>
             </div>
             <div class="pdf-kpi-card" style="grid-column: span 2;">
-               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-graph-up-arrow"></i> Daily Progression Trend (Last 7 Days ${isOjtAgent ? '- AHT Only' : '- AHT & CFS'})</div>
-               <div style="height: 200px; width: 100%; margin-top: 8px;"><canvas id="dailyTrendChart"></canvas></div>
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-bar-chart-fill"></i> Daily Progression (Last 7 Days ${isOjtAgent ? '- AHT Only' : '- AHT & CFS'})</div>
+               <div style="height: 220px; width: 100%; margin-top: 8px;"><canvas id="dailyTrendChart"></canvas></div>
             </div>
         </div>`;
     }
