@@ -807,6 +807,13 @@
   <div class="splash-progress"><div class="splash-bar" id="awSplashBar"></div></div>
   <div class="splash-status" id="awSplashStatus">Initializing dashboard...</div>
 </div>
+<script>
+  // Failsafe: never allow splash screen to block the UI
+  setTimeout(function() {
+    var s = document.getElementById('awSplash');
+    if (s && !s.classList.contains('is-hidden')) s.classList.add('is-hidden');
+  }, 4000);
+</script>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 
@@ -1657,9 +1664,11 @@
     if(mockScore >= 3.6) {
       predictedBucket = 'A (Excellent)'; galPos = '100%';
       if (!window.__simHitA && window.__simUserMoved) { window.__simHitA = true; triggerConfetti(); if (window.awToast) awToast('Bucket A Target Reached! 🎉', 'bi-trophy-fill'); }
-    } else { window.__simHitA = false; }
-    else if(mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; }
-    else if(mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
+    } else {
+      window.__simHitA = false;
+      if(mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; }
+      else if(mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
+    }
 
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
 
