@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#101d34">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b6fd9'/%3E%3Cstop offset='1' stop-color='%237c5fd6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial' font-weight='800' font-size='26' text-anchor='middle' fill='white'%3EAW%3C/text%3E%3C/svg%3E">
 <title>Albatross Wings Performance Tracker</title>
 
 <!-- Google Fonts: Inter & IBM Plex Mono -->
@@ -11,10 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- html2pdf, Chart.js & DataLabels Plugin -->
+<!-- html2pdf Library for PDF Export & Chart.js for Analytics -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 
 <style>
   /* =========================================
@@ -71,32 +72,9 @@
   .live-chip { display: flex; align-items: center; gap: 6px; background: var(--bg-good); color: var(--color-good); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 11px; }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  .theme-btn, .btn-action, .btn-pdf, .btn-wa { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-  .theme-btn:hover, .btn-action:hover, .btn-pdf:hover, .btn-wa:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .theme-btn, .btn-action, .btn-pdf { background: var(--bg-blue); color: var(--color-blue); border: none; padding: 8px 12px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 38px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .theme-btn:hover, .btn-action:hover, .btn-pdf:hover { filter: brightness(1.1); transform: translateY(-1px); }
   #refreshBtn, .btn-pdf { background: var(--color-blue); color: #fff; }
-  .btn-wa { background: #16a34a; color: #ffffff; }
-
-  /* TENURE PILL BAR (All | Regular | OJT) */
-  .tenure-bar { display: inline-flex; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 9px; padding: 3px; gap: 3px; }
-  .tenure-btn { border: none; background: transparent; color: var(--text-muted); font-family: var(--sans); font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 7px; cursor: pointer; transition: all 0.2s; }
-  .tenure-btn.active { background: var(--color-blue); color: #ffffff; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25); }
-
-  /* AGENT PORTAL SUB-TABS */
-  .sub-tabs { display: flex; gap: 8px; margin: 0 auto 16px; max-width: 1000px; background: var(--bg-card); padding: 6px; border-radius: 12px; border: 1px solid var(--border-color); }
-  .sub-tab-btn { flex: 1; border: none; background: transparent; color: var(--text-muted); font-family: var(--sans); font-size: 12.5px; font-weight: 700; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-  .sub-tab-btn.active { background: var(--color-blue); color: #ffffff; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25); }
-  .sub-tab-pane { display: none; }
-  .sub-tab-pane.active { display: block; animation: premiumPageFade 0.28s ease forwards; }
-
-  /* SKELETON LOADER */
-  .skeleton-card { height: 120px; border-radius: 12px; background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-card) 50%, var(--border-color) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-  /* MOBILE BOTTOM NAV */
-  .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border-color); z-index: 75; padding: 6px 4px; justify-content: space-around; align-items: center; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
-  .mbn-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 8px; min-width: 56px; transition: color 0.2s; }
-  .mbn-item i { font-size: 18px; }
-  .mbn-item.active { color: var(--color-blue); }
 
   main { padding: 20px 24px 50px; max-width: 1500px; margin: 0 auto; width: 100%; }
   .page { display: none; opacity: 0; } .page.active { display: block; animation: premiumPageFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -109,7 +87,7 @@
   .update-stamp { font-size: 10.5px; font-weight: 600; color: var(--text-muted); background: var(--bg-card); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px; }
 
   .filterbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
-  .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 190px; }
+  .filterbar .fgroup { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
   .filterbar label { font-size: 10.5px; color: var(--text-muted-dim); font-weight: 600; text-transform: uppercase; }
   .filterbar select, .filterbar input[type=text] { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 7px; padding: 9px 10px; font-family: var(--sans); font-size: 12.5px; width: 100%; min-height: 42px; transition: all 0.2s ease; }
   .filterbar select:focus, .filterbar input[type=text]:focus { border-color: var(--color-blue); outline: none; box-shadow: 0 0 0 3px var(--bg-blue); }
@@ -118,7 +96,6 @@
 
   /* Desktop Grid Layouts */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .grid-3-charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .pdf-grid-3, .kpi-row, .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 
   /* Leaderboard & Gamification Cards */
@@ -165,19 +142,27 @@
   .btn-login { width: 100%; background: var(--color-blue); color: #fff; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: 0.2s; }
   .btn-login:hover { filter: brightness(1.1); box-shadow: var(--shadow-hover); }
 
-  /* ADVANCED UI ELEMENTS */
+  /* NEW ADVANCED UI ELEMENTS */
   .agent-advanced-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+
+  /* 1. Milestone Galaxy */
   .galaxy-track { position: relative; height: 6px; background: var(--border-color); margin: 35px 20px 15px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; }
   .galaxy-node { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-card); border: 3px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color: var(--text-muted); z-index: 2; transition: all 0.3s ease; }
   .node-D { left: 0%; transform: translateX(-50%); } .node-C { left: 33%; transform: translateX(-50%); } .node-B { left: 66%; transform: translateX(-50%); } .node-A { left: 100%; transform: translateX(-50%); }
   .node-active { border-color: var(--color-blue); color: var(--color-blue); background: var(--bg-blue); box-shadow: 0 0 10px rgba(59,130,246,0.3); }
   .rocket { position: absolute; top: -16px; font-size: 22px; transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 5; margin-left: -11px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+
+  /* 2. Gap Analysis & Elite Benchmark */
   .gap-analysis-card { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); }
   .gap-analysis-text { font-size: 12.5px; margin-top: 8px; font-weight: 600; color: var(--text-main); line-height: 1.5; }
+
+  /* 3. Error Ledger */
   .ledger-list { margin: 10px 0 0 0; padding: 0; list-style: none; font-size: 11.5px; color: var(--text-main); }
   .ledger-list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border-color); }
   .ledger-list li:last-child { border: none; }
   .fail-pill { background: var(--bg-bad); color: var(--color-bad); padding: 2px 6px; border-radius: 12px; font-size: 9px; font-weight: 800; }
+
+  /* 4. Chronic Pattern Alert */
   @keyframes pulseAlert { 0% {box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4);} 70% {box-shadow: 0 0 0 8px rgba(225, 29, 72, 0);} 100% {box-shadow: 0 0 0 0 rgba(225, 29, 72, 0);} }
 
   .simulator-panel { background: var(--bg-main); border: 1px dashed var(--border-color); padding: 16px; border-radius: 12px; margin-top: 15px; }
@@ -188,7 +173,7 @@
   .sim-val { font-size: 12px; font-weight: 800; width: 45px; text-align: right; font-family: var(--mono); color: var(--color-blue); }
 
   /* CHARTS */
-  .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-card); height: 310px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-card); height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
   /* STRICT PDF EXPORT PRINT STYLES */
   .pdf-export-mode { width: 960px !important; max-width: 960px !important; padding: 16px !important; background: #ffffff !important; border-radius: 10px !important; box-shadow: none !important; animation: none !important; }
@@ -199,6 +184,7 @@
   .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; margin: 0 !important; }
   .pdf-export-mode .svg-chart-container, .pdf-export-mode .svg-chart-container svg { width: 40px !important; height: 40px !important; } .pdf-export-mode .svg-chart-val { font-size: 9px !important; }
   .pdf-export-mode .pdf-badge.delivered { background: #d1fae5 !important; color: #059669 !important; } .pdf-export-mode .pdf-badge.missed { background: #ffe4e6 !important; color: #e11d48 !important; } .pdf-export-mode .pdf-badge.warn { background: #fef3c7 !important; color: #d97706 !important; }
+  .pdf-export-mode .simulator-panel, .pdf-export-mode .agent-advanced-grid { display: none !important; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; background: var(--bg-card); font-size: 12px; }
@@ -224,32 +210,23 @@
   /* ==================================================
      MOBILE OPTIMIZATION
      ================================================== */
-  @media (max-width: 1024px) {
-    .grid-3-charts { grid-template-columns: 1fr 1fr; }
-  }
-
   @media (max-width: 820px) {
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); width: 250px; border: none; }
     body.sidebar-open .sidebar { transform: translateX(0); } body.sidebar-open .sidebar-overlay { display: block; }
     .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
-    .mobile-bottom-nav { display: flex; }
-    main { padding-bottom: 85px !important; }
-    footer { padding-bottom: 80px !important; }
 
     .pdf-grid-3, .kpi-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-    .grid-4, .grid-2, .grid-3-charts { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .grid-4, .grid-2 { grid-template-columns: 1fr !important; gap: 12px !important; }
   }
 
   @media (max-width: 600px) {
-    .topbar { padding: 10px 14px; } main { padding: 12px 10px 85px; }
+    .topbar { padding: 10px 14px; } main { padding: 12px 10px 30px; }
 
     .kpi-row, .pdf-grid-3 { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-    .grid-2, .grid-4, .grid-3-charts { grid-template-columns: 1fr !important; gap: 12px !important; display: flex !important; flex-direction: column !important; }
+    .grid-2, .grid-4 { grid-template-columns: 1fr !important; gap: 12px !important; display: flex !important; flex-direction: column !important; }
     .predicted-bucket-card, .focus-card { grid-column: span 2 !important; }
     .agent-advanced-grid { grid-template-columns: 1fr; }
     .agent-advanced-grid > .pdf-kpi-card { grid-column: span 1 !important; }
-    .sub-tabs { gap: 4px; padding: 4px; }
-    .sub-tab-btn { font-size: 11px; padding: 8px 6px; }
 
     .pdf-kpi-card { padding: 10px 12px !important; min-height: 95px; gap: 6px; }
     .kpi-card-header { flex-direction: column; gap: 4px; }
@@ -270,6 +247,257 @@
     .btn-pdf { width: 100%; }
     .filterbar select, .filterbar input[type=text] { min-width: 100%; }
     #gamificationGrid .lb-card { margin-bottom: 10px; }
+  }
+
+  /* =====================================================================
+     PREMIUM LAYER  — same theme tokens, upgraded surfaces, motion, responsive
+     ===================================================================== */
+  :root {
+    --glass: rgba(248, 250, 252, 0.78); --glass-border: rgba(15, 23, 42, 0.07);
+    --grad-brand: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --ring: 0 0 0 3px rgba(59, 130, 246, 0.35);
+    --radius: 14px; --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  [data-theme="dark"] {
+    --glass: rgba(11, 15, 25, 0.72); --glass-border: rgba(148, 163, 184, 0.13);
+    --grad-brand: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+    --ring: 0 0 0 3px rgba(34, 211, 238, 0.35);
+    --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-size: 14px; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(900px 500px at 85% -10%, rgba(59, 130, 246, 0.10), transparent 60%), radial-gradient(700px 420px at -5% 105%, rgba(99, 102, 241, 0.08), transparent 60%); }
+  [data-theme="dark"] body::before { background: radial-gradient(900px 500px at 85% -10%, rgba(34, 211, 238, 0.09), transparent 60%), radial-gradient(700px 420px at -5% 105%, rgba(99, 102, 241, 0.11), transparent 60%); }
+  ::selection { background: rgba(59, 130, 246, 0.25); }
+  :focus-visible { outline: none; box-shadow: var(--ring); border-radius: 8px; }
+  html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transition: background-color .4s ease, color .4s ease, border-color .4s ease, box-shadow .4s ease !important; }
+
+  /* page transition: lighter (no blur / no lingering transform) */
+  .page { display: none; }
+  .page.active { display: block; opacity: 1; animation: premiumPageFade 0.45s var(--ease) backwards; }
+  @keyframes premiumPageFade { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes revealUp { 0% { opacity: 0; transform: translateY(18px) scale(0.98); } 100% { opacity: 1; transform: none; } }
+  .reveal { animation: revealUp 0.6s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+  @keyframes floatOrb { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-28px, 22px); } }
+  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes shimmer { to { transform: translateX(100%); } }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: none; } }
+  @keyframes spinOnce { to { transform: rotate(360deg); } }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar { background-image: radial-gradient(320px 220px at 0 0, rgba(59, 130, 246, 0.20), transparent 70%); }
+  .sidebar-inner { width: 100%; min-width: 240px; }
+  .sidebar-brand .logo { box-shadow: 0 8px 18px -6px rgba(99, 102, 241, 0.7); }
+  .nav-item { position: relative; }
+  .nav-item.active { background: var(--grad-brand); box-shadow: 0 8px 18px -8px rgba(59, 130, 246, 0.8); }
+  .nav-item .ic { transition: transform .25s var(--ease); }
+  .nav-item:hover .ic { transform: scale(1.15); }
+  .nav-item.highlight { background: linear-gradient(135deg, rgba(59,130,246,.16), rgba(99,102,241,.10)); }
+  .nav-item.highlight.active { background: var(--grad-brand); border-color: transparent; color: #fff; }
+  .sidebar-foot { letter-spacing: 0.04em; }
+  @media (min-width: 821px) {
+    body.sidebar-collapsed .sidebar { width: 76px; min-width: 76px; border-right: 1px solid var(--sidebar-border); }
+    body.sidebar-collapsed .sidebar-inner { min-width: 76px; }
+    body.sidebar-collapsed .nav-item { font-size: 0; justify-content: center; padding: 10px 0; gap: 0; }
+    body.sidebar-collapsed .nav-item .ic { font-size: 17px; width: auto; }
+    body.sidebar-collapsed .nav-item:hover { transform: none; }
+    body.sidebar-collapsed .sidebar-brand .name, body.sidebar-collapsed .sidebar-foot { display: none; }
+    body.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 18px 0; }
+  }
+
+  /* ---------- Topbar (glass) ---------- */
+  .topbar { background: var(--glass); -webkit-backdrop-filter: saturate(1.5) blur(14px); backdrop-filter: saturate(1.5) blur(14px); border-bottom: 1px solid var(--glass-border); }
+  .topbar h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; font-size: 19px; padding: 6px 11px; border-radius: 10px; background: var(--bg-card); transition: transform .2s, border-color .2s; }
+  .mobile-menu-btn:hover { border-color: var(--color-blue); transform: translateY(-1px); }
+  .live-chip { border: 1px solid transparent; transition: background .3s, color .3s; }
+  .live-chip.stale { background: var(--bg-bad); color: var(--color-bad); }
+  .live-chip.stale .live-dot { animation: none; }
+  .theme-btn, .btn-action, .btn-pdf { border-radius: 10px; }
+  .theme-btn i { display: inline-block; }
+  .theme-btn.spin i { animation: spinOnce .55s var(--ease); }
+  #refreshBtn, .btn-pdf, .btn-login { background: var(--grad-brand); color: #fff; box-shadow: 0 8px 18px -8px rgba(59, 130, 246, 0.65); }
+  .btn-action:not(#refreshBtn) { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
+  .btn-action:not(#refreshBtn):hover { border-color: var(--color-blue); color: var(--color-blue); }
+  button { font-family: inherit; }
+  button:active:not(:disabled) { transform: scale(0.97); }
+  button:disabled { opacity: .7; cursor: progress; }
+  #refreshBtn:disabled i { animation: spinOnce 1s linear infinite; }
+  .search-btn kbd { font-family: var(--mono); font-size: 10px; padding: 2px 6px; border-radius: 6px; background: var(--bg-main); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+  main { padding-top: 22px; }
+  .conn-banner { display: none; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; margin-bottom: 16px; border-radius: 12px; background: var(--bg-bad); color: var(--color-bad); border: 1px solid rgba(225, 29, 72, 0.25); font-weight: 600; font-size: 12.5px; }
+  .conn-banner.show { display: flex; animation: revealUp .4s var(--ease); }
+  .conn-banner button { margin-left: auto; background: var(--color-bad); color: #fff; border: 0; border-radius: 8px; padding: 7px 14px; font-weight: 700; cursor: pointer; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; overflow: hidden; border-radius: 20px; padding: 24px 28px; margin-bottom: 20px; color: #fff;
+    background: linear-gradient(135deg, #101d34 0%, #1a2e52 55%, #27407a 100%); box-shadow: var(--shadow-lg); }
+  [data-theme="dark"] .hero { background: linear-gradient(135deg, #0b0f19 0%, #0f172a 50%, #1e1b4b 100%); border: 1px solid var(--glass-border); }
+  .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(28px); pointer-events: none; }
+  .hero::before { width: 320px; height: 320px; right: -80px; top: -140px; background: radial-gradient(circle, rgba(59, 130, 246, 0.55), transparent 65%); animation: floatOrb 9s ease-in-out infinite; }
+  .hero::after { width: 260px; height: 260px; right: 160px; bottom: -150px; background: radial-gradient(circle, rgba(139, 92, 246, 0.45), transparent 65%); animation: floatOrb 12s ease-in-out infinite reverse; }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #93c5fd; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  [data-theme="dark"] .hero-eyebrow { color: #22d3ee; }
+  .hero h2 { font-size: 26px; margin: 0 0 4px; font-weight: 800; letter-spacing: -0.03em; color: #fff; }
+  .hero p { margin: 0; color: #cbd5e1; font-size: 13.5px; }
+  .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .hchip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 11.5px; color: #e2e8f0; background: rgba(255, 255, 255, 0.09); border: 1px solid rgba(255, 255, 255, 0.16); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .hchip b { color: #fff; font-weight: 700; }
+
+  /* ---------- Sections / filters ---------- */
+  .section-head h2 { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; display: flex; align-items: center; gap: 9px; }
+  .section-head h2::before { content: ""; width: 4px; height: 17px; border-radius: 3px; background: var(--grad-brand); flex-shrink: 0; }
+  .update-stamp { box-shadow: var(--shadow-card); }
+  .filterbar select, .filterbar input[type=text] { border-radius: 11px; box-shadow: var(--shadow-card); }
+  .filterbar select:hover, .filterbar input[type=text]:hover { border-color: var(--color-blue); }
+  .filterbar label { letter-spacing: .06em; }
+
+  /* ---------- Cards ---------- */
+  .pdf-kpi-card, .lb-card, .chart-container { border-radius: var(--radius); }
+  .pdf-kpi-card { overflow: hidden; }
+  .pdf-kpi-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--border-color); opacity: .9; transition: height .25s var(--ease); }
+  .pdf-kpi-card:has(.pdf-badge.delivered)::before { background: linear-gradient(90deg, var(--color-good), transparent); }
+  .pdf-kpi-card:has(.pdf-badge.missed)::before { background: linear-gradient(90deg, var(--color-bad), transparent); }
+  .pdf-kpi-card:has(.pdf-badge.warn)::before { background: linear-gradient(90deg, var(--color-warn), transparent); }
+  .pdf-kpi-card:has(.pdf-badge.nokpi)::before { background: linear-gradient(90deg, var(--color-blue), transparent); }
+  .pdf-kpi-card:hover::before { height: 4px; }
+  .pdf-kpi-card:hover { transform: translateY(-4px); }
+  .pdf-kpi-value { font-size: 27px; font-variant-numeric: tabular-nums; }
+  .svg-chart-container { width: 54px; height: 54px; }
+  .svg-chart-val { font-variant-numeric: tabular-nums; }
+  .pdf-badge { backdrop-filter: blur(4px); }
+  .lb-card { transition: transform .25s var(--ease), box-shadow .25s, border-color .25s; }
+  .lb-card .pname { letter-spacing: .03em; }
+  .chart-container { position: relative; }
+
+  .predicted-bucket-card { position: relative; border-radius: 16px; }
+  .predicted-bucket-card::after { content: ""; position: absolute; width: 60%; height: 220%; right: -10%; top: -60%; background: radial-gradient(circle, rgba(99, 102, 241, 0.38), transparent 60%); filter: blur(22px); animation: floatOrb 8s ease-in-out infinite; pointer-events: none; }
+  .predicted-bucket-card > * { position: relative; z-index: 1; }
+  .predicted-bucket-card .pdf-kpi-value { font-size: 34px; }
+
+  .pdf-card-wrapper { border-radius: 20px; }
+  .hdr-row { display: flex; align-items: center; gap: 16px; }
+  .hdr-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .avatar { width: 54px; height: 54px; border-radius: 17px; display: grid; place-items: center; font-weight: 800; font-size: 19px; letter-spacing: .02em; background: var(--grad-brand); color: #fff; flex-shrink: 0; box-shadow: 0 10px 22px -8px rgba(59, 130, 246, 0.7); }
+  .pdf-header-bar { border-radius: 16px; position: relative; overflow: hidden; }
+  .pdf-header-bar::after { content: ""; position: absolute; right: -60px; top: -80px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent 65%); filter: blur(24px); pointer-events: none; }
+  .pdf-header-bar > * { position: relative; z-index: 1; }
+  .pdf-agent-name { font-size: 22px; }
+  .gap-analysis-card { background: linear-gradient(135deg, rgba(59,130,246,.10), rgba(99,102,241,.06)); }
+  .simulator-panel { border-radius: 16px; }
+  .sim-slider { accent-color: var(--color-blue); height: 4px; }
+  .galaxy-node.node-active { transform: translateX(-50%) scale(1.18); }
+  #leaderboardGrid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  @media (min-width: 1100px) { #leaderboardGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  #leaderboardGrid .lb-card { min-width: 0; }
+  #simResultText { border: 1px solid rgba(59, 130, 246, 0.25); }
+
+  /* ---------- Login ---------- */
+  .login-box { max-width: 430px; margin: 44px auto; padding: 36px 30px !important; position: relative; overflow: hidden; }
+  .login-box::before { content: ""; position: absolute; width: 280px; height: 280px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(circle, rgba(59, 130, 246, 0.28), transparent 65%); filter: blur(12px); animation: floatOrb 9s ease-in-out infinite; pointer-events: none; }
+  .login-box > * { position: relative; z-index: 1; }
+  .login-icon { width: 78px; height: 78px; margin: 0 auto 16px; border-radius: 24px; display: grid; place-items: center; background: var(--grad-brand); box-shadow: 0 16px 32px -10px rgba(59, 130, 246, 0.65); animation: floaty 4s ease-in-out infinite; }
+  .login-box .login-icon i { font-size: 36px; color: #fff; margin: 0; }
+  .login-box h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .login-input { border-radius: 14px; transition: border-color .2s, box-shadow .2s; }
+  .login-input:focus { box-shadow: var(--ring); }
+  .btn-login { border-radius: 14px; }
+  .btn-login:hover { transform: translateY(-1px); }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { border-radius: 14px; box-shadow: var(--shadow-card); }
+  thead th { transition: color .2s, background .2s; }
+  thead th.sorted { color: var(--color-blue); }
+  thead th.sorted i { opacity: 1; }
+  tbody tr:nth-child(even) { background: rgba(128, 128, 128, 0.035); }
+  tbody tr:hover { background: rgba(59, 130, 246, 0.08); }
+  .pill { border-radius: 999px; padding: 3px 10px; display: inline-flex; align-items: center; gap: 5px; }
+  .pill.good::before, .pill.pass::before, .pill.bad::before, .pill.fail::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .medal { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 800; color: #fff; }
+  .medal.m1 { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 4px 10px -3px rgba(217, 119, 6, .6); }
+  .medal.m2 { background: linear-gradient(135deg, #cbd5e1, #64748b); }
+  .medal.m3 { background: linear-gradient(135deg, #fdba74, #c2410c); }
+
+  /* ---------- Skeletons ---------- */
+  .skel { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--bg-card); border: 1px solid var(--border-color); min-height: 124px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.20), transparent); animation: shimmer 1.4s infinite; }
+  .skel .b { height: 10px; border-radius: 6px; background: rgba(148, 163, 184, 0.22); }
+  .skel .w40 { width: 40%; } .skel .w55 { width: 55%; } .skel .w70 { width: 70%; } .skel .h24 { height: 24px; border-radius: 8px; }
+  body.conn-error .skel::after { animation: none; }
+
+  /* ---------- Toasts ---------- */
+  .toast-wrap { position: fixed; right: 18px; bottom: 18px; z-index: 250; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 14px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); font-weight: 600; font-size: 12.5px; animation: toastIn .4s var(--ease); }
+  .toast i { color: var(--color-good); font-size: 16px; }
+  .toast.out { opacity: 0; transform: translateY(8px); transition: all .3s ease; }
+
+  /* ---------- Command palette ---------- */
+  .cmdk-ov { position: fixed; inset: 0; z-index: 300; background: rgba(2, 6, 23, 0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: none; align-items: flex-start; justify-content: center; padding: 12vh 16px 16px; }
+  .cmdk-ov.open { display: flex; animation: fadeIn .18s ease; }
+  .cmdk { width: 100%; max-width: 580px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-lg); overflow: hidden; animation: popupCard .28s var(--ease); }
+  .cmdk-in { display: flex; align-items: center; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); }
+  .cmdk-in input { flex: 1; background: none; border: 0; outline: none; box-shadow: none; color: var(--text-main); font: inherit; font-size: 16px; }
+  .cmdk-list { max-height: 360px; overflow: auto; padding: 8px; }
+  .cmdk-group { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted-dim); padding: 10px 12px 4px; }
+  .cmdk-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 11px; cursor: pointer; color: var(--text-main); font-weight: 600; }
+  .cmdk-item i { color: var(--color-blue); width: 18px; text-align: center; }
+  .cmdk-item.sel, .cmdk-item:hover { background: var(--bg-blue); }
+  .cmdk-item small { margin-left: auto; color: var(--text-muted-dim); font-weight: 500; }
+  .cmdk-empty { padding: 22px; text-align: center; color: var(--text-muted); }
+
+  /* ---------- Bottom nav (mobile) ---------- */
+  .bottom-nav { display: none; }
+  @media (max-width: 820px) {
+    body.sidebar-collapsed .sidebar { width: 250px; }
+    .bottom-nav { display: flex; position: fixed; left: 10px; right: 10px; bottom: calc(10px + var(--safe-b)); z-index: 70; gap: 4px; padding: 6px; border-radius: 22px; background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); border: 1px solid var(--glass-border); box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.35); }
+    .bn-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 50px; border: 0; background: none; border-radius: 16px; color: var(--text-muted); font-size: 10px; font-weight: 700; cursor: pointer; transition: background .25s, color .25s, transform .2s; }
+    .bn-item i { font-size: 19px; transition: transform .3s var(--ease); }
+    .bn-item.active { background: var(--grad-brand); color: #fff; box-shadow: 0 8px 18px -8px rgba(59, 130, 246, 0.8); }
+    .bn-item.active i { transform: translateY(-1px) scale(1.12); }
+    main { padding-bottom: 112px; }
+    footer { padding-bottom: 20px; }
+    .toast-wrap { left: 12px; right: 12px; bottom: calc(86px + var(--safe-b)); }
+    .search-btn kbd { display: none; }
+    .hero { padding: 20px 18px; border-radius: 18px; }
+    .hero h2 { font-size: 21px; }
+    .filterbar select, .filterbar input[type=text], .login-input { font-size: 16px; }
+    .status-cluster { width: 100%; justify-content: space-between; }
+    .live-chip { font-size: 10.5px; max-width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .btn-txt { display: none; }
+    .search-btn, #refreshBtn { padding: 8px 11px; }
+    .cmdk-ov { padding-top: 8vh; }
+    /* tables -> cards */
+    .table-wrap:has(table.cardify) { border: 0; background: transparent; box-shadow: none; max-height: none; overflow: visible; }
+    table.cardify, table.cardify tbody, table.cardify tr, table.cardify td { display: block; width: 100%; }
+    table.cardify { background: transparent; }
+    table.cardify thead { display: none; }
+    table.cardify tbody tr { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 12px; padding: 6px 16px 8px; box-shadow: var(--shadow-card); }
+    table.cardify td { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 8px 0; border-bottom: 1px dashed var(--border-color); text-align: right !important; position: static !important; box-shadow: none !important; background: transparent !important; word-break: break-word; }
+    table.cardify td:last-child { border-bottom: 0; }
+    table.cardify td::before { content: attr(data-label); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); text-align: left; flex-shrink: 0; }
+    table.cardify td:first-child { justify-content: flex-start; text-align: left !important; font-size: 14.5px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding: 10px 0; margin-bottom: 2px; }
+    table.cardify td:first-child::before { display: none; }
+    table.cardify tbody tr:nth-child(even), table.cardify tbody tr:hover { background: var(--bg-card); }
+  }
+  @media (min-width: 1200px) { main { padding-left: 32px; padding-right: 32px; } }
+
+  /* ---------- Export + accessibility safety ---------- */
+  .pdf-export-mode *, .pdf-export-mode *::before, .pdf-export-mode *::after { animation: none !important; transition: none !important; }
+  .pdf-export-mode .reveal { opacity: 1 !important; }
+  .pdf-export-mode .pdf-kpi-card::before, .pdf-export-mode .pdf-header-bar::after, .pdf-export-mode .predicted-bucket-card::after { display: none !important; }
+  .pdf-export-mode .pdf-kpi-value { font-size: 18px !important; }
+  .pdf-export-mode .svg-chart-container { width: 40px !important; height: 40px !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   }
 </style>
 </head>
@@ -303,37 +531,39 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="bi bi-list"></i></button>
       <div><h1 id="pageTitle">Dashboard Overview</h1></div>
     </div>
     <div class="status-cluster">
-      <div class="tenure-bar" title="Filter by Agent Tenure">
-        <button class="tenure-btn active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
-        <button class="tenure-btn" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
-        <button class="tenure-btn" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
-      </div>
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
+      <button class="theme-btn search-btn" onclick="openPalette()" title="Quick search"><i class="bi bi-search"></i><span class="btn-txt">Search</span><kbd>Ctrl K</kbd></button>
       <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="bi bi-moon-fill"></i></button>
-      <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+      <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refresh now</span></button>
     </div>
   </div>
 
   <main>
     <!-- 1. DASHBOARD OVERVIEW -->
     <div class="page active" id="page-Dashboard">
+      <div class="hero">
+        <div class="hero-eyebrow"><i class="bi bi-stars"></i> Performance Overview</div>
+        <h2 id="heroGreet">Welcome back 👋</h2>
+        <p>Quality, empathy and efficiency, your team at a glance.</p>
+        <div class="hero-chips">
+          <span class="hchip"><i class="bi bi-clock-history"></i> Updated <b id="heroDate">--</b></span>
+          <span class="hchip"><i class="bi bi-people-fill"></i> <b id="heroAgents">--</b> Active Agents</span>
+          <span class="hchip"><i class="bi bi-arrow-repeat"></i> Auto-refresh</span>
+        </div>
+      </div>
       <div class="filterbar">
         <div class="fgroup"><label>IB Agent Wise Filter</label><select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select></div>
         <div class="fgroup"><label>Audit Party Filter</label><select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
-        <button id="waCopyBtn" class="btn-wa" style="align-self: flex-end;" onclick="copyWhatsAppSummary()"><i class="bi bi-whatsapp"></i> Copy WhatsApp Update</button>
       </div>
-      <section><div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row" id="tlKpiGrid">
-        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
-      </div></section>
+      <section><div class="section-head"><div class="section-head-left"><h2>Team Performance Summary</h2><span class="update-stamp" data-sheet="Audit"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row" id="tlKpiGrid"></div></section>
       <section>
-        <div class="grid-3-charts">
-          <div><div class="section-head"><h2>Bucket Distribution (A–D)</h2></div><div class="chart-container"><canvas id="bucketDistChart"></canvas></div></div>
+        <div class="grid-2">
           <div><div class="section-head"><h2>Fail Call Topics Breakdown</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
-          <div><div class="section-head"><h2>Gamification &amp; Awards</h2></div><div id="gamificationGrid" style="display:flex; flex-direction:column; gap:12px;"></div></div>
+          <div><div class="section-head"><h2>Gamification & Awards</h2></div><div id="gamificationGrid" style="display:flex; flex-direction:column; gap:12px;"></div></div>
         </div>
       </section>
       <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
@@ -342,7 +572,7 @@
     <!-- 2. MY PERFORMANCE (AGENT LOGIN VIEW) -->
     <div class="page" id="page-My Performance">
       <div id="agentLoginArea" class="pdf-card-wrapper login-box">
-        <i class="bi bi-person-bounding-box"></i><h2>Welcome to Agent Portal</h2>
+        <div class="login-icon"><i class="bi bi-person-bounding-box"></i></div><h2>Welcome to Agent Portal</h2>
         <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">Enter your VDI or Employee ID to view your personalized performance metrics.</p>
         <input type="text" id="agentLoginInput" class="login-input" placeholder="e.g., genex.name or 20301111" onkeypress="if(event.key === 'Enter') handleAgentLogin()">
         <button class="btn-login" onclick="handleAgentLogin()">Access My Dashboard</button>
@@ -402,9 +632,9 @@
     <!-- 5. FCR & SERVICE DELIVERY -->
     <div class="page" id="page-FCR, Quiz & SD">
       <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('fcrTableEl', 'FCR_SD_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
-      <section><div class="section-head"><div class="section-head-left"><h2>FCR &amp; Service Delivery Insights</h2><span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
+      <section><div class="section-head"><div class="section-head-left"><h2>FCR & Service Delivery Insights</h2><span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
       <section>
-        <div class="section-head"><h2>Agent FCR, Quiz &amp; Service Delivery Data</h2></div>
+        <div class="section-head"><h2>Agent FCR, Quiz & Service Delivery Data</h2></div>
         <div class="table-wrap">
           <table id="fcrTableEl">
             <thead><tr><th onclick="sortTable('fcrTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th>VDI ID</th><th onclick="sortTable('fcrTableEl', 2, true)">FCR % <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('fcrTableEl', 3, true)">Quiz Score <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('fcrTableEl', 4, true)">SD Count <i class="bi bi-chevron-expand"></i></th></tr></thead>
@@ -420,7 +650,7 @@
         <button class="btn-action" onclick="exportTableToCSV('compTableEl', 'Complaint_Escalation.csv')"><i class="bi bi-filetype-csv"></i> Export Complaints</button>
         <button class="btn-action" onclick="exportTableToCSV('dkbTableEl', 'DKB_Attendance.csv')"><i class="bi bi-filetype-csv"></i> Export DKB</button>
       </div>
-      <section><div class="section-head"><div class="section-head-left"><h2>Complaint &amp; DKB Overview</h2><span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
+      <section><div class="section-head"><div class="section-head-left"><h2>Complaint & DKB Overview</h2><span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
       <section>
         <div class="section-head"><h2>Complaint Escalation Table</h2></div>
         <div class="table-wrap mb-4">
@@ -444,9 +674,9 @@
     <!-- 7. LAG ADHERENCE & OVER BREAK -->
     <div class="page" id="page-Lag Adherence & Over Break">
       <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('lagTableEl', 'Lag_Adherence.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
-      <section><div class="section-head"><div class="section-head-left"><h2>Lag, Adherence &amp; Break Summary</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="lagAdhKpis"></div></section>
+      <section><div class="section-head"><div class="section-head-left"><h2>Lag, Adherence & Break Summary</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="lagAdhKpis"></div></section>
       <section>
-        <div class="section-head"><h2>Lag Adherence &amp; Over Break Data</h2></div>
+        <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
         <div class="table-wrap">
           <table id="lagTableEl">
             <thead><tr><th onclick="sortTable('lagTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('lagTableEl', 1, true)">Adherence % <i class="bi bi-chevron-expand"></i></th><th>Extra Break</th><th>Lag Time</th></tr></thead>
@@ -459,9 +689,9 @@
     <!-- 8. AHT & CFS -->
     <div class="page" id="page-AHT & CFS">
       <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('ahtTableEl', 'AHT_CFS_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
-      <section><div class="section-head"><div class="section-head-left"><h2>AHT &amp; CFS Insights</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="ahtCfsKpis"></div></section>
+      <section><div class="section-head"><div class="section-head-left"><h2>AHT & CFS Insights</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="ahtCfsKpis"></div></section>
       <section>
-        <div class="section-head"><h2>Agent AHT &amp; CFS Data</h2></div>
+        <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
         <div class="table-wrap">
           <table id="ahtTableEl">
             <thead><tr><th onclick="sortTable('ahtTableEl', 0)">Agent Name <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('ahtTableEl', 1, true)">AHT (Sec) <i class="bi bi-chevron-expand"></i></th><th>AHT Status</th><th onclick="sortTable('ahtTableEl', 3, true)">CFS % <i class="bi bi-chevron-expand"></i></th><th>CFS Status</th></tr></thead>
@@ -475,7 +705,7 @@
     <div class="page" id="page-Audited Call Details">
       <div class="filterbar">
         <div class="fgroup"><label>Search Record</label><input type="text" id="callSearch" placeholder="Search Agent, ANI, Topic..." oninput="filterCalls()"></div>
-        <div class="fgroup"><label>Result Filter</label><select id="resultFilter" onchange="filterCalls()"><option value="">All Results (Pass &amp; Fail)</option><option value="pass">Pass Only</option><option value="fail">Fail Only</option></select></div>
+        <div class="fgroup"><label>Result Filter</label><select id="resultFilter" onchange="filterCalls()"><option value="">All Results (Pass & Fail)</option><option value="pass">Pass Only</option><option value="fail">Fail Only</option></select></div>
         <button class="btn-action" style="align-self: flex-end;" onclick="exportTableToCSV('callLogTableEl', 'Raw_Call_Logs.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
       </div>
       <div class="table-wrap">
@@ -489,98 +719,14 @@
   <footer id="footerNote">Albatross Wings — Better Quality, Stronger Performance</footer>
 </div>
 
-<!-- MOBILE BOTTOM NAVIGATION BAR -->
-<div class="mobile-bottom-nav" id="mobileBottomNav">
-  <div class="mbn-item active" data-page="Dashboard" onclick="navTo('Dashboard')"><i class="bi bi-grid-fill"></i><span>Dashboard</span></div>
-  <div class="mbn-item" data-page="My Performance" onclick="navTo('My Performance')"><i class="bi bi-person-fill-lock"></i><span>Agent</span></div>
-  <div class="mbn-item" data-page="Parameter wise Empathy" onclick="navTo('Parameter wise Empathy')"><i class="bi bi-heart-pulse-fill"></i><span>Empathy</span></div>
-  <div class="mbn-item" data-page="Audited Call Details" onclick="navTo('Audited Call Details')"><i class="bi bi-telephone-fill"></i><span>Calls</span></div>
-  <div class="mbn-item" onclick="toggleMobileSidebar()"><i class="bi bi-list"></i><span>Menu</span></div>
-</div>
-
 <script>
   // === DUAL-MODE CONFIG (Works on BOTH Apps Script Web App & GitHub Pages) ===
   const LOGIN_TRACKER_URL = "https://script.google.com/macros/s/AKfycbwD_usFFtERll_2gUPEUa-xVrW5ecNYrH-_18dcAybvQkwO2jvXH9Pd-Ap4tH93fm89Lg/exec";
   const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes auto-logout
   const IS_APPS_SCRIPT = (typeof google !== 'undefined' && google.script && google.script.run);
 
-  if (typeof ChartDataLabels !== 'undefined') {
-    Chart.register(ChartDataLabels);
-  }
-
-  let appData = null;
-  let activeTab = 'Dashboard';
-  let currentTenureFilter = 'all'; // 'all' | 'regular' | 'ojt'
-  let currentCardAgentName = '';
-  let rootCauseChartInstance = null;
-  let bucketDistChartInstance = null;
-  let dailyTrendChartInstance = null;
-
-  // Custom Chart.js Plugin for Dashed Target Lines (170s AHT & 90% CFS)
-  const targetLinesPlugin = {
-    id: 'targetLinesPlugin',
-    afterDatasetsDraw(chart, args, opts) {
-      if (!opts || !opts.enabled) return;
-      const { ctx, chartArea: { left, right }, scales } = chart;
-      ctx.save();
-      if (scales.yAht && opts.ahtTarget) {
-        const y = scales.yAht.getPixelForValue(opts.ahtTarget);
-        if (y >= chart.chartArea.top && y <= chart.chartArea.bottom) {
-          ctx.beginPath();
-          ctx.setLineDash([5, 4]);
-          ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
-          ctx.lineWidth = 1.5;
-          ctx.moveTo(left, y);
-          ctx.lineTo(right, y);
-          ctx.stroke();
-          ctx.fillStyle = '#f59e0b';
-          ctx.font = 'bold 9.5px Inter, sans-serif';
-          ctx.fillText('AHT Target ' + opts.ahtTarget + 's', left + 6, y - 4);
-        }
-      }
-      if (scales.yCfs && opts.cfsTarget) {
-        const y = scales.yCfs.getPixelForValue(opts.cfsTarget);
-        if (y >= chart.chartArea.top && y <= chart.chartArea.bottom) {
-          ctx.beginPath();
-          ctx.setLineDash([5, 4]);
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)';
-          ctx.lineWidth = 1.5;
-          ctx.moveTo(left, y);
-          ctx.lineTo(right, y);
-          ctx.stroke();
-          ctx.fillStyle = '#10b981';
-          ctx.font = 'bold 9.5px Inter, sans-serif';
-          const lbl = 'CFS Target ' + opts.cfsTarget + '%';
-          ctx.fillText(lbl, right - ctx.measureText(lbl).width - 6, y - 4);
-        }
-      }
-      ctx.restore();
-    }
-  };
-
-  function getAgentTenure(agentName, vdiId) {
-    if (!appData || !appData.sheets || !appData.sheets['Alignment']) return 'regular';
-    const n = String(agentName || '').trim().toLowerCase();
-    const v = String(vdiId || '').trim().toLowerCase();
-    const found = appData.sheets['Alignment'].find(a =>
-      (v && String(a['VDI ID'] || '').trim().toLowerCase() === v) ||
-      (n && String(a['Name'] || '').trim().toLowerCase() === n)
-    );
-    const t = String(found ? (found['Tenure'] || 'Regular') : 'Regular').trim().toLowerCase();
-    return t === 'ojt' ? 'ojt' : 'regular';
-  }
-
-  function matchesTenure(agentName, vdiId, explicitTenure) {
-    if (currentTenureFilter === 'all') return true;
-    const t = explicitTenure ? (String(explicitTenure).trim().toLowerCase() === 'ojt' ? 'ojt' : 'regular') : getAgentTenure(agentName, vdiId);
-    return t === currentTenureFilter;
-  }
-
-  function setTenureFilter(val) {
-    currentTenureFilter = val;
-    document.querySelectorAll('.tenure-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-tenure') === val));
-    if (appData) renderView(activeTab);
-  }
+  let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = '';
+  let rootCauseChartInstance = null; let dailyTrendChartInstance = null;
 
   function checkSessionTimeout() {
     const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
@@ -602,28 +748,18 @@
     const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     body.setAttribute('data-theme', next); localStorage.setItem('aw_theme', next);
     document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-    if (rootCauseChartInstance) renderRootCauseChart();
-    if (bucketDistChartInstance) renderBucketDistChart();
-    if (dailyTrendChartInstance && currentCardAgentName && appData) {
+    if(rootCauseChartInstance) renderRootCauseChart();
+    if(dailyTrendChartInstance && currentCardAgentName && appData) {
       const agent = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
-      if (agent) renderDailyTrendChart(agent, String(agent.tenure).toLowerCase() === 'ojt');
+      if(agent) renderDailyTrendChart(agent, String(agent.tenure).toLowerCase() === 'ojt');
     }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('aw_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    if (savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
+    if(savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
     localStorage.removeItem('aw_agent_login_time');
-
-    // INSTANT LOADING FROM LOCAL CACHE (0ms render)
-    try {
-      const cachedRaw = localStorage.getItem('aw_cached_data');
-      if (cachedRaw) {
-        applyDashboardData(JSON.parse(cachedRaw), true);
-      }
-    } catch (e) {}
-
     loadDashboard(false);
   });
 
@@ -633,30 +769,20 @@
     if (tabName === 'My Performance') checkSessionTimeout();
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.mbn-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + tabName).classList.add('active');
     const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-    if (activeNav) activeNav.classList.add('active');
-    const activeMbn = document.querySelector(`.mbn-item[data-page="${tabName}"]`);
-    if (activeMbn) activeMbn.classList.add('active');
+    if(activeNav) activeNav.classList.add('active');
     document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
-    document.body.classList.remove('sidebar-open');
-    renderView(tabName);
+    document.body.classList.remove('sidebar-open'); renderView(tabName);
   }
 
-  function applyDashboardData(data, isFromCache = false) {
+  function applyDashboardData(data) {
     if (typeof data === 'string') {
       data = JSON.parse(data);
     }
     appData = data;
-    if (!isFromCache) {
-      try { localStorage.setItem('aw_cached_data', JSON.stringify(data)); } catch (e) {}
-    }
-
     const dt = new Date(appData.lastUpdated);
-    document.getElementById('liveMeta').innerText = isFromCache
-      ? `Syncing… (${appData.activeAgentsCount || 0} Agents)`
-      : `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active)`;
+    document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
     document.getElementById('liveChip').classList.remove('stale');
 
     const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -675,19 +801,21 @@
 
   async function loadDashboard(manual = false) {
     const btn = document.getElementById('refreshBtn');
-    if (manual && btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Refreshing...'; }
+    const REFRESH_HTML = '<i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refresh now</span>';
+    if (manual && btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refreshing...</span>'; }
 
     if (IS_APPS_SCRIPT) {
       google.script.run
         .withSuccessHandler(data => {
-          applyDashboardData(data, false);
-          if (manual && btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Refresh'; }
+          applyDashboardData(data);
+          if (manual && btn) { btn.disabled = false; btn.innerHTML = REFRESH_HTML; }
         })
         .withFailureHandler(err => {
           console.error(err);
           document.getElementById('liveChip').classList.add('stale');
           document.getElementById('liveMeta').innerText = 'Connection Error';
-          if (manual && btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Refresh'; }
+          if (window.showConnError) window.showConnError();
+          if (manual && btn) { btn.disabled = false; btn.innerHTML = REFRESH_HTML; }
         })
         .getDashboardData();
       return;
@@ -695,78 +823,20 @@
 
     try {
       const res = await fetch('./data.json?t=' + new Date().getTime());
-      applyDashboardData(await res.json(), false);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      applyDashboardData(await res.json());
     } catch (err) {
       console.error(err); document.getElementById('liveChip').classList.add('stale'); document.getElementById('liveMeta').innerText = 'Connection Error';
+      if (window.showConnError) window.showConnError();
     } finally {
-      if (manual && btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Refresh'; }
+      if (manual && btn) { btn.disabled = false; btn.innerHTML = REFRESH_HTML; }
     }
   }
 
+  // Auto-refresh every 30s on GitHub Pages, every 2 mins on Apps Script
   setInterval(() => { loadDashboard(false); }, IS_APPS_SCRIPT ? 120000 : 30000);
 
-  // 1-CLICK WHATSAPP SUMMARY COPY
-  function copyWhatsAppSummary() {
-    if (!appData) return;
-    const tl = appData.tlSummary || {};
-    const kpiList = (appData.sheets['KPI'] || []).filter(a => matchesTenure(a.name, a.vdiId, a.tenure));
-    const top3 = [...kpiList].sort((a, b) => (parseFloat(b.finalScore) || 0) - (parseFloat(a.finalScore) || 0)).slice(0, 3);
-    const bCounts = { A: 0, B: 0, C: 0, D: 0 };
-    kpiList.forEach(a => { const b = String(a.bucket || 'D').charAt(0).toUpperCase(); if (bCounts[b] !== undefined) bCounts[b]++; });
-
-    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    const filterTag = currentTenureFilter === 'all' ? 'All Agents' : currentTenureFilter.toUpperCase();
-    let text = `📊 *Albatross Wings — Daily Performance Update*\n`;
-    text += `📅 Date: ${todayStr} | Scope: ${filterTag}\n`;
-    text += `━━━━━━━━━━━━━━━━━━\n`;
-    text += `✅ *Audit Pass:* ${tl.passPercent || 'N/A'} (${tl.totalPass || 0}/${tl.totalAudit || 0})\n`;
-    text += `💜 *Empathy:* ${tl.empathyPercent || 'N/A'}\n`;
-    text += `⏱️ *Team AHT:* ${tl.aht || 'N/A'}\n`;
-    text += `🌟 *Team CFS:* ${tl.teamCfs || 'N/A'}\n`;
-    text += `🎯 *Team FCR:* ${tl.fcr || 'N/A'}\n`;
-    text += `📚 *Team DKB:* ${tl.dkbPercent || 'N/A'}\n`;
-    text += `📦 *Buckets:* A: ${bCounts.A} | B: ${bCounts.B} | C: ${bCounts.C} | D: ${bCounts.D}\n`;
-    text += `━━━━━━━━━━━━━━━━━━\n`;
-    text += `🏆 *Top 3 Performers:*\n`;
-    top3.forEach((a, i) => {
-      text += `${i + 1}. ${a.name} — Score: ${a.finalScore || '0.00'} (Bucket ${a.bucket || 'D'})\n`;
-    });
-
-    const btn = document.getElementById('waCopyBtn');
-    const onCopied = () => {
-      if (btn) {
-        const old = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check2-all"></i> Copied for WhatsApp!';
-        setTimeout(() => { btn.innerHTML = old; }, 2200);
-      }
-    };
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(onCopied).catch(() => fallbackCopy(text, onCopied));
-    } else {
-      fallbackCopy(text, onCopied);
-    }
-  }
-
-  function fallbackCopy(text, cb) {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); if (cb) cb(); } catch (e) {}
-    document.body.removeChild(ta);
-  }
-
-  function switchAgentSubTab(tabId) {
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-subtab') === tabId));
-    document.querySelectorAll('.sub-tab-pane').forEach(p => p.classList.toggle('active', p.id === 'subpane-' + tabId));
-    if (tabId === 'trends' && currentCardAgentName && appData) {
-      const agent = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
-      if (agent) setTimeout(() => renderDailyTrendChart(agent, String(agent.tenure).toLowerCase() === 'ojt'), 50);
-    }
-  }
-
   function downloadKpiPdf() {
-    switchAgentSubTab('scorecard');
     const el = document.getElementById('pdfCardTarget');
     if (!el) return;
     el.classList.add('pdf-export-mode');
@@ -809,48 +879,48 @@
   }
 
   function exportTableToCSV(tableId, filename) {
-    const table = document.getElementById(tableId); if (!table) return;
+    const table = document.getElementById(tableId); if(!table) return;
     let csv = []; const rows = table.querySelectorAll("tr");
     for (let i = 0; i < rows.length; i++) {
-      let row = [], cols = rows[i].querySelectorAll("td, th");
-      for (let j = 0; j < cols.length; j++) {
-        let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
-        if (data.includes(",")) data = `"${data}"`; row.push(data);
-      }
-      csv.push(row.join(","));
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) {
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+            if(data.includes(",")) data = `"${data}"`; row.push(data);
+        }
+        csv.push(row.join(","));
     }
-    const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+    const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
     const downloadLink = document.createElement("a"); downloadLink.download = filename; downloadLink.href = window.URL.createObjectURL(csvFile);
     downloadLink.style.display = "none"; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
   }
 
-  function sortTable(tableId, n, isNumeric = false) {
+  function sortTable(tableId, n, isNumeric=false) {
     const table = document.getElementById(tableId);
     let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0; switching = true; dir = "desc";
     while (switching) {
       switching = false; rows = table.rows;
       for (i = 1; i < (rows.length - 1); i++) {
         shouldSwitch = false; x = rows[i].getElementsByTagName("TD")[n]; y = rows[i + 1].getElementsByTagName("TD")[n];
-        if (!x || !y) continue;
+        if(!x || !y) continue;
         let xVal = x.innerText.toLowerCase().replace(/[^0-9.\-]/g, ''); let yVal = y.innerText.toLowerCase().replace(/[^0-9.\-]/g, '');
-        if (isNumeric) {
-          xVal = parseFloat(xVal) || 0; yVal = parseFloat(yVal) || 0;
-          if (dir === "asc") { if (xVal > yVal) { shouldSwitch = true; break; } } else if (dir === "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+        if(isNumeric) {
+            xVal = parseFloat(xVal) || 0; yVal = parseFloat(yVal) || 0;
+            if (dir === "asc") { if (xVal > yVal) { shouldSwitch = true; break; } } else if (dir === "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
         } else {
-          if (dir === "asc") { if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) { shouldSwitch = true; break; } } else if (dir === "desc") { if (x.innerText.toLowerCase() < y.innerText.toLowerCase()) { shouldSwitch = true; break; } }
+            if (dir === "asc") { if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) { shouldSwitch = true; break; } } else if (dir === "desc") { if (x.innerText.toLowerCase() < y.innerText.toLowerCase()) { shouldSwitch = true; break; } }
         }
       }
-      if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount++; }
+      if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount ++; }
       else { if (switchcount === 0 && dir === "desc") { dir = "asc"; switching = true; } }
     }
   }
 
   function handleAgentLogin() {
     const input = document.getElementById('agentLoginInput').value.trim().toLowerCase();
-    if (!input || !appData) return;
+    if(!input || !appData) return;
     const activeAgents = appData.sheets['Alignment'] || [];
-    const agent = activeAgents.find(a => String(a['VDI ID'] || '').toLowerCase() === input || String(a['ID'] || '').toLowerCase() === input || String(a['Name'] || '').toLowerCase() === input);
-    if (agent) {
+    const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
+    if(agent) {
       localStorage.setItem('aw_agent_login_time', String(Date.now()));
       document.getElementById('loginError').style.display = 'none';
       const expiredMsg = document.getElementById('sessionExpiredMsg');
@@ -858,12 +928,20 @@
       document.getElementById('agentLoginArea').style.display = 'none';
       document.getElementById('agentPersonalArea').style.display = 'block';
 
-      const loginPayload = { name: agent['Name'] || '', vdiId: agent['VDI ID'] || '', id: agent['ID'] || '' };
+      const loginPayload = {
+        name: agent['Name'] || '',
+        vdiId: agent['VDI ID'] || '',
+        id: agent['ID'] || ''
+      };
+
+      // Dual-Mode Silent Live Login Logging to "Login Logs"
       if (IS_APPS_SCRIPT) {
         google.script.run.logAgentLogin(loginPayload);
       } else if (LOGIN_TRACKER_URL && !LOGIN_TRACKER_URL.includes("YOUR_WEB_APP_URL")) {
         fetch(LOGIN_TRACKER_URL, {
-          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify(loginPayload)
         }).catch(err => console.log('Login ping error:', err));
       }
@@ -884,7 +962,7 @@
     if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
   }
 
-  // DAILY PROGRESSION BAR CHART WITH DATA LABELS & DASHED TARGET LINES
+  // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
   function renderDailyTrendChart(agent, isOjtAgent) {
     const ctx = document.getElementById('dailyTrendChart');
     if (!ctx || !appData || !appData.dailyTrend) return;
@@ -913,20 +991,19 @@
         borderWidth: 1,
         borderRadius: 5,
         maxBarThickness: 28,
-        yAxisID: 'yAht',
-        datalabels: {
-          anchor: 'end', align: 'top', offset: 2,
-          color: '#f59e0b', font: { size: 9.5, weight: 'bold' },
-          formatter: v => (v !== null && v !== undefined && v > 0) ? v + 's' : ''
-        }
+        yAxisID: 'yAht'
       }
     ];
 
     const scales = {
-      x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+      x: {
+        grid: { display: false },
+        ticks: { color: textColor, font: { size: 10 } }
+      },
       yAht: {
-        type: 'linear', position: 'left', beginAtZero: true,
-        suggestedMax: 210,
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
         grid: { color: gridColor },
         ticks: { color: '#f59e0b', font: { size: 10 }, callback: v => v + 's' }
       }
@@ -941,35 +1018,27 @@
         borderWidth: 1,
         borderRadius: 5,
         maxBarThickness: 28,
-        yAxisID: 'yCfs',
-        datalabels: {
-          anchor: 'end', align: 'top', offset: 2,
-          color: '#10b981', font: { size: 9.5, weight: 'bold' },
-          formatter: v => (v !== null && v !== undefined && v > 0) ? v + '%' : ''
-        }
+        yAxisID: 'yCfs'
       });
       scales.yCfs = {
-        type: 'linear', position: 'right', min: 0, max: 110,
+        type: 'linear',
+        position: 'right',
+        min: 0,
+        max: 100,
         grid: { drawOnChartArea: false },
-        ticks: { color: '#10b981', font: { size: 10 }, callback: v => v <= 100 ? v + '%' : '' }
+        ticks: { color: '#10b981', font: { size: 10 }, callback: v => v + '%' }
       };
     }
 
     dailyTrendChartInstance = new Chart(ctx, {
       type: 'bar',
       data: { labels, datasets },
-      plugins: [targetLinesPlugin],
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 18 } },
+        animation: { duration: 900, easing: 'easeOutQuart' },
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          targetLinesPlugin: {
-            enabled: history.length > 0,
-            ahtTarget: 170,
-            cfsTarget: isOjtAgent ? null : 90
-          },
           legend: { labels: { color: textColor, font: { size: 11 } } },
           tooltip: {
             callbacks: {
@@ -986,67 +1055,20 @@
     });
   }
 
-  // BUCKET DISTRIBUTION CHART (A, B, C, D) WITH DATA LABELS
-  function renderBucketDistChart() {
-    if (!appData) return;
-    const kpiList = (appData.sheets['KPI'] || []).filter(a => matchesTenure(a.name, a.vdiId, a.tenure));
-    const counts = { A: 0, B: 0, C: 0, D: 0 };
-    kpiList.forEach(a => {
-      const b = String(a.bucket || 'D').trim().charAt(0).toUpperCase();
-      if (counts[b] !== undefined) counts[b]++;
-    });
-
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#94a3b8' : '#475569';
-    const ctx = document.getElementById('bucketDistChart');
-    if (!ctx) return;
-    if (bucketDistChartInstance) bucketDistChartInstance.destroy();
-
-    bucketDistChartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Bucket A', 'Bucket B', 'Bucket C', 'Bucket D'],
-        datasets: [{
-          data: [counts.A, counts.B, counts.C, counts.D],
-          backgroundColor: ['#10b981', '#06b6d4', '#f59e0b', '#f43f5e'],
-          borderWidth: isDark ? 2 : 1,
-          borderColor: isDark ? '#0b0f19' : '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '55%',
-        plugins: {
-          legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 11 } } },
-          datalabels: {
-            color: '#ffffff',
-            font: { weight: 'bold', size: 12 },
-            formatter: v => v > 0 ? v : ''
-          }
-        }
-      }
-    });
-  }
-
-  // PARAMETER WISE EMPATHY VIEW WITH AGENT FILTER + TENURE FILTER
+  // PARAMETER WISE EMPATHY VIEW WITH AGENT FILTER
   function renderEmpathyView() {
     if (!appData) return;
     const emp = appData.sheets['Parameter wise Empathy'] || { teamAvg: {}, agentList: [], activeParams: [] };
     const headers = (emp.activeParams && emp.activeParams.length > 0) ? emp.activeParams : ['Warm Greetings', 'Acknowledgment & Understanding', 'Speech Clarity', 'Proper Listening', 'Personalization', 'Time / Hold Management', 'Emotional Tone with Courtesy', 'Closing Courtesy'];
-    const filteredList = (emp.agentList || []).filter(a => matchesTenure(a.agentName, a.vdiId));
 
     const selectEl = document.getElementById('empathyAgentFilter');
-    const prevVal = selectEl ? selectEl.value : '';
-    if (selectEl) {
-      selectEl.innerHTML = '<option value="">All Agents (Team Average)</option>';
-      const names = [...new Set(filteredList.map(a => a.agentName).filter(Boolean))].sort();
+    if (selectEl && selectEl.options.length <= 1) {
+      const names = [...new Set((emp.agentList || []).map(a => a.agentName).filter(Boolean))].sort();
       names.forEach(n => selectEl.appendChild(new Option(n, n)));
-      if (names.includes(prevVal)) selectEl.value = prevVal;
     }
 
     const selectedAgent = selectEl ? selectEl.value : '';
-    const agentObj = selectedAgent ? filteredList.find(a => a.agentName === selectedAgent) : null;
+    const agentObj = selectedAgent ? (emp.agentList || []).find(a => a.agentName === selectedAgent) : null;
 
     const headingEl = document.getElementById('empathyKpiHeading');
     if (headingEl) {
@@ -1063,8 +1085,8 @@
     });
     document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-    const tableRows = agentObj ? [agentObj] : filteredList;
-    document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i + 2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
+    const tableRows = agentObj ? [agentObj] : (emp.agentList || []);
+    document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
     document.getElementById('empathyBody').innerHTML = tableRows.map(agent => {
       return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>${headers.map(h => {
         let cellVal = agent[h] || 'N/A'; let numVal = parseFloat(String(cellVal).replace('%', '')); let heatClass = '';
@@ -1076,7 +1098,7 @@
 
   // ADVANCED SIMULATOR: Handles Galaxy & Auto Gap Analysis
   window.updateSimulator = function(agentName, isOjt) {
-    if (!appData) return;
+    if(!appData) return;
     const ahtVal = parseFloat(document.getElementById('simAht').value);
     const fcrVal = parseFloat(document.getElementById('simFcr').value);
     const empVal = parseFloat(document.getElementById('simEmp').value);
@@ -1088,53 +1110,52 @@
     document.getElementById('lblFcr').innerText = fcrVal + '%';
     document.getElementById('lblEmp').innerText = empVal + '%';
     document.getElementById('lblComp').innerText = compVal + '%';
-    if (!isOjt) {
-      if (document.getElementById('lblCfs')) document.getElementById('lblCfs').innerText = cfsVal + '%';
-      if (document.getElementById('lblDkb')) document.getElementById('lblDkb').innerText = dkbVal + '%';
+    if(!isOjt) {
+        if(document.getElementById('lblCfs')) document.getElementById('lblCfs').innerText = cfsVal + '%';
+        if(document.getElementById('lblDkb')) document.getElementById('lblDkb').innerText = dkbVal + '%';
     }
 
     let mockScore = 0.5;
-    if (ahtVal <= 170) mockScore += 0.8; else if (ahtVal <= 180) mockScore += 0.4;
-    if (fcrVal >= 93) mockScore += 0.8; else if (fcrVal >= 90) mockScore += 0.4;
-    if (empVal >= 87.5) mockScore += 0.8; else if (empVal >= 80) mockScore += 0.4;
-    if (compVal >= 95) mockScore += 0.4;
+    if(ahtVal <= 170) mockScore += 0.8; else if(ahtVal <= 180) mockScore += 0.4;
+    if(fcrVal >= 93) mockScore += 0.8; else if(fcrVal >= 90) mockScore += 0.4;
+    if(empVal >= 87.5) mockScore += 0.8; else if(empVal >= 80) mockScore += 0.4;
+    if(compVal >= 95) mockScore += 0.4;
 
-    if (!isOjt) {
-      if (cfsVal >= 90) mockScore += 0.4;
-      if (dkbVal >= 95) mockScore += 0.3;
+    if(!isOjt) {
+        if(cfsVal >= 90) mockScore += 0.4;
+        if(dkbVal >= 95) mockScore += 0.3;
     } else {
-      mockScore += 0.7;
+        mockScore += 0.7;
     }
 
     let predictedBucket = 'D'; let galPos = '0%';
-    if (mockScore >= 3.6) { predictedBucket = 'A (Excellent)'; galPos = '100%'; }
-    else if (mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; }
-    else if (mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
+    if(mockScore >= 3.6) { predictedBucket = 'A (Excellent)'; galPos = '100%'; }
+    else if(mockScore >= 2.8) { predictedBucket = 'B (Good)'; galPos = '66%'; }
+    else if(mockScore >= 2.0) { predictedBucket = 'C (Average)'; galPos = '33%'; }
 
     document.getElementById('simResultText').innerHTML = `Projected Score: <strong>${Math.min(mockScore, 4.0).toFixed(2)}</strong> | Predicted Bucket: <strong class="text-primary">${predictedBucket}</strong>`;
 
     document.querySelectorAll('.galaxy-node').forEach(n => n.classList.remove('node-active'));
-    if (mockScore >= 3.6) document.getElementById('gal-A').classList.add('node-active');
-    else if (mockScore >= 2.8) document.getElementById('gal-B').classList.add('node-active');
-    else if (mockScore >= 2.0) document.getElementById('gal-C').classList.add('node-active');
+    if(mockScore >= 3.6) document.getElementById('gal-A').classList.add('node-active');
+    else if(mockScore >= 2.8) document.getElementById('gal-B').classList.add('node-active');
+    else if(mockScore >= 2.0) document.getElementById('gal-C').classList.add('node-active');
     else document.getElementById('gal-D').classList.add('node-active');
     document.getElementById('gal-rocket').style.left = galPos;
 
     let gapText = "Keep it up! Maintain this consistency to secure your bonus.";
     if (mockScore < 2.8) {
-      let missing = (2.8 - mockScore).toFixed(2);
-      gapText = `You need <strong>+${missing} score</strong> to reach Bucket B. `;
-      if (ahtVal > 170) gapText += `Try reducing AHT to <=170s. `;
-      else if (fcrVal < 93) gapText += `Try pushing FCR to >=93%. `;
-      else if (empVal < 87.5) gapText += `Focus on boosting Empathy >=87.5%.`;
+        let missing = (2.8 - mockScore).toFixed(2);
+        gapText = `You need <strong>+${missing} score</strong> to reach Bucket B. `;
+        if (ahtVal > 170) gapText += `Try reducing AHT to <=170s. `;
+        else if (fcrVal < 93) gapText += `Try pushing FCR to >=93%. `;
+        else if (empVal < 87.5) gapText += `Focus on boosting Empathy >=87.5%.`;
     } else if (mockScore < 3.6) {
-      let missing = (3.6 - mockScore).toFixed(2);
-      gapText = `You are close to Bucket A! Need <strong>+${missing} score</strong>. `;
-      if (ahtVal > 170) gapText += `Reduce AHT under 170s. `;
-      if (fcrVal < 93) gapText += `Ensure FCR stays >=93%.`;
+        let missing = (3.6 - mockScore).toFixed(2);
+        gapText = `You are close to Bucket A! Need <strong>+${missing} score</strong>. `;
+        if (ahtVal > 170) gapText += `Reduce AHT under 170s. `;
+        if (fcrVal < 93) gapText += `Ensure FCR stays >=93%.`;
     }
-    const gapEl = document.getElementById('gapAnalysisText');
-    if (gapEl) gapEl.innerHTML = gapText;
+    document.getElementById('gapAnalysisText').innerHTML = gapText;
   }
 
   function renderDashboardKpis() {
@@ -1154,13 +1175,12 @@
     let fcrVal = tl.fcr || 'N/A', compPct = tl.complaintEscalationPct || '0%', sdCount = tl.sdCount || 0, dkbPct = tl.dkbPercent || 'N/A';
     let passPercentVal = parseFloat(passPercent), failPercentVal = parseFloat(failPercent);
 
-    if (selectedAgent || selectedParty || currentTenureFilter !== 'all') {
+    if (selectedAgent || selectedParty) {
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const filteredCalls = allCalls.filter(c => {
         const matchAgent = !selectedAgent || String(c.agentName).toLowerCase() === selectedAgent || String(c.vdiId).toLowerCase() === selectedAgent;
         const matchParty = !selectedParty || String(c.auditParty).toLowerCase().includes(selectedParty);
-        const matchTen = matchesTenure(c.agentName, c.vdiId);
-        return matchAgent && matchParty && matchTen;
+        return matchAgent && matchParty;
       });
       totalAudit = filteredCalls.length; totalPass = 0; totalFail = 0;
       filteredCalls.forEach(c => { const resVal = String(c.result).toLowerCase(); if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++; });
@@ -1169,8 +1189,7 @@
       let empPassSum = 0, empFailSum = 0;
       filteredCalls.forEach(c => { empPassSum += parseInt(c.empPass) || 0; empFailSum += parseInt(c.empFail) || 0; });
       if (empPassSum === 0 && empFailSum === 0) {
-        const perfList = (appData.sheets['KPI'] || []).filter(a => matchesTenure(a.name, a.vdiId, a.tenure));
-        const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
+        const perfList = appData.sheets['KPI'] || []; const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
         relevantPerf.forEach(a => { empPassSum += parseInt(a.empathyPassSum) || 0; empFailSum += parseInt(a.empathyFailSum) || 0; });
       }
       empathyPercent = (empPassSum + empFailSum) > 0 ? ((empPassSum / (empPassSum + empFailSum)) * 100).toFixed(1) + '%' : '0.0%';
@@ -1192,25 +1211,24 @@
     }
   }
 
-  // PIE CHART BASED ON FAIL CALLS' CALL TOPICS WITH DATA LABELS
+  // PIE CHART BASED ON FAIL CALLS' CALL TOPICS
   function renderRootCauseChart() {
-    if (!appData) return;
-    const calls = (appData.sheets['Audited Call Details'] || []).filter(c => matchesTenure(c.agentName, c.vdiId));
+    if(!appData) return;
+    const calls = appData.sheets['Audited Call Details'] || [];
     const topicCounts = {};
 
     calls.forEach(c => {
-      if (String(c.result).toLowerCase() === 'fail') {
+      if(String(c.result).toLowerCase() === 'fail') {
         let topic = String(c.callTopic || '').trim();
         if (!topic || topic.toUpperCase() === 'N/A') topic = 'Unspecified Topic';
         topicCounts[topic] = (topicCounts[topic] || 0) + 1;
       }
     });
 
-    const sortedTopics = Object.keys(topicCounts).sort((a, b) => topicCounts[b] - topicCounts[a]).slice(0, 6);
+    const sortedTopics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a]).slice(0, 6);
     const labels = []; const dataVals = [];
     sortedTopics.forEach(k => { labels.push(k); dataVals.push(topicCounts[k]); });
-    const hasFails = labels.length > 0;
-    if (!hasFails) { labels.push("No Fail Calls Found"); dataVals.push(1); }
+    if(labels.length === 0) { labels.push("No Fail Calls Found"); dataVals.push(1); }
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const textColor = isDark ? '#94a3b8' : '#475569';
@@ -1218,48 +1236,59 @@
       ? ['#f43f5e', '#f59e0b', '#22d3ee', '#10b981', '#8b5cf6', '#ec4899']
       : ['#e11d48', '#d97706', '#06b6d4', '#059669', '#6366f1', '#db2777'];
 
-    const ctx = document.getElementById('rootCauseChart'); if (!ctx) return;
+    const ctx = document.getElementById('rootCauseChart'); if(!ctx) return;
     if (rootCauseChartInstance) rootCauseChartInstance.destroy();
+    const totalFails = Object.values(topicCounts).reduce((s, v) => s + v, 0);
     rootCauseChartInstance = new Chart(ctx, {
-      type: 'pie',
+      type: 'doughnut',
       data: {
         labels: labels,
         datasets: [{
           data: dataVals,
           backgroundColor: colors,
-          borderWidth: isDark ? 2 : 1,
-          borderColor: isDark ? '#0b0f19' : '#fff'
+          borderWidth: 3,
+          borderColor: isDark ? '#0f172a' : '#fff',
+          borderRadius: 6,
+          spacing: 2,
+          hoverOffset: 8
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '64%',
+        animation: { duration: 1000, easing: 'easeOutQuart' },
         plugins: {
-          legend: { position: 'right', labels: { color: textColor, font: { family: "'Inter', sans-serif", size: 10 } } },
-          datalabels: {
-            color: '#ffffff',
-            font: { weight: 'bold', size: 11 },
-            formatter: v => hasFails ? v : ''
-          }
+          legend: { position: window.innerWidth < 600 ? 'bottom' : 'right', labels: { color: textColor, usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12, font: { family: "'Inter', sans-serif", size: 10 } } }
         }
-      }
+      },
+      plugins: [{
+        id: 'centerTotal',
+        afterDraw(chart) {
+          const a = chart.chartArea; if (!a) return;
+          const x = (a.left + a.right) / 2, y = (a.top + a.bottom) / 2, c = chart.ctx;
+          c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.fillStyle = isDark ? '#f8fafc' : '#0f172a'; c.font = "800 28px 'Inter', sans-serif"; c.fillText(String(totalFails), x, y - 8);
+          c.fillStyle = textColor; c.font = "700 10px 'Inter', sans-serif"; c.fillText('FAIL CALLS', x, y + 16);
+          c.restore();
+        }
+      }]
     });
   }
 
   function renderGamification() {
-    if (!appData) return;
-    const audits = (appData.sheets['Audit Details']?.list || []).filter(a => matchesTenure(a.agentName, a.vdiId, a.tenure));
-    const kpi = (appData.sheets['KPI'] || []).filter(a => matchesTenure(a.name, a.vdiId, a.tenure));
+    if(!appData) return;
+    const audits = appData.sheets['Audit Details']?.list || []; const kpi = appData.sheets['KPI'] || [];
     const zeroCeAgents = audits.filter(a => a.totalAudits > 0 && a.totalFail === 0);
     const zeroList = zeroCeAgents.length > 0 ? zeroCeAgents.map(a => `<li style="margin-bottom:4px;">${a.agentName} <span style="opacity:0.6; font-size:10px;">(${a.totalAudits} audits)</span></li>`).join('') : "<li>No agents found yet</li>";
 
     const topCfs = [...kpi].filter(a => {
-      let val = parseFloat(String(a.cfsPercent || a.cfsPct).replace('%', ''));
-      return !isNaN(val) && val >= 90;
-    }).sort((a, b) => {
-      let vA = parseFloat(String(a.cfsPercent || a.cfsPct).replace('%', '')) || 0;
-      let vB = parseFloat(String(b.cfsPercent || b.cfsPct).replace('%', '')) || 0;
-      return vB - vA;
+        let val = parseFloat(String(a.cfsPercent || a.cfsPct).replace('%', ''));
+        return !isNaN(val) && val >= 90;
+    }).sort((a,b) => {
+        let vA = parseFloat(String(a.cfsPercent || a.cfsPct).replace('%', '')) || 0;
+        let vB = parseFloat(String(b.cfsPercent || b.cfsPct).replace('%', '')) || 0;
+        return vB - vA;
     }).slice(0, 3);
 
     const cfsList = topCfs.length > 0 ? topCfs.map(a => `<li style="margin-bottom:4px;">${a.name} <span class="text-success fw-bold">(${a.cfsPercent || a.cfsPct})</span></li>`).join('') : "<li>No agents met target</li>";
@@ -1270,36 +1299,34 @@
   function renderView(tab) {
     if (!appData) return;
     if (tab === 'Dashboard') {
-      renderDashboardKpis(); renderBucketDistChart(); renderRootCauseChart(); renderGamification();
+      renderDashboardKpis(); renderRootCauseChart(); renderGamification();
       const lb = appData.leaderboards || {};
-      const fLb = arr => (arr || []).filter(a => matchesTenure(a.agentName, null, a.tenure));
       document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>${fLb(lb.topCfs).map((a, i) => `<tr><td>${i + 1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>${fLb(lb.topAht).map((a, i) => `<tr><td>${i + 1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>${fLb(lb.topEmpathy).map((a, i) => `<tr><td>${i + 1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>${fLb(lb.topCe).map((a, i) => `<tr><td>${i + 1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}</tbody></table></div></div>`;
+        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}</tbody></table></div></div>`;
       return;
     }
 
     if (tab === 'Audit Details') {
       const partyFilter = (document.getElementById('auditPartyFilter')?.value || '').toLowerCase();
-      const allCalls = appData.sheets['Audited Call Details'] || [];
-      const activeAgents = (appData.sheets['Alignment'] || []).filter(a => matchesTenure(a['Name'], a['VDI ID'], a['Tenure']));
+      const allCalls = appData.sheets['Audited Call Details'] || []; const activeAgents = appData.sheets['Alignment'] || [];
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
       let auditDetailsList = []; let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
       activeAgents.forEach(agent => {
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase(); const name = String(agent['Name'] || '').trim().toLowerCase();
-        const agentAudits = filteredAudits.filter(r => (vdi && String(r.vdiId || '').toLowerCase() === vdi) || (name && String(r.agentName || '').toLowerCase() === name));
-        const totalAudits = agentAudits.length; const passes = agentAudits.filter(r => String(r.result || '').toLowerCase() === 'pass').length; const fails = agentAudits.filter(r => String(r.result || '').toLowerCase() === 'fail').length;
-        const ceFails = agentAudits.filter(r => { const ceVal = String(r.criticalError || '').toLowerCase(); return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail'); }).length;
+        const agentAudits = filteredAudits.filter(r => (vdi && String(r.vdiId||'').toLowerCase()===vdi) || (name && String(r.agentName||'').toLowerCase()===name));
+        const totalAudits = agentAudits.length; const passes = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'pass').length; const fails = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'fail').length;
+        const ceFails = agentAudits.filter(r => { const ceVal = String(r.criticalError||'').toLowerCase(); return ceVal === '1' || ceVal === 'yes' || ceVal === 'true' || ceVal.includes('fail'); }).length;
         const cePercent = totalAudits > 0 ? ((ceFails / totalAudits) * 100).toFixed(1) + '%' : '0.0%';
         let empPassSum = 0, empFailSum = 0; agentAudits.forEach(call => { empPassSum += parseInt(call.empPass || 0) || 0; empFailSum += parseInt(call.empFail || 0) || 0; });
         const empTotal = empPassSum + empFailSum; const empPercentVal = empTotal > 0 ? (empPassSum / empTotal) * 100 : 0;
         if (totalAudits > 0) { if (fails === 0) failFreeCountAgent++; else failCountAgent++; if (empPercentVal >= 87.50) empathyMetCount++; else empathyBelowTargetAgent++; }
         auditDetailsList.push({ agentName: agent['Name'], totalAudits: totalAudits, totalPass: passes, totalFail: fails, cePercent: cePercent, empathyPass: empPassSum, empathyFail: empFailSum, empathyPassPercent: empTotal > 0 ? empPercentVal.toFixed(1) + '%' : '0.0%' });
       });
-      const tot = activeAgents.length || 1;
-      document.getElementById('auditSummaryKpis').innerHTML = `${renderCardHtml("Fail Free", `${failFreeCountAgent} / ${activeAgents.length}`, "100% Pass Agents", "Count", "delivered", "Pass", "text-success", (failFreeCountAgent / tot) * 100)}${renderCardHtml("Fail Found", `${failCountAgent} / ${activeAgents.length}`, "Agents with Fails", "Count", "missed", "Fail", "text-danger", (failCountAgent / tot) * 100)}${renderCardHtml("Empathy Met", `${empathyMetCount} / ${activeAgents.length}`, "Target >= 87.5%", "Count", "delivered", "Good", "text-success", (empathyMetCount / tot) * 100)}${renderCardHtml("Empathy Below", `${empathyBelowTargetAgent} / ${activeAgents.length}`, "Target < 87.5%", "Count", "warn", "Warning", "text-warning", (empathyBelowTargetAgent / tot) * 100)}`;
+      const tot = activeAgents.length;
+      document.getElementById('auditSummaryKpis').innerHTML = `${renderCardHtml("Fail Free", `${failFreeCountAgent} / ${tot}`, "100% Pass Agents", "Count", "delivered", "Pass", "text-success", (failFreeCountAgent/tot)*100)}${renderCardHtml("Fail Found", `${failCountAgent} / ${tot}`, "Agents with Fails", "Count", "missed", "Fail", "text-danger", (failCountAgent/tot)*100)}${renderCardHtml("Empathy Met", `${empathyMetCount} / ${tot}`, "Target >= 87.5%", "Count", "delivered", "Good", "text-success", (empathyMetCount/tot)*100)}${renderCardHtml("Empathy Below", `${empathyBelowTargetAgent} / ${tot}`, "Target < 87.5%", "Count", "warn", "Warning", "text-warning", (empathyBelowTargetAgent/tot)*100)}`;
       document.getElementById('auditDetailsTable').innerHTML = auditDetailsList.map(a => { const ceNum = parseFloat(String(a.cePercent).replace('%', '')); return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.totalAudits}</td><td class="num text-success">${a.totalPass}</td><td class="num text-danger">${a.totalFail}</td><td class="num ${isNaN(ceNum) || ceNum === 0 ? 'text-success' : 'text-danger'} fw-bold">${a.cePercent}</td><td class="num text-primary">${a.empathyPass}</td><td class="num text-danger">${a.empathyFail}</td><td class="num ${parseFloat(a.empathyPassPercent) >= 87.5 ? 'text-success' : 'text-danger'} fw-bold">${a.empathyPassPercent}</td></tr>`; }).join('');
       return;
     }
@@ -1310,49 +1337,31 @@
     }
 
     if (tab === 'FCR, Quiz & SD') {
-      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] };
-      const list = (fcrSd.list || []).filter(a => matchesTenure(a.agentName, a.vdiId));
-      const tot = list.length || 1;
-      const fcrMet = list.filter(a => { const n = parseFloat(String(a.fcrPercent).replace('%', '')); return !isNaN(n) && n >= 92.0; }).length;
-      const sdAgents = list.filter(a => a.serviceDeliveryCount > 0).length;
-      document.getElementById('fcrSdKpis').innerHTML = `${renderCardHtml("FCR Target Meet", `${fcrMet} / ${list.length}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrMet / tot) * 100)}${renderCardHtml("Service Delivery", `${sdAgents} / ${list.length}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (sdAgents / tot) * 100)}`;
-      document.getElementById('fcrSdTable').innerHTML = list.map(a => { let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%', ''))) && parseFloat(String(a.fcrPercent).replace('%', '')) >= 92.0; return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`; }).join('');
+      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] }; const tot = fcrSd.summary.totalAgents || fcrSd.list.length;
+      document.getElementById('fcrSdKpis').innerHTML = `${renderCardHtml("FCR Target Meet", `${fcrSd.summary.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrSd.summary.fcrMeet92Count/tot)*100)}${renderCardHtml("Service Delivery", `${fcrSd.summary.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (fcrSd.summary.agentsWithSdCount/tot)*100)}`;
+      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => { let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0; return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`; }).join('');
       return;
     }
 
     if (tab === 'Complaint Escalation and DKB %') {
-      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
-      const list = (compDkb.list || []).filter(a => matchesTenure(a.agentName, a.vdiId));
-      const tot = list.length || 1;
-      const compMet = list.filter(a => a._escRaw >= 95.0).length;
-      const dkbMet = list.filter(a => a._dkbRaw >= 95.0).length;
-      document.getElementById('compDkbKpis').innerHTML = `${renderCardHtml("Complaint Target", `${compMet} / ${list.length}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compMet / tot) * 100)}${renderCardHtml("DKB Target", `${dkbMet} / ${list.length}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (dkbMet / tot) * 100)}`;
-      document.getElementById('complaintTable').innerHTML = list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
-      document.getElementById('dkbTable').innerHTML = list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
+      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] }; const tot = compDkb.summary.totalAgents || compDkb.list.length;
+      document.getElementById('compDkbKpis').innerHTML = `${renderCardHtml("Complaint Target", `${compDkb.summary.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compDkb.summary.compMetCount/tot)*100)}${renderCardHtml("DKB Target", `${compDkb.summary.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (compDkb.summary.dkbMetCount/tot)*100)}`;
+      document.getElementById('complaintTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
+      document.getElementById('dkbTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'Lag Adherence & Over Break') {
-      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
-      const list = (lagAdh.list || []).filter(a => matchesTenure(a.agentName));
-      const tot = list.length || 1;
-      const obZero = list.filter(a => !a.hasOverBreak).length;
-      const lagZero = list.filter(a => a.lagTime === 'No Lag').length;
-      const adhMet = list.filter(a => !isNaN(a._adhRaw) && a._adhRaw >= 100.0).length;
-      document.getElementById('lagAdhKpis').innerHTML = `${renderCardHtml("Over Break Target", `${obZero} / ${list.length}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (obZero / tot) * 100)}${renderCardHtml("Lag Time Target", `${lagZero} / ${list.length}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagZero / tot) * 100)}${renderCardHtml("Adherence Target", `${adhMet} / ${list.length}`, "100% Meet", "Count", "delivered", "Good", "text-success", (adhMet / tot) * 100)}`;
-      document.getElementById('lagAdhTable').innerHTML = list.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
+      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] }; const tot = lagAdh.summary.totalAgents || lagAdh.list.length;
+      document.getElementById('lagAdhKpis').innerHTML = `${renderCardHtml("Over Break Target", `${lagAdh.summary.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (lagAdh.summary.overBreakZeroCount/tot)*100)}${renderCardHtml("Lag Time Target", `${lagAdh.summary.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagAdh.summary.lagZeroCount/tot)*100)}${renderCardHtml("Adherence Target", `${lagAdh.summary.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (lagAdh.summary.adhMetCount/tot)*100)}`;
+      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'AHT & CFS') {
-      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
-      const list = (ahtCfs.list || []).filter(a => matchesTenure(a.agentName));
-      const tot = list.length || 1;
-      const ahtMet = list.filter(a => a._ahtRaw <= 170 && a._ahtRaw > 0).length;
-      const validCfs = list.filter(a => !isNaN(a._cfsRaw));
-      const cfsMet = validCfs.filter(a => a._cfsRaw >= 90.0).length;
-      document.getElementById('ahtCfsKpis').innerHTML = `${renderCardHtml("AHT Target Meet", `${ahtMet} / ${list.length}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtMet / tot) * 100)}${renderCardHtml("CFS Target Meet", `${cfsMet} / ${validCfs.length}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (cfsMet / (validCfs.length || 1)) * 100)}`;
-      document.getElementById('ahtCfsTable').innerHTML = list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
+      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] }; const tot = ahtCfs.summary.totalAgents || ahtCfs.list.length; const validCfsCount = ahtCfs.summary.validCfsAgentCount !== undefined ? ahtCfs.summary.validCfsAgentCount : tot;
+      document.getElementById('ahtCfsKpis').innerHTML = `${renderCardHtml("AHT Target Meet", `${ahtCfs.summary.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.ahtMetCount/tot)*100)}${renderCardHtml("CFS Target Meet", `${ahtCfs.summary.cfsMetCount || 0} / ${validCfsCount}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.cfsMetCount/(validCfsCount||tot))*100)}`;
+      document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
       return;
     }
 
@@ -1363,8 +1372,8 @@
   }
 
   function renderAgentCardSafe(agentName, containerId = 'myPerfCardBox', isAgentPortal = false) {
-    try { renderAgentCard(agentName, containerId, isAgentPortal); }
-    catch (err) { console.error(err); document.getElementById(containerId).innerHTML = `<div style="padding:24px; text-align:center; background:var(--bg-bad); color:var(--color-bad); border-radius:12px; font-weight:700;">Error displaying agent data: ${err.message}.</div>`; }
+      try { renderAgentCard(agentName, containerId, isAgentPortal); }
+      catch (err) { console.error(err); document.getElementById(containerId).innerHTML = `<div style="padding:24px; text-align:center; background:var(--bg-bad); color:var(--color-bad); border-radius:12px; font-weight:700;">Error displaying agent data: ${err.message}.</div>`; }
   }
 
   function renderAgentCard(agentName, containerId = 'myPerfCardBox', isAgentPortal = false) {
@@ -1382,11 +1391,11 @@
     if (smartTips.length === 0) { smartTips.push("Great Job! Maintain this consistency."); smartTips.push("You are hitting targets, keep mentoring peers."); }
     smartTips = smartTips.slice(0, 3);
 
-    const allAgentsAHT = list.filter(a => !isNaN(parseFloat(String(a.aht).replace('s', '')))).map(a => parseFloat(String(a.aht).replace('s', ''))).sort((a, b) => a - b);
+    const allAgentsAHT = list.filter(a=>!isNaN(parseFloat(String(a.aht).replace('s','')))).map(a=>parseFloat(String(a.aht).replace('s',''))).sort((a,b)=>a-b);
     let ahtRankText = '';
-    if (allAgentsAHT.length > 0 && !isNaN(ahtNum)) {
-      let rank = allAgentsAHT.indexOf(ahtNum);
-      if (rank >= 0) { let percentile = Math.round(((rank + 1) / allAgentsAHT.length) * 100); ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue); font-weight:700;"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`; }
+    if(allAgentsAHT.length > 0 && !isNaN(ahtNum)) {
+        let rank = allAgentsAHT.indexOf(ahtNum);
+        if(rank >= 0) { let percentile = Math.round(((rank+1) / allAgentsAHT.length) * 100); ahtRankText = `<div style="font-size:11px; margin-top:5px; color:var(--color-blue); font-weight:700;"><i class="bi bi-trophy"></i> Top ${Math.max(percentile, 1)}% in Team</div>`; }
     }
 
     const M = agent.met || {}, T = agent.targets || {}; const isOjtAgent = String(agent.tenure).toLowerCase() === 'ojt';
@@ -1401,134 +1410,180 @@
 
     let finalDisplayScore = parseFloat(agent.finalScore || 0) > 4.00 ? '4.00' : parseFloat(agent.finalScore || 0).toFixed(2);
     let bucketClass = 'bucket-poor';
-    if (agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent'; else if (agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good'; else if (agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
+    if(agent.bucket === 'A' || agent.bucket === 'Excellent') bucketClass = 'bucket-excellent'; else if(agent.bucket === 'B' || agent.bucket === 'Good') bucketClass = 'bucket-good'; else if(agent.bucket === 'C' || agent.bucket === 'Average') bucketClass = 'bucket-average';
 
     const fmtScore = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? s.toFixed(2) : '0.00'));
     const fmtBp = (s) => (s === 'NO KPI' || s === undefined ? 'NO KPI' : (typeof s === 'number' ? (s > 0 ? '+' : '') + (s * 100).toFixed(0) + '%' : '0%'));
 
-    // Build Trends & Errors pane content
-    const agentAudits = (appData.sheets['Audited Call Details'] || []).filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
-    const failedAudits = agentAudits.filter(c => String(c.result).toLowerCase() === 'fail');
-    const failTopicCounts = {};
-    failedAudits.forEach(c => {
-      const topic = (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue');
-      failTopicCounts[topic] = (failTopicCounts[topic] || 0) + 1;
-    });
+    let advancedHtml = '';
+    let simulatorHtml = '';
 
-    let ledgerListHtml = Object.keys(failTopicCounts).length === 0
-      ? `<li><span class="text-success fw-bold"><i class="bi bi-shield-check"></i> Perfect! No Points Lost</span></li>`
-      : Object.entries(failTopicCounts).map(([topic, count]) => `<li>${topic} <span class="fail-pill">-${count} Point(s)</span></li>`).join('');
+    if(isAgentPortal) {
+        const agentAudits = (appData.sheets['Audited Call Details'] || []).filter(c => c.vdiId === agent.vdiId || c.agentName === agent.name);
+        const failedAudits = agentAudits.filter(c => String(c.result).toLowerCase() === 'fail');
+        const failTopicCounts = {};
+        failedAudits.forEach(c => {
+            const topic = (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue');
+            failTopicCounts[topic] = (failTopicCounts[topic] || 0) + 1;
+        });
 
-    const allAhts = list.map(a => parseFloat(String(a.aht).replace('s', ''))).filter(n => !isNaN(n)).sort((a, b) => a - b);
-    const allFcrs = list.map(a => parseFloat(String(a.fcrPercent || a.fcrPct).replace('%', ''))).filter(n => !isNaN(n)).sort((a, b) => b - a);
-    let eliteAht = allAhts.length > 0 ? allAhts[Math.max(0, Math.ceil(allAhts.length * 0.1) - 1)] : 170;
-    let eliteFcr = allFcrs.length > 0 ? allFcrs[Math.max(0, Math.ceil(allFcrs.length * 0.1) - 1)] : 93;
-    let ahtGap = (!isNaN(ahtNum) && ahtNum > eliteAht) ? (ahtNum - eliteAht).toFixed(0) : 0;
-    let fcrGap = (!isNaN(fcrPctNum) && fcrPctNum < eliteFcr) ? (eliteFcr - fcrPctNum).toFixed(1) : 0;
+        let ledgerListHtml = '';
+        if(Object.keys(failTopicCounts).length === 0) {
+            ledgerListHtml = `<li><span class="text-success fw-bold"><i class="bi bi-shield-check"></i> Perfect! No Points Lost</span></li>`;
+        } else {
+            for (let [topic, count] of Object.entries(failTopicCounts)) {
+                ledgerListHtml += `<li>${topic} <span class="fail-pill">-${count} Point(s)</span></li>`;
+            }
+        }
 
-    let eliteHtml = (ahtGap > 0 || fcrGap > 0)
-      ? `<div class="pdf-kpi-card" style="background: rgba(34, 211, 238, 0.05); border-color: rgba(34, 211, 238, 0.3);"><div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-rocket-takeoff-fill"></i> Elite Benchmark (Top 10% Gap)</div><div class="gap-analysis-text">To join the <strong>Top 10% Elite Group</strong>, ${ahtGap > 0 ? `drop AHT by <strong class="text-info">${ahtGap}s</strong>` : ''}${ahtGap > 0 && fcrGap > 0 ? ' and ' : ''}${fcrGap > 0 ? `increase FCR by <strong class="text-success">${fcrGap}%</strong>` : ''}.</div></div>`
-      : `<div class="pdf-kpi-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);"><div class="pdf-kpi-title" style="color: var(--color-good);"><i class="bi bi-star-fill"></i> Elite Benchmark (Top 10%)</div><div class="gap-analysis-text">Congratulations! You are performing in the <strong>Top 10% Elite Group</strong>. Maintain this!</div></div>`;
+        let eliteHtml = '';
+        const allAhts = list.map(a => parseFloat(String(a.aht).replace('s', ''))).filter(n => !isNaN(n)).sort((a,b) => a - b);
+        const allFcrs = list.map(a => parseFloat(String(a.fcrPercent || a.fcrPct).replace('%', ''))).filter(n => !isNaN(n)).sort((a,b) => b - a);
 
-    let chronicHtml = '';
-    if (failedAudits.length >= 2) {
-      let recentFails = failedAudits.slice(-3);
-      let topics = recentFails.map(c => (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue'));
-      let tCounts = {}, chronicTopic = null;
-      topics.forEach(t => { tCounts[t] = (tCounts[t] || 0) + 1; if (tCounts[t] >= 2) chronicTopic = t; });
-      if (chronicTopic) {
-        chronicHtml = `<div class="pdf-kpi-card focus-card" style="border: 2px solid var(--color-bad); animation: pulseAlert 2s infinite;"><div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-exclamation-triangle-fill"></i> Chronic Pattern Detected!</div><div class="gap-analysis-text" style="color: var(--text-main);">Recurring habit related to <strong>'${chronicTopic}'</strong>. Focus exclusively on fixing this!</div></div>`;
-      }
+        let eliteAhtIndex = Math.max(0, Math.ceil(allAhts.length * 0.1) - 1);
+        let eliteFcrIndex = Math.max(0, Math.ceil(allFcrs.length * 0.1) - 1);
+        let eliteAht = allAhts.length > 0 ? allAhts[eliteAhtIndex] : 170;
+        let eliteFcr = allFcrs.length > 0 ? allFcrs[eliteFcrIndex] : 93;
+
+        let ahtGap = (!isNaN(ahtNum) && ahtNum > eliteAht) ? (ahtNum - eliteAht).toFixed(0) : 0;
+        let fcrGap = (!isNaN(fcrPctNum) && fcrPctNum < eliteFcr) ? (eliteFcr - fcrPctNum).toFixed(1) : 0;
+
+        if(ahtGap > 0 || fcrGap > 0) {
+            let msg = `You are doing well, BUT to join the <strong>Top 10% Elite Group</strong> of the team, `;
+            if(ahtGap > 0) msg += `you need to drop your AHT by <strong class="text-info">${ahtGap}s</strong>`;
+            if(ahtGap > 0 && fcrGap > 0) msg += ` and `;
+            if(fcrGap > 0) msg += `increase your FCR by <strong class="text-success">${fcrGap}%</strong>`;
+            msg += `.`;
+            eliteHtml = `
+            <div class="pdf-kpi-card" style="background: rgba(34, 211, 238, 0.05); border-color: rgba(34, 211, 238, 0.3);">
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-rocket-takeoff-fill"></i> Elite Benchmark (Top 10% Gap)</div>
+               <div class="gap-analysis-text">${msg}</div>
+            </div>`;
+        } else {
+            eliteHtml = `
+            <div class="pdf-kpi-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+               <div class="pdf-kpi-title" style="color: var(--color-good);"><i class="bi bi-star-fill"></i> Elite Benchmark (Top 10%)</div>
+               <div class="gap-analysis-text">Congratulations! You are currently performing in the <strong>Top 10% Elite Group</strong> of the team. Maintain this!</div>
+            </div>`;
+        }
+
+        let chronicHtml = '';
+        if(failedAudits.length >= 2) {
+            let recentFails = failedAudits.slice(-3);
+            let topics = recentFails.map(c => (c.failTopic && c.failTopic !== 'None') ? c.failTopic : (c.callTopic || 'General Issue'));
+            let tCounts = {};
+            let chronicTopic = null;
+            topics.forEach(t => {
+                tCounts[t] = (tCounts[t] || 0) + 1;
+                if(tCounts[t] >= 2) chronicTopic = t;
+            });
+
+            if(chronicTopic) {
+                chronicHtml = `
+                <div class="pdf-kpi-card focus-card" style="border: 2px solid var(--color-bad); animation: pulseAlert 2s infinite;">
+                   <div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-exclamation-triangle-fill"></i> Chronic Pattern Detected!</div>
+                   <div class="gap-analysis-text" style="color: var(--text-main);">Your last fails show a recurring habit related to <strong>'${chronicTopic}'</strong>. This is not a random mistake. Please focus exclusively on fixing this habit!</div>
+                </div>`;
+            }
+        }
+
+        let extraSliders = '';
+        if(!isOjtAgent) {
+            extraSliders = `
+            <div class="sim-row"><div class="sim-label">CFS %</div><input type="range" id="simCfs" class="sim-slider" min="70" max="100" value="${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblCfs">${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">DKB %</div><input type="range" id="simDkb" class="sim-slider" min="80" max="100" value="${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblDkb">${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}%</div></div>`;
+        }
+
+        simulatorHtml = `
+        <div class="simulator-panel pdf-card-wrapper" style="margin-top: 15px; background:var(--bg-main);">
+            <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
+            <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
+
+            <div class="galaxy-track">
+              <div class="galaxy-node node-D" id="gal-D">D</div>
+              <div class="galaxy-node node-C" id="gal-C">C</div>
+              <div class="galaxy-node node-B" id="gal-B">B</div>
+              <div class="galaxy-node node-A" id="gal-A">A</div>
+              <div class="rocket" id="gal-rocket">🚀</div>
+            </div>
+
+            <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
+            <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
+            <div class="sim-row"><div class="sim-label">Complaint %</div><input type="range" id="simComp" class="sim-slider" min="70" max="100" value="${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblComp">${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}%</div></div>
+            ${extraSliders}
+            <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong></div>
+        </div>`;
+
+        advancedHtml = `
+        <div class="agent-advanced-grid">
+            <div class="pdf-kpi-card gap-analysis-card">
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-lightbulb-fill"></i> Auto Gap Analysis</div>
+               <div class="gap-analysis-text" id="gapAnalysisText">Loading insights...</div>
+            </div>
+            ${eliteHtml}
+            ${chronicHtml}
+            <div class="pdf-kpi-card ${chronicHtml ? '' : 'w-100'}" style="${chronicHtml ? '' : 'grid-column: span 2;'}">
+               <div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-journal-x"></i> Error Ledger (Where I Lost Points)</div>
+               <ul class="ledger-list">${ledgerListHtml}</ul>
+            </div>
+            <div class="pdf-kpi-card" style="grid-column: span 2;">
+               <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-bar-chart-fill"></i> Daily Progression (Last 7 Days ${isOjtAgent ? '- AHT Only' : '- AHT & CFS'})</div>
+               <div style="height: 220px; width: 100%; margin-top: 8px;"><canvas id="dailyTrendChart"></canvas></div>
+            </div>
+        </div>`;
     }
 
-    let extraSliders = !isOjtAgent ? `
-      <div class="sim-row"><div class="sim-label">CFS %</div><input type="range" id="simCfs" class="sim-slider" min="70" max="100" value="${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblCfs">${isNaN(cfsPctNum) ? 90 : Math.round(cfsPctNum)}%</div></div>
-      <div class="sim-row"><div class="sim-label">DKB %</div><input type="range" id="simDkb" class="sim-slider" min="80" max="100" value="${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}" oninput="updateSimulator('${agentName}', false)"><div class="sim-val" id="lblDkb">${isNaN(dkbPctNum) ? 95 : Math.round(dkbPctNum)}%</div></div>` : '';
-
-    const scorecardHtml = `
+    box.innerHTML = `
+      ${advancedHtml}
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <div class="pdf-header-bar">
-          <div class="pdf-agent-name">${agent.name}</div>
-          <div class="pdf-agent-sub">VDI ID: ${agent.vdiId || 'N/A'} | ID: ${agent.id || 'N/A'} | Supervisor: ${agent.supervisor || 'N/A'} | Tenure: ${agent.tenure || 'N/A'}</div>
+          <div class="hdr-row">
+            <div class="avatar">${String(agent.name || '?').trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('')}</div>
+            <div class="hdr-text">
+              <div class="pdf-agent-name">${agent.name}</div>
+              <div class="pdf-agent-sub">VDI ID: ${agent.vdiId || 'N/A'} | ID: ${agent.id || 'N/A'} | Supervisor: ${agent.supervisor || 'N/A'} | Tenure: ${agent.tenure || 'N/A'}</div>
+            </div>
+          </div>
         </div>
+
         <div class="pdf-grid-3">
           ${renderCardHtml("Audit Fail Rate", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct)}
           ${renderCardHtml("Valid Complaint", agent.validCompCount || 0, "Valid complaints", `KPI: ${fmtScore(agent.score_validComplaint)}`, renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found', agent.validCompCount === 0 ? 'text-success' : 'text-danger')}
           ${renderCardHtml("Empathy Pass %", agent.empathyPct || '0%', `Pass: ${agent.empathyPassSum || 0} | Fail: ${agent.empathyFailSum || 0}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct)}
           ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent)}
           ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? (M.fcr ? 'delivered' : 'missed') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'delivered' : 'missed')), (M.fcr != null) ? (M.fcr ? 'Target Meet' : 'Below Target') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'Target Meet' : 'Below Target'), (M.fcr != null) ? (M.fcr ? 'text-success' : 'text-danger') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'text-success' : 'text-danger'), agent.fcrPercent || agent.fcrPct)}
+
           <div class="pdf-kpi-card w-100" style="position:relative;">
              <div class="kpi-card-header"><div class="pdf-kpi-title">AHT (Seconds)</div><span class="pdf-badge ${renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${isAhtMet ? 'Target Meet' : 'Exceeds'}</span></div>
              <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht || 'N/A'}</div><div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : '<=170s'}</div>${isAgentPortal ? ahtRankText : ''}</div></div>
              <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
           </div>
+
           ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
           ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance)}
           ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger')}
+
           ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
           ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
           ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
+
           <div class="pdf-kpi-card predicted-bucket-card">
             <div><div class="pdf-kpi-title">Overall Score &amp; Predicted Bucket</div><div class="pdf-kpi-value">${finalDisplayScore}</div><div class="pdf-kpi-sub">Base: ${agent.totalBaseScore || '0.00'} | BP: ${agent.totalBonusPenaltyPct !== undefined ? (parseFloat(agent.totalBonusPenalty) > 0 ? '+' : '') + agent.totalBonusPenaltyPct : '0%'}</div></div>
             <div class="bucket-label ${bucketClass}">Bucket: ${agent.bucket || 'D'}</div>
           </div>
+
           <div class="pdf-kpi-card focus-card">
             <div class="pdf-kpi-title"><i class="bi bi-lightning-charge-fill"></i> Smart Action Plan</div>
             <ul class="focus-list">${smartTips.map(f => `<li>${f}</li>`).join('')}</ul>
           </div>
         </div>
+        ${simulatorHtml}
       </div>`;
 
-    const trendsHtml = `
-      <div class="agent-advanced-grid">
-        <div class="pdf-kpi-card" style="grid-column: span 2;">
-          <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-bar-chart-fill"></i> Daily Progression (Last 7 Days ${isOjtAgent ? '- AHT Only' : '- AHT & CFS'})</div>
-          <div style="height: 250px; width: 100%; margin-top: 8px;"><canvas id="dailyTrendChart"></canvas></div>
-        </div>
-        <div class="pdf-kpi-card gap-analysis-card">
-          <div class="pdf-kpi-title" style="color: var(--color-blue);"><i class="bi bi-lightbulb-fill"></i> Auto Gap Analysis</div>
-          <div class="gap-analysis-text" id="gapAnalysisText">Loading insights...</div>
-        </div>
-        ${eliteHtml}
-        ${chronicHtml}
-        <div class="pdf-kpi-card ${chronicHtml ? '' : 'w-100'}" style="${chronicHtml ? '' : 'grid-column: span 2;'}">
-          <div class="pdf-kpi-title" style="color: var(--color-bad);"><i class="bi bi-journal-x"></i> Error Ledger (Where I Lost Points)</div>
-          <ul class="ledger-list">${ledgerListHtml}</ul>
-        </div>
-      </div>`;
-
-    const simulatorHtml = `
-      <div class="simulator-panel pdf-card-wrapper" style="background:var(--bg-card);">
-        <div class="sim-title"><i class="bi bi-sliders"></i> Bonus Target Simulator (What-If Analysis)</div>
-        <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Adjust the sliders to see how improving metrics impacts your projected Bucket.</p>
-        <div class="galaxy-track">
-          <div class="galaxy-node" id="gal-D">D</div>
-          <div class="galaxy-node" id="gal-C">C</div>
-          <div class="galaxy-node" id="gal-B">B</div>
-          <div class="galaxy-node" id="gal-A">A</div>
-          <div class="rocket" id="gal-rocket">🚀</div>
-        </div>
-        <div class="sim-row"><div class="sim-label">AHT (s)</div><input type="range" id="simAht" class="sim-slider" min="140" max="250" value="${isNaN(ahtNum) ? 180 : ahtNum}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblAht">${isNaN(ahtNum) ? 180 : ahtNum}s</div></div>
-        <div class="sim-row"><div class="sim-label">FCR %</div><input type="range" id="simFcr" class="sim-slider" min="80" max="100" value="${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblFcr">${isNaN(fcrPctNum) ? 90 : Math.round(fcrPctNum)}%</div></div>
-        <div class="sim-row"><div class="sim-label">Empathy %</div><input type="range" id="simEmp" class="sim-slider" min="70" max="100" value="${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblEmp">${isNaN(empPctNum) ? 80 : Math.round(empPctNum)}%</div></div>
-        <div class="sim-row"><div class="sim-label">Complaint %</div><input type="range" id="simComp" class="sim-slider" min="70" max="100" value="${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}" oninput="updateSimulator('${agentName}', ${isOjtAgent})"><div class="sim-val" id="lblComp">${isNaN(escPctNum) ? 95 : Math.round(escPctNum)}%</div></div>
-        ${extraSliders}
-        <div id="simResultText" style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.1); border-radius:8px; font-size:12.5px; text-align:center;">Projected Score: <strong>--</strong> | Predicted Bucket: <strong class="text-primary">--</strong></div>
-      </div>`;
-
-    if (isAgentPortal) {
-      box.innerHTML = `
-        <div class="sub-tabs">
-          <button class="sub-tab-btn active" data-subtab="scorecard" onclick="switchAgentSubTab('scorecard')"><i class="bi bi-card-heading"></i> My Scorecard</button>
-          <button class="sub-tab-btn" data-subtab="trends" onclick="switchAgentSubTab('trends')"><i class="bi bi-bar-chart-line-fill"></i> Trends &amp; Errors</button>
-          <button class="sub-tab-btn" data-subtab="simulator" onclick="switchAgentSubTab('simulator')"><i class="bi bi-sliders"></i> Bonus Simulator</button>
-        </div>
-        <div class="sub-tab-pane active" id="subpane-scorecard">${scorecardHtml}</div>
-        <div class="sub-tab-pane" id="subpane-trends">${trendsHtml}</div>
-        <div class="sub-tab-pane" id="subpane-simulator">${simulatorHtml}</div>`;
-      updateSimulator(agentName, isOjtAgent);
-    } else {
-      box.innerHTML = scorecardHtml;
+    if(isAgentPortal) {
+        updateSimulator(agentName, isOjtAgent);
+        setTimeout(() => renderDailyTrendChart(agent, isOjtAgent), 100);
     }
   }
 
@@ -1540,11 +1595,298 @@
     const filtered = list.filter(c => {
       const matchSearch = !search || String(c.agentName).toLowerCase().includes(search) || String(c.ani).toLowerCase().includes(search) || String(c.callTopic).toLowerCase().includes(search);
       const matchRes = !resFilter || String(c.result).toLowerCase() === resFilter;
-      const matchTen = matchesTenure(c.agentName, c.vdiId);
-      return matchSearch && matchRes && matchTen;
+      return matchSearch && matchRes;
     });
     document.getElementById('callTableBody').innerHTML = filtered.map(c => `<tr><td class="fw-bold text-start">${c.agentName}</td><td class="num">${c.contactDate}</td><td>${c.auditParty}</td><td class="num">${c.ani}</td><td class="text-start">${c.callTopic}</td><td class="text-start text-danger">${c.failTopic}</td><td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td></tr>`).join('');
   }
+</script>
+
+<script>
+/* =====================================================================
+   PREMIUM LAYER (non-breaking): wraps existing render functions, adds
+   count-up / stagger / ring animation, bottom-nav, toast, palette, sort.
+   ===================================================================== */
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var isMobile = function () { return window.innerWidth <= 820; };
+  var CARD_TABLES = ['auditTableEl', 'fcrTableEl', 'compTableEl', 'dkbTableEl', 'lagTableEl', 'ahtTableEl', 'callLogTableEl'];
+
+  /* ---------- Chart.js global look ---------- */
+  try {
+    if (window.Chart) {
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      var tt = Chart.defaults.plugins.tooltip;
+      tt.backgroundColor = 'rgba(15,23,42,0.92)'; tt.padding = 10; tt.cornerRadius = 10; tt.boxPadding = 4;
+    }
+  } catch (e) {}
+
+  /* ---------- Toast ---------- */
+  var toastWrap = document.createElement('div');
+  toastWrap.className = 'toast-wrap'; toastWrap.setAttribute('aria-live', 'polite');
+  document.body.appendChild(toastWrap);
+  function toast(msg, icon, ms) {
+    var t = document.createElement('div'); t.className = 'toast';
+    t.innerHTML = '<i class="bi ' + (icon || 'bi-check-circle-fill') + '"></i><span></span>';
+    t.querySelector('span').textContent = msg;
+    toastWrap.appendChild(t);
+    setTimeout(function () { t.classList.add('out'); setTimeout(function () { t.remove(); }, 320); }, ms || 2600);
+  }
+  window.awToast = toast;
+
+  /* ---------- Connection banner ---------- */
+  var banner = document.createElement('div');
+  banner.className = 'conn-banner'; banner.setAttribute('role', 'alert');
+  banner.innerHTML = '<i class="bi bi-wifi-off"></i><span>Couldn’t load the latest data. Showing what we have.</span><button type="button">Retry</button>';
+  banner.querySelector('button').onclick = function () { window.loadDashboard(true); };
+  var mainEl = $('main'); if (mainEl) mainEl.insertBefore(banner, mainEl.firstChild);
+  window.showConnError = function () { banner.classList.add('show'); document.body.classList.add('conn-error'); };
+  function hideConnBanner() { banner.classList.remove('show'); document.body.classList.remove('conn-error'); }
+
+  /* ---------- Skeletons (until first data arrives) ---------- */
+  function skel(n) {
+    var h = ''; for (var i = 0; i < n; i++) h += '<div class="skel"><div class="b w40"></div><div class="b w70 h24"></div><div class="b w55"></div></div>';
+    return h;
+  }
+  $$('.kpi-row, #leaderboardGrid, #gamificationGrid').forEach(function (el) {
+    if (!el.children.length) el.innerHTML = skel(el.id === 'tlKpiGrid' ? 10 : (el.id === 'gamificationGrid' ? 2 : 4));
+  });
+
+  /* ---------- Enhancers ---------- */
+  function enhanceTables() {
+    CARD_TABLES.forEach(function (id) {
+      var t = document.getElementById(id); if (!t) return;
+      t.classList.add('cardify');
+      var labels = $$('thead th', t).map(function (th) { return th.textContent.trim(); });
+      $$('tbody tr', t).forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) { if (td.getAttribute('data-label') === null) td.setAttribute('data-label', labels[i] || ''); });
+      });
+    });
+  }
+
+  function stagger(root) {
+    var i = 0;
+    $$('.pdf-kpi-card, .lb-card, .chart-container, .table-wrap, .skel', root).forEach(function (el) {
+      if (el.dataset.rv) return; el.dataset.rv = '1';
+      if (reduce || el.classList.contains('skel')) return;
+      if (el.matches('.table-wrap') && el.closest('.lb-card')) return;
+      el.style.setProperty('--i', Math.min(i++, 14)); el.classList.add('reveal');
+    });
+  }
+
+  function countUps(root) {
+    $$('.pdf-kpi-value, .svg-chart-val', root).forEach(function (el) {
+      if (el.dataset.cu) return; el.dataset.cu = '1';
+      if (reduce || el.children.length) return;
+      var txt = el.textContent; if (!/\d/.test(txt) || txt.indexOf(':') > -1) return;
+      var parts = txt.split(/(\d+(?:\.\d+)?)/), nums = [];
+      parts.forEach(function (p, i) { if (i % 2 === 1) nums.push({ i: i, v: parseFloat(p), d: (p.split('.')[1] || '').length }); });
+      if (!nums.length || nums.every(function (n) { return n.v === 0; })) return;
+      var rv = el.closest('.reveal'), delay = rv ? (parseFloat(rv.style.getPropertyValue('--i')) || 0) * 45 + 140 : 120;
+      var dur = 900, start = null;
+      function frame(ts) {
+        if (start === null) start = ts;
+        var p = Math.min(Math.max((ts - start) / dur, 0), 1), e = 1 - Math.pow(1 - p, 3), out = parts.slice();
+        nums.forEach(function (n) { out[n.i] = (n.v * e).toFixed(n.d); });
+        el.textContent = p >= 1 ? txt : out.join('');
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      el.textContent = parts.map(function (p, i) { return i % 2 === 1 ? (0).toFixed((p.split('.')[1] || '').length) : p; }).join('');
+      setTimeout(function () { requestAnimationFrame(frame); }, delay);
+    });
+  }
+
+  function rings(root) {
+    $$('.svg-chart-container svg', root).forEach(function (svg, idx) {
+      if (svg.dataset.rg) return; svg.dataset.rg = '1';
+      var c = svg.querySelectorAll('circle')[1]; if (!c || reduce) return;
+      var target = c.getAttribute('stroke-dashoffset'), circ = c.getAttribute('stroke-dasharray');
+      c.style.strokeDashoffset = circ + 'px';
+      c.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1) ' + (Math.min(idx, 14) * 45 + 150) + 'ms';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { c.style.strokeDashoffset = target + 'px'; }); });
+    });
+  }
+
+  function medals(root) {
+    $$('.lb-card tbody tr:nth-child(-n+3) td:first-child', root).forEach(function (td, i) {
+      if (td.dataset.md) return; td.dataset.md = '1';
+      var n = td.textContent.trim(); if (!/^[1-3]$/.test(n)) return;
+      td.innerHTML = '<span class="medal m' + n + '">' + n + '</span>';
+    });
+  }
+
+  function enhance(root) {
+    root = root || document;
+    enhanceTables(); stagger(root); medals(root); countUps(root); rings(root);
+  }
+
+  /* ---------- Wrap existing functions (original logic untouched) ---------- */
+  function wrapAfter(name, scopeFn) {
+    var orig = window[name]; if (typeof orig !== 'function') return;
+    window[name] = function () {
+      var r = orig.apply(this, arguments);
+      try { enhance(scopeFn ? scopeFn() : ($('.page.active') || document)); } catch (e) { console.error(e); }
+      return r;
+    };
+  }
+  var _renderView = window.renderView;
+  window.renderView = function () {
+    if (window.__skipRender) return;
+    var r = _renderView.apply(this, arguments);
+    try { enhance($('.page.active') || document); } catch (e) { console.error(e); }
+    return r;
+  };
+  ['renderDashboardKpis', 'renderEmpathyView', 'filterCalls', 'renderAgentCard'].forEach(function (n) { wrapAfter(n); });
+
+  var prevSig = null, firstLoad = true;
+  var _apply = window.applyDashboardData;
+  window.applyDashboardData = function (data) {
+    var sig = ''; try { sig = typeof data === 'string' ? data : JSON.stringify(data); } catch (e) {}
+    var unchanged = prevSig !== null && sig !== '' && sig === prevSig;
+    prevSig = sig; hideConnBanner();
+    window.__skipRender = unchanged;
+    try { _apply.call(this, data); } finally { window.__skipRender = false; }
+    if (!unchanged) { updateHero(); if (!firstLoad) toast('Dashboard updated with the latest data', 'bi-arrow-repeat'); firstLoad = false; }
+  };
+
+  var _nav = window.navTo;
+  window.navTo = function (tab) {
+    var r = _nav.apply(this, arguments);
+    syncNav(); window.scrollTo(0, 0); return r;
+  };
+
+  var _theme = window.toggleTheme;
+  window.toggleTheme = function () {
+    var root = document.documentElement, btn = $('#themeToggle');
+    root.classList.add('theme-anim'); if (btn) { btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin'); }
+    setTimeout(function () { root.classList.remove('theme-anim'); if (btn) btn.classList.remove('spin'); }, 600);
+    return _theme.apply(this, arguments);
+  };
+
+  window.toggleMobileSidebar = function () {
+    if (isMobile()) { document.body.classList.toggle('sidebar-open'); return; }
+    var c = document.body.classList.toggle('sidebar-collapsed');
+    try { localStorage.setItem('aw_sb', c ? '1' : '0'); } catch (e) {}
+  };
+  try { if (!isMobile() && localStorage.getItem('aw_sb') === '1') document.body.classList.add('sidebar-collapsed'); } catch (e) {}
+  window.addEventListener('resize', function () { if (isMobile()) document.body.classList.remove('sidebar-collapsed'); });
+
+  /* ---------- Sortable tables (asc/desc toggle + indicator) ---------- */
+  window.sortTable = function (tableId, n, isNumeric) {
+    var table = document.getElementById(tableId); if (!table || !table.tBodies[0]) return;
+    var ths = $$('thead th', table), th = ths[n]; if (!th) return;
+    var next = th.dataset.dir ? (th.dataset.dir === 'desc' ? 'asc' : 'desc') : (isNumeric ? 'desc' : 'asc');
+    ths.forEach(function (h) { delete h.dataset.dir; h.classList.remove('sorted'); var ic = h.querySelector('i'); if (ic) ic.className = 'bi bi-chevron-expand'; });
+    th.dataset.dir = next; th.classList.add('sorted');
+    var icon = th.querySelector('i'); if (icon) icon.className = 'bi ' + (next === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down');
+    var tbody = table.tBodies[0], rows = Array.prototype.slice.call(tbody.rows);
+    var key = function (r) { var c = r.cells[n]; var t = c ? c.textContent : ''; return isNumeric ? (parseFloat(t.replace(/[^0-9.\-]/g, '')) || 0) : t.toLowerCase(); };
+    rows.sort(function (a, b) {
+      var x = key(a), y = key(b), r = isNumeric ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true });
+      return next === 'asc' ? r : -r;
+    });
+    rows.forEach(function (r) { tbody.appendChild(r); });
+  };
+
+  /* ---------- Hero ---------- */
+  function updateHero() {
+    if (typeof appData === 'undefined' || !appData) return;
+    var h = new Date().getHours(), g = h < 12 ? 'Good morning' : (h < 18 ? 'Good afternoon' : 'Good evening');
+    var ge = $('#heroGreet'); if (ge) ge.textContent = g + ' 👋';
+    var d = new Date(appData.lastUpdated), de = $('#heroDate');
+    if (de && !isNaN(d)) de.textContent = d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    var ae = $('#heroAgents'); if (ae) ae.textContent = appData.activeAgentsCount || 0;
+  }
+
+  /* ---------- Bottom nav + accessibility ---------- */
+  var bn = document.createElement('nav');
+  bn.className = 'bottom-nav'; bn.setAttribute('aria-label', 'Primary');
+  bn.innerHTML =
+    '<button class="bn-item" data-page="Dashboard"><i class="bi bi-grid-fill"></i>Home</button>' +
+    '<button class="bn-item" data-page="My Performance"><i class="bi bi-person-fill"></i>Me</button>' +
+    '<button class="bn-item" data-page="Audit Details"><i class="bi bi-card-checklist"></i>Audits</button>' +
+    '<button class="bn-item" data-page="Audited Call Details"><i class="bi bi-telephone-fill"></i>Calls</button>' +
+    '<button class="bn-item" data-more="1"><i class="bi bi-three-dots"></i>More</button>';
+  document.body.appendChild(bn);
+  bn.addEventListener('click', function (e) {
+    var b = e.target.closest('.bn-item'); if (!b) return;
+    if (b.dataset.more) { document.body.classList.add('sidebar-open'); return; }
+    window.navTo(b.dataset.page);
+  });
+  function syncNav() {
+    $$('.bn-item[data-page]', bn).forEach(function (b) { b.classList.toggle('active', b.dataset.page === window.activeTabName()); });
+    $$('.nav-item').forEach(function (n) { n.setAttribute('aria-current', n.classList.contains('active') ? 'page' : 'false'); });
+  }
+  window.activeTabName = function () { try { return activeTab; } catch (e) { return 'Dashboard'; } };
+
+  $$('.nav-item').forEach(function (n) {
+    n.setAttribute('role', 'button'); n.setAttribute('tabindex', '0'); n.setAttribute('title', n.textContent.trim());
+    n.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); n.click(); } });
+  });
+  var menuBtn = $('.mobile-menu-btn'); if (menuBtn) menuBtn.setAttribute('aria-label', 'Toggle menu');
+  var themeBtn = $('#themeToggle'); if (themeBtn) themeBtn.setAttribute('aria-label', 'Toggle dark or light mode');
+  var kbd = $('.search-btn kbd'); if (kbd && /Mac|iPhone|iPad/.test(navigator.platform || '')) kbd.textContent = '⌘K';
+  syncNav();
+
+  /* ---------- Command palette (Ctrl/Cmd+K or "/") ---------- */
+  var ov = document.createElement('div');
+  ov.className = 'cmdk-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Quick search');
+  ov.innerHTML = '<div class="cmdk"><div class="cmdk-in"><i class="bi bi-search"></i><input type="text" placeholder="Jump to a page, filter by agent, or run an action…" autocomplete="off" aria-label="Search"></div><div class="cmdk-list"></div></div>';
+  document.body.appendChild(ov);
+  var cin = $('input', ov), clist = $('.cmdk-list', ov), items = [], sel = 0;
+
+  function allItems() {
+    var out = [];
+    $$('.nav-item').forEach(function (n) {
+      var ic = n.querySelector('i'); out.push({ g: 'Pages', label: n.textContent.trim(), icon: ic ? ic.className : 'bi bi-dot', run: function () { window.navTo(n.dataset.page); } });
+    });
+    out.push({ g: 'Actions', label: 'Toggle dark / light mode', icon: 'bi bi-circle-half', run: function () { window.toggleTheme(); } });
+    out.push({ g: 'Actions', label: 'Refresh data now', icon: 'bi bi-arrow-repeat', run: function () { window.loadDashboard(true); } });
+    try {
+      var names = (appData.sheets['Alignment'] || []).map(function (a) { return a['Name']; }).filter(Boolean);
+      names.forEach(function (nm) {
+        out.push({ g: 'Filter dashboard by agent', label: nm, icon: 'bi bi-person-lines-fill', run: function () {
+          window.navTo('Dashboard'); var s = $('#dashAgentFilter'); if (!s) return;
+          var has = Array.prototype.some.call(s.options, function (o) { return o.value === nm; });
+          if (has) { s.value = nm; window.renderDashboardKpis(); toast('Dashboard filtered: ' + nm, 'bi-funnel-fill'); } else { toast('No audits found for ' + nm, 'bi-info-circle-fill'); }
+        } });
+      });
+    } catch (e) {}
+    return out;
+  }
+  function draw() {
+    var q = cin.value.trim().toLowerCase(), all = allItems();
+    items = all.filter(function (i) { return !q || i.label.toLowerCase().indexOf(q) > -1; }).slice(0, 12);
+    if (sel >= items.length) sel = 0;
+    if (!items.length) { clist.innerHTML = '<div class="cmdk-empty">No results</div>'; return; }
+    var html = '', lastG = '';
+    items.forEach(function (it, i) {
+      if (it.g !== lastG) { html += '<div class="cmdk-group">' + it.g + '</div>'; lastG = it.g; }
+      html += '<div class="cmdk-item' + (i === sel ? ' sel' : '') + '" data-i="' + i + '"><i class="' + it.icon + '"></i><span></span></div>';
+    });
+    clist.innerHTML = html;
+    $$('.cmdk-item', clist).forEach(function (el) { el.querySelector('span').textContent = items[+el.dataset.i].label; });
+  }
+  function openPalette() { ov.classList.add('open'); cin.value = ''; sel = 0; draw(); setTimeout(function () { cin.focus(); }, 30); }
+  function closePalette() { ov.classList.remove('open'); }
+  function runSel() { var it = items[sel]; if (it) { closePalette(); it.run(); } }
+  window.openPalette = openPalette;
+  cin.addEventListener('input', function () { sel = 0; draw(); });
+  clist.addEventListener('click', function (e) { var el = e.target.closest('.cmdk-item'); if (el) { sel = +el.dataset.i; runSel(); } });
+  ov.addEventListener('mousedown', function (e) { if (e.target === ov) closePalette(); });
+  document.addEventListener('keydown', function (e) {
+    var typing = /INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''));
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); ov.classList.contains('open') ? closePalette() : openPalette(); return; }
+    if (e.key === '/' && !typing && !ov.classList.contains('open')) { e.preventDefault(); openPalette(); return; }
+    if (!ov.classList.contains('open')) return;
+    if (e.key === 'Escape') { closePalette(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, items.length - 1); draw(); var s1 = $('.cmdk-item.sel', clist); if (s1) s1.scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); draw(); var s2 = $('.cmdk-item.sel', clist); if (s2) s2.scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'Enter') { e.preventDefault(); runSel(); }
+  });
+})();
 </script>
 </body>
 </html>
