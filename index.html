@@ -845,9 +845,97 @@
     .agent-subtab-btn { font-size: 11px; padding: 9px 6px; gap: 4px; }
   }
 
+
+  /* =====================================================================
+     PREMIUM ADD-ONS: page transitions, top progress bar, logo loader polish,
+     clickable KPI cards and the hidden Agent Detail pages
+     ===================================================================== */
+  #awTopBar { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 10000; pointer-events: none; opacity: 0;
+    background: linear-gradient(90deg, #22d3ee, #fbbf24, #22d3ee); background-size: 200% 100%; box-shadow: 0 0 12px rgba(34, 211, 238, 0.7); }
+  #awTopBar.run { animation: awTopRun 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards, barShimmer 1.2s linear infinite; }
+  @keyframes awTopRun { 0% { width: 0; opacity: 1; } 70% { width: 88%; opacity: 1; } 100% { width: 100%; opacity: 0; } }
+
+  .page.active { animation: awPageIn 0.6s var(--ease) both; }
+  @keyframes awPageIn {
+    0% { opacity: 0; transform: translateY(26px) scale(0.972); filter: blur(7px); }
+    55% { filter: blur(0); }
+    100% { opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes awRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes awPop { 0% { opacity: 0; transform: scale(0.6) rotate(-12deg); } 100% { opacity: 1; transform: none; } }
+  .page.active > section, .page.active > .filterbar, .page.active > .filterbar-top-row, .page.active > .hero,
+  .page.active > .table-wrap, .page.active > #agentPersonalArea, .page.active > #agentLoginArea { animation: awRise 0.65s var(--ease) both; }
+  .page.active > *:nth-child(1) { animation-delay: 0.05s; } .page.active > *:nth-child(2) { animation-delay: 0.11s; }
+  .page.active > *:nth-child(3) { animation-delay: 0.17s; } .page.active > *:nth-child(4) { animation-delay: 0.23s; }
+  .page.active > *:nth-child(5) { animation-delay: 0.29s; } .page.active > *:nth-child(6) { animation-delay: 0.35s; }
+
+  /* Logo loader polish (shows on every load: first open, refresh, login, opening/closing detail pages) */
+  .splash-ring-wrap::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid rgba(34, 211, 238, 0.35); animation: awRingPulse 1.5s ease-out infinite; pointer-events: none; }
+  @keyframes awRingPulse { 0% { transform: scale(0.92); opacity: 0.85; } 100% { transform: scale(1.4); opacity: 0; } }
+  .splash-logo { animation: splashFloat 2.8s ease-in-out infinite, awLogoGlow 2.4s ease-in-out infinite; }
+  @keyframes awLogoGlow { 0%, 100% { filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55)) brightness(1); } 50% { filter: drop-shadow(0 8px 30px rgba(34, 211, 238, 0.6)) brightness(1.14); } }
+
+  /* Clickable KPI cards (Agent Portal scorecard) */
+  .pdf-kpi-card.kpi-clickable { cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; }
+  .pdf-kpi-card.kpi-clickable:active { transform: scale(0.985); }
+  .pdf-kpi-card.kpi-clickable:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+  .kpi-detail-hint { position: absolute; right: 12px; bottom: 11px; display: inline-flex; align-items: center; gap: 2px; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-blue); opacity: 0.78; transition: transform 0.25s var(--ease), opacity 0.25s; }
+  .kpi-clickable:hover .kpi-detail-hint { opacity: 1; transform: translateX(3px); }
+  .pdf-export-mode .kpi-detail-hint { display: none !important; }
+
+  /* Hidden Agent Detail page */
+  .ad-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ad-back { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+  .ad-back i { transition: transform 0.25s var(--ease); }
+  .ad-back:hover i { transform: translateX(-4px); }
+  .ad-crumb { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ad-crumb b { color: var(--text-main); }
+  .ad-hero { position: relative; overflow: hidden; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 20px 22px; border-radius: 20px; margin-bottom: 16px; color: #fff;
+    background: linear-gradient(135deg, #0f1d36 0%, #14284a 55%, #1d2f63 100%); border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: var(--shadow-lg); animation: awRise 0.6s var(--ease) both; }
+  .ad-hero::after { content: ""; position: absolute; width: 270px; height: 270px; right: -70px; top: -120px; border-radius: 50%; background: radial-gradient(circle, var(--ad-c, #22d3ee) 0%, transparent 68%); opacity: 0.38; pointer-events: none; }
+  .ad-hero-ic { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 25px; color: #fff; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; animation: awPop 0.75s var(--ease) both; }
+  .ad-hero-txt { flex: 1; min-width: 190px; position: relative; z-index: 1; }
+  .ad-hero-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .ad-hero-sub { font-size: 12px; color: #cbd5e1; margin-top: 3px; word-break: break-word; }
+  .ad-hero-kpi { text-align: right; position: relative; z-index: 1; }
+  .ad-hero-kpi-val { font-family: var(--mono); font-size: 30px; font-weight: 800; line-height: 1; }
+  .ad-hero-kpi-lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-top: 5px; }
+  .ad-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .ad-stat { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); animation: awRise 0.55s var(--ease) both; transition: transform 0.25s var(--ease), border-color 0.25s; }
+  .ad-stat:nth-child(2) { animation-delay: 0.06s; } .ad-stat:nth-child(3) { animation-delay: 0.12s; } .ad-stat:nth-child(4) { animation-delay: 0.18s; }
+  .ad-stat:hover { transform: translateY(-3px); border-color: var(--color-blue); }
+  .ad-stat-ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 17px; background: var(--bg-blue); color: var(--color-blue); flex-shrink: 0; }
+  .ad-stat.good .ad-stat-ic { background: var(--bg-good); color: var(--color-good); }
+  .ad-stat.bad .ad-stat-ic { background: var(--bg-bad); color: var(--color-bad); }
+  .ad-stat.warn .ad-stat-ic { background: var(--bg-warn); color: var(--color-warn); }
+  .ad-stat-val { font-family: var(--mono); font-size: 20px; font-weight: 800; line-height: 1.1; color: var(--text-main); }
+  .ad-stat-lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
+  .ad-section { margin-bottom: 22px; animation: awRise 0.6s var(--ease) both; animation-delay: 0.14s; }
+  .ad-chart-box { height: 260px; padding: 14px; }
+  .ad-note { font-size: 12px; color: var(--text-muted); margin: -4px 0 12px; line-height: 1.5; }
+  .ad-warn-note { font-size: 12px; color: var(--color-warn); background: var(--bg-warn); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; font-weight: 600; }
+  .ad-empty { padding: 36px 18px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: var(--radius); background: var(--bg-card); font-size: 12.5px; line-height: 1.55; }
+  .ad-empty i { font-size: 30px; display: block; margin-bottom: 8px; color: var(--color-blue); }
+  .ad-empty strong { display: block; color: var(--text-main); font-size: 14px; margin-bottom: 4px; }
+  .ad-empty.good i { color: var(--color-good); }
+  .ad-remark { display: inline-block; text-align: left; max-width: 440px; white-space: normal; line-height: 1.45; }
+  .ad-nce { display: inline-block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.05em; padding: 1px 6px; border-radius: 5px; background: var(--bg-warn); color: var(--color-warn); margin-right: 6px; vertical-align: 1px; }
+  .pill.warn { background: var(--bg-warn); color: var(--color-warn); }
+  .pill.warn::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .ad-bottom-back { display: flex; justify-content: center; margin: 8px 0 24px; }
+  @media (max-width: 640px) {
+    .ad-hero { padding: 16px; } .ad-hero-kpi { text-align: left; width: 100%; }
+    .ad-hero-title { font-size: 17px; } .ad-hero-kpi-val { font-size: 26px; }
+    .ad-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; } .ad-stat { padding: 11px 12px; gap: 9px; } .ad-stat-val { font-size: 16px; }
+    .ad-stat-ic { width: 32px; height: 32px; font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .page.active, .page.active > *, .ad-hero, .ad-stat, .ad-section, .ad-hero-ic, #awTopBar.run { animation: none !important; }
+  }
 </style>
 </head>
 <body>
+<div id="awTopBar"></div>
 
 <!-- ENTRY SPLASH SCREEN & REUSABLE DATA LOADER -->
 <div class="aw-splash" id="awSplash" role="status" aria-live="polite">
@@ -1157,6 +1245,14 @@
         </table>
       </div>
     </div>
+    <!-- 10. AGENT DETAIL (HIDDEN PAGE - opened from the Agent Portal KPI cards, no sidebar link) -->
+    <div class="page" id="page-Agent Detail">
+      <div class="ad-top">
+        <button type="button" class="btn-action ad-back" onclick="backFromDetail()"><i class="bi bi-arrow-left"></i> Back to Scorecard</button>
+        <div class="ad-crumb" id="adCrumb"></div>
+      </div>
+      <div id="agentDetailBody"></div>
+    </div>
   </main>
   <footer id="footerNote">Albatross Wings — Better Quality, Stronger Performance</footer>
 </div>
@@ -1180,6 +1276,10 @@
     const bar = document.getElementById('awSplashBar');
     if (st) st.textContent = msg || 'Fetching live performance data...';
     if (bar) bar.style.width = '68%';
+    ['.splash-ring-wrap', '.splash-text'].forEach(sel => {
+      const n = el.querySelector(sel);
+      if (n) { n.style.animation = 'none'; void n.offsetWidth; n.style.animation = ''; }
+    });
     el.classList.add('loader-mode');
     el.classList.remove('is-hidden');
   }
@@ -1350,6 +1450,7 @@
 
   let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = '';
   let rootCauseChartInstance = null; let dailyTrendChartInstance = null;
+  let detailState = null, detailPushed = false, detailBusy = false, detailChartInstance = null;
 
   function checkSessionTimeout() {
     const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
@@ -1372,6 +1473,7 @@
     body.setAttribute('data-theme', next); localStorage.setItem('aw_theme', next);
     document.querySelector('#themeToggle i').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
     if(rootCauseChartInstance) renderRootCauseChart();
+    if (detailState) adRender();
     if(dailyTrendChartInstance && currentCardAgentName && appData) {
       const agent = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
       if(agent) renderDailyTrendChart(agent, String(agent.tenure).toLowerCase() === 'ojt');
@@ -1631,6 +1733,8 @@
 
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
   function navTo(tabName) {
+    if (detailState) adCleanup();
+    awTopBarRun();
     activeTab = tabName;
     if (tabName === 'My Performance') checkSessionTimeout();
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1722,7 +1826,7 @@
 
   function renderBadgeCls(scoreStr, defClass) { return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass; }
 
-  function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null, sparkHtml = '') {
+  function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null, sparkHtml = '', detailKey = '') {
     let chartHtml = '';
     if (percValue !== null && percValue !== 'N/A') {
       let p = parseFloat(String(percValue).replace('%', ''));
@@ -1738,12 +1842,15 @@
           <div class="kpi-chart-col"><div class="svg-chart-container"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle><circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle></svg><div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div></div></div>`;
       }
     }
+    const clickAttrs = detailKey ? ` data-detail="${detailKey}" role="button" tabindex="0" title="Click to view day-wise details"` : '';
+    const hintHtml = detailKey ? '<span class="kpi-detail-hint">Details <i class="bi bi-chevron-right"></i></span>' : '';
     return `
-    <div class="pdf-kpi-card w-100">
+    <div class="pdf-kpi-card w-100${detailKey ? ' kpi-clickable' : ''}"${clickAttrs}>
       <div class="kpi-card-header"><div class="pdf-kpi-title">${title}</div><span class="pdf-badge ${badgeStatus}">${badgeText}</span></div>
       <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${valClass}">${value}</div><div class="pdf-kpi-sub">${sub}</div></div>${chartHtml}</div>
       ${sparkHtml || ''}
       <div class="pdf-score-badge">${scoreBadge}</div>
+      ${hintHtml}
     </div>`;
   }
 
@@ -1815,11 +1922,13 @@
         }).catch(err => console.log('Login ping error:', err));
       }
 
-      renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true);
+      awLogoFlash('Loading your scorecard...', () => renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true), 750);
     } else { document.getElementById('loginError').style.display = 'block'; }
   }
 
   function logoutAgent(isExpired = false) {
+    const wasOnDetail = !!detailState;
+    if (wasOnDetail) adCleanup();
     localStorage.removeItem('aw_agent_login_time');
     currentCardAgentName = '';
     document.getElementById('agentLoginInput').value = '';
@@ -1829,6 +1938,7 @@
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
     const expiredMsg = document.getElementById('sessionExpiredMsg');
     if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
+    if (wasOnDetail) navTo('My Performance');
   }
 
   // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
@@ -2214,6 +2324,7 @@
 
   function renderView(tab) {
     if (!appData) return;
+    if (tab === 'My Performance') { if (detailState) adRender(); return; }
     if (tab === 'Dashboard') {
       renderDashboardKpis(); renderRootCauseChart(); renderGamification();
       const lb = appData.leaderboards || {};
@@ -2531,22 +2642,23 @@
         </div>
 
         <div class="pdf-grid-3">
-          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct)}
+          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct, '', 'fail')}
           ${renderCardHtml("Valid Complaint", agent.validCompCount || 0, "Valid complaints", `KPI: ${fmtScore(agent.score_validComplaint)}`, renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found', agent.validCompCount === 0 ? 'text-success' : 'text-danger')}
-          ${renderCardHtml("Empathy Pass %", agent.empathyPct || '0%', `Pass: ${agent.empathyPassSum || 0} | Fail: ${agent.empathyFailSum || 0}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct)}
-          ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent, agentCfsSpark)}
+          ${renderCardHtml("Empathy Pass %", agent.empathyPct || '0%', `Pass: ${agent.empathyPassSum || 0} | Fail: ${agent.empathyFailSum || 0}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct, '', 'empathy')}
+          ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent, agentCfsSpark, 'cfs')}
           ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? (M.fcr ? 'delivered' : 'missed') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'delivered' : 'missed')), (M.fcr != null) ? (M.fcr ? 'Target Meet' : 'Below Target') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'Target Meet' : 'Below Target'), (M.fcr != null) ? (M.fcr ? 'text-success' : 'text-danger') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'text-success' : 'text-danger'), agent.fcrPercent || agent.fcrPct)}
 
-          <div class="pdf-kpi-card w-100" style="position:relative;">
+          <div class="pdf-kpi-card w-100 kpi-clickable" data-detail="aht" role="button" tabindex="0" title="Click to view day-wise details" style="position:relative;">
              <div class="kpi-card-header"><div class="pdf-kpi-title">AHT (Seconds)</div><span class="pdf-badge ${renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${isAhtMet ? 'Target Meet' : 'Exceeds'}</span></div>
              <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${isAhtMet ? 'text-success' : 'text-warning'}">${agent.aht || 'N/A'}</div><div class="pdf-kpi-sub">Target: ${T.aht ? T.aht + 's' : '<=170s'}</div>${isAgentPortal ? ahtRankText : ''}</div></div>
              ${agentAhtSpark}
              <div class="pdf-score-badge">KPI: ${fmtScore(agent.score_aht)}</div>
+             <span class="kpi-detail-hint">Details <i class="bi bi-chevron-right"></i></span>
           </div>
 
-          ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct)}
-          ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance)}
-          ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger')}
+          ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct, '', 'adherence')}
+          ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance, '', 'login')}
+          ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger', null, '', 'break')}
 
           ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
           ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct)}
@@ -2619,6 +2731,389 @@
       ? filtered.map(c => `<tr><td class="fw-bold text-start">${c.agentName}</td><td class="num">${c.contactDate}</td><td>${c.auditParty}</td><td class="num">${c.ani}</td><td class="text-start">${c.callTopic}</td><td class="text-start text-danger">${c.failTopic}</td><td><span class="pill ${String(c.result).toLowerCase() === 'pass' ? 'pass' : 'fail'}">${c.result}</span></td></tr>`).join('')
       : `<tr><td colspan="7" class="empty-state-cell"><div class="empty-state-box"><i class="bi bi-inbox"></i><strong>No matching call records</strong><span>Try clearing your search or changing the result filter.</span></div></td></tr>`;
   }
+
+  // =========================================================================
+  // AGENT DETAIL PAGES  (hidden pages opened by clicking a KPI card in the
+  // Agent Portal scorecard). Back button returns to the logged-in scorecard.
+  // =========================================================================
+  const AD_META = {
+    fail:      { title: 'Audit Fail Details',    icon: 'bi-shield-exclamation',     color: '#f43f5e' },
+    empathy:   { title: 'Empathy Pass Details',  icon: 'bi-heart-pulse-fill',       color: '#8b5cf6' },
+    aht:       { title: 'AHT Day-wise',          icon: 'bi-lightning-charge-fill',  color: '#f59e0b' },
+    cfs:       { title: 'CFS Day-wise',          icon: 'bi-emoji-smile-fill',       color: '#22d3ee' },
+    login:     { title: 'Login Hour Day-wise',   icon: 'bi-box-arrow-in-right',     color: '#38bdf8' },
+    adherence: { title: 'Adherence Day-wise',    icon: 'bi-calendar-check-fill',    color: '#10b981' },
+    break:     { title: 'Over Break Day-wise',   icon: 'bi-cup-hot-fill',           color: '#fb7185' }
+  };
+  const AD_COL_NAMES = { aht: 'AHT', cfs: 'CFS%', targetReady: 'Target Ready', readyTime: 'Ready Time', lagTime: 'Lag Time', adherence: 'Adherence%', targetBreak: 'Target Break', breakTime: 'Break Time', extraBreak: 'Extra Break' };
+  const AD_REQ_COLS = { aht: ['aht'], cfs: ['cfs'], login: ['targetReady', 'readyTime', 'lagTime'], adherence: ['adherence'], break: ['targetBreak', 'breakTime', 'extraBreak'] };
+
+  function escHtml(v) {
+    return String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function adDash(v) { return (v === null || v === undefined || String(v).trim() === '') ? '—' : escHtml(v); }
+  function adShort(d) { return String(d || '').replace(/\s\d{4}$/, ''); }
+  function adAgent() {
+    const list = (appData && appData.sheets && appData.sheets['KPI']) || [];
+    return list.find(a => String(a.name) === String(currentCardAgentName));
+  }
+  function adAgentKey(a) { return String(a.key || a.id || a.vdiId || a.name || '').trim().toLowerCase(); }
+  function adDayRows(a) {
+    const dw = (appData && appData.dayWise) || {};
+    return dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+  }
+  function adCalls(a) {
+    const key = adAgentKey(a);
+    return ((appData && appData.sheets && appData.sheets['Audited Call Details']) || []).filter(c =>
+      (c.agentKey && c.agentKey === key) || (!c.agentKey && (c.vdiId === a.vdiId || c.agentName === a.name)));
+  }
+  function durToMin(v) {
+    const s = String(v === null || v === undefined ? '' : v).toLowerCase().trim();
+    if (!s) return NaN;
+    if (s === 'no lag' || s === 'no extra break') return 0;
+    const m = s.match(/^(\d{1,3}):(\d{2})(?::(\d{2}))?$/);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10) + (m[3] ? parseInt(m[3], 10) / 60 : 0);
+    const h = s.match(/(\d+(?:\.\d+)?)\s*h/), mi = s.match(/(\d+(?:\.\d+)?)\s*m/);
+    if (h || mi) return (h ? parseFloat(h[1]) * 60 : 0) + (mi ? parseFloat(mi[1]) : 0);
+    const n = parseFloat(s.replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? NaN : n;
+  }
+  function fmtMin(m) {
+    if (isNaN(m)) return '—';
+    const t = Math.round(m); const h = Math.floor(t / 60), mm = t % 60;
+    return h > 0 ? h + 'h ' + mm + 'm' : mm + 'm';
+  }
+  function adPrettyDur(v) {
+    const s = String(v === null || v === undefined ? '' : v).trim();
+    if (!s) return '—';
+    if (/^no /i.test(s)) return escHtml(s);
+    const m = durToMin(s);
+    return isNaN(m) ? escHtml(s) : fmtMin(m);
+  }
+  function adStat(label, value, tone, icon) {
+    return `<div class="ad-stat ${tone || ''}"><div class="ad-stat-ic"><i class="bi ${icon || 'bi-dot'}"></i></div><div><div class="ad-stat-val">${value}</div><div class="ad-stat-lbl">${label}</div></div></div>`;
+  }
+  function adRow(cells, labels, classes) {
+    return '<tr>' + cells.map((c, i) => `<td data-label="${escHtml(labels[i] || '')}" class="${(classes && classes[i]) || ''}">${c}</td>`).join('') + '</tr>';
+  }
+  function adEmpty(icon, title, msg, good) {
+    return `<div class="ad-empty ${good ? 'good' : ''}"><i class="bi ${icon}"></i><strong>${title}</strong>${msg || ''}</div>`;
+  }
+  function adTable(heads, rows) {
+    return `<div class="table-wrap"><table class="cardify"><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  }
+  function adSection(title, note, content) {
+    return `<section class="ad-section"><div class="section-head"><h2>${title}</h2></div>${note ? `<div class="ad-note">${note}</div>` : ''}${content}</section>`;
+  }
+  function adNum(txt, fallback) { const n = parseFloat(String(txt || '').replace(/[^0-9.]/g, '')); return isNaN(n) ? fallback : n; }
+  function adAvg(arr) { return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : NaN; }
+
+  function adMissingCols(type) {
+    const meta = appData.dayWiseMeta || {};
+    const cols = meta.columns || {};
+    return (AD_REQ_COLS[type] || []).filter(k => !cols[k]);
+  }
+  function adNoDay(type) {
+    const meta = appData.dayWiseMeta;
+    if (!meta) return adEmpty('bi-cloud-arrow-down', 'Day-wise data not synced yet', 'Please update the Apps Script and press <b>Refresh now</b> (GitHub Pages users: wait for the next sync).');
+    if (!meta.sheetFound) return adEmpty('bi-file-earmark-x', 'Sheet "ORT Day wise" not found', 'The sheet must be named exactly <b>ORT Day wise</b>.');
+    const missing = adMissingCols(type);
+    if (missing.length) return adEmpty('bi-table', 'Column not found in "ORT Day wise"', 'Could not find: <b>' + missing.map(k => AD_COL_NAMES[k] || k).join(', ') + '</b>. Please check the header names in the sheet.');
+    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent\'s ID / VDI ID / Name.');
+  }
+  function adPartialWarn(type) {
+    const missing = adMissingCols(type);
+    return missing.length ? `<div class="ad-warn-note"><i class="bi bi-exclamation-triangle-fill"></i> Column not found in sheet: ${missing.map(k => AD_COL_NAMES[k] || k).join(', ')}</div>` : '';
+  }
+
+  // ---------- individual detail views ----------
+  function adFail(a) {
+    const fails = adCalls(a).filter(c => String(c.result).toLowerCase() === 'fail');
+    const stats = `<div class="ad-stats">
+      ${adStat('Total Audit', a.totalAudits || 0, '', 'bi-card-checklist')}
+      ${adStat('Pass', a.passCount || 0, 'good', 'bi-check-circle-fill')}
+      ${adStat('Fail', a.failCount || 0, (a.failCount || 0) > 0 ? 'bad' : 'good', 'bi-x-octagon-fill')}
+      ${adStat('Fail Rate', escHtml(a.auditFailPct || '0.0%'), (a.failCount || 0) > 0 ? 'bad' : 'good', 'bi-percent')}
+    </div>`;
+    let body;
+    if (!fails.length) {
+      body = adEmpty('bi-shield-check', 'No fail calls', 'Perfect record. Keep it up!', true);
+    } else {
+      const rows = fails.map(c => adRow(
+        [escHtml(c.contactDate), escHtml(c.auditParty), escHtml(c.ani), escHtml(c.callTopic), `<span class="ad-remark text-danger">${escHtml(c.failTopic)}</span>`, '<span class="pill fail">Fail</span>'],
+        ['Contact Date', 'Audit Party', 'ANI', 'Call Topic', 'Fail Remarks', 'Result'], ['num', '', 'num', 'text-start', 'text-start', '']));
+      body = adTable(['Contact Date', 'Audit Party', 'ANI', 'Call Topic', 'Fail Remarks', 'Result'], rows);
+    }
+    return stats + adSection('Fail Call Details (' + fails.length + ')', 'Every audited call where this agent received a fail.', body);
+  }
+
+  function adEmpathy(a) {
+    const calls = adCalls(a);
+    const withNce = calls.filter(c => c.nceRemark);
+    const withFailOnly = calls.filter(c => !c.nceRemark && (parseInt(c.empFail, 10) || 0) > 0);
+    const pass = parseInt(a.empathyPassSum, 10) || 0, fail = parseInt(a.empathyFailSum, 10) || 0;
+    const stats = `<div class="ad-stats">
+      ${adStat('Empathy Param Pass', pass, 'good', 'bi-check-circle-fill')}
+      ${adStat('Empathy Param Fail', fail, fail > 0 ? 'bad' : 'good', 'bi-x-circle-fill')}
+      ${adStat('Total Parameters', pass + fail, '', 'bi-list-check')}
+      ${adStat('Calls with N-CE', withNce.length, withNce.length > 0 ? 'warn' : 'good', 'bi-chat-left-text-fill')}
+    </div>`;
+    const all = withNce.concat(withFailOnly);
+    let body;
+    if (!all.length) {
+      body = adEmpty('bi-heart-fill', 'No N-CE remarks found', 'No call has an "N-CE :" remark or an empathy parameter fail.', true);
+    } else {
+      const rows = all.map(c => adRow(
+        [escHtml(c.contactDate), escHtml(c.ani), escHtml(c.auditParty), escHtml(c.callTopic), '<span class="text-success fw-bold">' + (parseInt(c.empPass, 10) || 0) + '</span>', '<span class="text-danger fw-bold">' + (parseInt(c.empFail, 10) || 0) + '</span>',
+         c.nceRemark ? `<span class="ad-remark"><span class="ad-nce">N-CE</span>${escHtml(c.nceRemark)}</span>` : '<span class="text-muted">—</span>'],
+        ['Contact Date', 'ANI', 'Audit Party', 'Call Topic', 'Emp Pass', 'Emp Fail', 'N-CE Remarks'], ['num', 'num', '', 'text-start', 'num', 'num', 'text-start']));
+      body = adTable(['Contact Date', 'ANI', 'Audit Party', 'Call Topic', 'Emp Pass', 'Emp Fail', 'N-CE Remarks'], rows);
+    }
+    const note = 'Calls that carry an <b>N-CE :</b> remark' + (withFailOnly.length ? ' (calls with an empathy fail but no N-CE remark are listed after them with "—").' : '.');
+    return stats + adSection('N-CE Calls & Remarks (' + withNce.length + ')', note, body);
+  }
+
+  function adAhtCfs(a, type) {
+    const isAht = type === 'aht';
+    const T = a.targets || {};
+    const target = isAht ? adNum(T.aht, 170) : adNum(T.csat, 90);
+    const rows = adDayRows(a).filter(r => (isAht ? r.aht : r.cfs) !== null && (isAht ? r.aht : r.cfs) !== undefined);
+    if (!rows.length) return adNoDay(type);
+    const vals = rows.map(r => isAht ? r.aht : r.cfs);
+    const avg = adAvg(vals);
+    const best = isAht ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+    const worst = isAht ? Math.max.apply(null, vals) : Math.min.apply(null, vals);
+    const bestRow = rows[vals.indexOf(best)], worstRow = rows[vals.indexOf(worst)];
+    const meets = v => isAht ? v <= target : v >= target;
+    const metDays = vals.filter(meets).length;
+    const unit = isAht ? 's' : '%';
+    const f = v => isAht ? Math.round(v) + 's' : (Math.round(v * 10) / 10) + '%';
+    const stats = `<div class="ad-stats">
+      ${adStat('Average ' + (isAht ? 'AHT' : 'CFS'), f(avg), meets(avg) ? 'good' : 'bad', 'bi-speedometer2')}
+      ${adStat('Best Day · ' + escHtml(adShort(bestRow.d)), f(best), 'good', 'bi-trophy-fill')}
+      ${adStat('Weakest Day · ' + escHtml(adShort(worstRow.d)), f(worst), 'bad', 'bi-graph-down-arrow')}
+      ${adStat('Days On Target', metDays + ' / ' + rows.length, metDays === rows.length ? 'good' : 'warn', 'bi-bullseye')}
+    </div>`;
+    const chart = `<div class="chart-container ad-chart-box"><canvas id="adChart"></canvas></div>`;
+    const trs = rows.slice().reverse().map(r => {
+      const v = isAht ? r.aht : r.cfs; const ok = meets(v);
+      const diff = isAht ? (ok ? 'Target Meet' : '+' + Math.round(v - target) + 's over') : (ok ? 'Target Meet' : Math.round((target - v) * 10) / 10 + '% below');
+      return adRow([escHtml(r.d), `<span class="${ok ? 'text-success' : 'text-danger'} fw-bold">${f(v)}</span>`, `<span class="pill ${ok ? 'good' : 'bad'}">${diff}</span>`],
+        ['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], ['num fw-bold', 'num', '']);
+    });
+    window.__adChartPayload = { type: type, rows: rows.slice(-31), target: target, unit: unit };
+    return stats + adSection('Trend (Target ' + (isAht ? '<= ' + target + 's' : '>= ' + target + '%') + ')', '', chart)
+      + adSection('Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Table', 'Source: ORT Day wise sheet. Latest date first.', adTable(['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], trs));
+  }
+
+  function adLogin(a) {
+    const rows = adDayRows(a);
+    if (!rows.length) return adNoDay('login');
+    const lagMins = rows.map(r => durToMin(r.lag));
+    const lagDays = lagMins.filter(m => !isNaN(m) && m > 0).length;
+    const totalLag = lagMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
+    const logins = rows.map(r => r.login).filter(v => v !== null && v !== undefined);
+    const avgLogin = adAvg(logins);
+    const stats = `<div class="ad-stats">
+      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days With Lag', lagDays, lagDays > 0 ? 'bad' : 'good', 'bi-hourglass-split')}
+      ${adStat('Total Lag Time', fmtMin(totalLag), totalLag > 0 ? 'bad' : 'good', 'bi-clock-history')}
+      ${adStat('Avg Login %', isNaN(avgLogin) ? '—' : (Math.round(avgLogin * 10) / 10) + '%', !isNaN(avgLogin) && avgLogin >= 100 ? 'good' : 'warn', 'bi-percent')}
+    </div>`;
+    const trs = rows.slice().reverse().map(r => {
+      const lagM = durToMin(r.lag); const hasLag = !isNaN(lagM) && lagM > 0;
+      return adRow([escHtml(r.d), adDash(r.tr), adDash(r.rt), `<span class="${hasLag ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.lag)}</span>`,
+        r.login === null || r.login === undefined ? '—' : `<span class="${r.login >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.login}%</span>`],
+        ['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], ['num fw-bold', 'num', 'num', 'num', 'num']);
+    });
+    return adPartialWarn('login') + stats + adSection('Day-wise Login Hour', 'Target Ready, Ready Time and Lag Time for each day. Latest date first.', adTable(['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], trs));
+  }
+
+  function adAdherence(a) {
+    const rows = adDayRows(a).filter(r => r.adh !== null && r.adh !== undefined);
+    if (!rows.length) return adNoDay('adherence');
+    const okDays = rows.filter(r => r.adh >= 100).length;
+    const halfDays = rows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
+    const avg = adAvg(rows.map(r => r.adh));
+    const stats = `<div class="ad-stats">
+      ${adStat('Days Okay (100%)', okDays, 'good', 'bi-check-circle-fill')}
+      ${adStat('Login / Logout Missed (50%)', halfDays, halfDays > 0 ? 'bad' : 'good', 'bi-exclamation-triangle-fill')}
+      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Average Adherence', (Math.round(avg * 10) / 10) + '%', avg >= 100 ? 'good' : 'warn', 'bi-percent')}
+    </div>`;
+    const trs = rows.slice().reverse().map(r => {
+      let remark, cls;
+      if (r.adh >= 100) { remark = 'Okay'; cls = 'good'; }
+      else if (Math.abs(r.adh - 50) < 0.5) { remark = 'Login or Logout Missed'; cls = 'bad'; }
+      else if (r.adh <= 0) { remark = 'Adherence Missed'; cls = 'bad'; }
+      else { remark = 'Below Target'; cls = 'warn'; }
+      return adRow([escHtml(r.d), `<span class="${r.adh >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.adh}%</span>`, `<span class="pill ${cls}">${remark}</span>`],
+        ['Date', 'Adherence %', 'Remarks'], ['num fw-bold', 'num', '']);
+    });
+    return stats + adSection('Day-wise Adherence', '<b>100%</b> = Okay &nbsp;·&nbsp; <b>50%</b> = Login or Logout missed. Latest date first.', adTable(['Date', 'Adherence %', 'Remarks'], trs));
+  }
+
+  function adBreak(a) {
+    const rows = adDayRows(a);
+    if (!rows.length) return adNoDay('break');
+    const ebMins = rows.map(r => durToMin(r.eb));
+    const extraDays = ebMins.filter(m => !isNaN(m) && m > 0).length;
+    const totalExtra = ebMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
+    const longest = ebMins.reduce((s, m) => Math.max(s, isNaN(m) ? 0 : m), 0);
+    const stats = `<div class="ad-stats">
+      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days With Extra Break', extraDays, extraDays > 0 ? 'bad' : 'good', 'bi-cup-hot-fill')}
+      ${adStat('Total Extra Break', fmtMin(totalExtra), totalExtra > 0 ? 'bad' : 'good', 'bi-clock-history')}
+      ${adStat('Longest Extra Break', fmtMin(longest), longest > 0 ? 'warn' : 'good', 'bi-alarm-fill')}
+    </div>`;
+    const trs = rows.slice().reverse().map(r => {
+      const m = durToMin(r.eb); const hasExtra = !isNaN(m) && m > 0;
+      return adRow([escHtml(r.d), adDash(r.tb), adDash(r.bt), `<span class="${hasExtra ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.eb)}</span>`],
+        ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', 'num', 'num', 'num']);
+    });
+    return adPartialWarn('break') + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Latest date first.', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
+  }
+
+  function adHeadline(a, type) {
+    switch (type) {
+      case 'fail': return [a.auditFailPct || '0.0%', 'Audit Fail Rate'];
+      case 'empathy': return [a.empathyPct || '0.0%', 'Empathy Pass'];
+      case 'aht': return [a.aht || 'N/A', 'Current AHT'];
+      case 'cfs': return [a.cfsPct || a.cfsPercent || 'N/A', 'Current CFS'];
+      case 'login': return [a.loginHourCompliance != null ? a.loginHourCompliance + '%' : 'N/A', 'Login Hour'];
+      case 'adherence': return [a.adherencePct || 'N/A', 'Adherence'];
+      default: return [a.overBreak || 'N/A', 'Over Break'];
+    }
+  }
+
+  function adDrawChart() {
+    const p = window.__adChartPayload; window.__adChartPayload = null;
+    const ctx = document.getElementById('adChart');
+    if (!p || !ctx || !window.Chart) return;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569', gridColor = isDark ? '#1e293b' : '#e2e8f0';
+    const isAht = p.type === 'aht';
+    const color = isAht ? '#f59e0b' : '#22d3ee';
+    const labels = p.rows.map(r => adShort(r.d));
+    const vals = p.rows.map(r => isAht ? r.aht : r.cfs);
+    detailChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: { labels: labels, datasets: [
+        { label: isAht ? 'AHT (s)' : 'CFS %', data: vals, borderColor: color, backgroundColor: color + '26', fill: true, tension: 0.35, borderWidth: 2.4, pointRadius: 3.5, pointHoverRadius: 6, pointBackgroundColor: color },
+        { label: 'Target', data: labels.map(() => p.target), borderColor: '#f43f5e', borderDash: [6, 5], borderWidth: 1.6, pointRadius: 0, fill: false }
+      ] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 1000, easing: 'easeOutQuart' },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, datalabels: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: textColor, maxRotation: 0, autoSkip: true, font: { size: 10 } } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  function adRender() {
+    const body = document.getElementById('agentDetailBody');
+    if (!body || !detailState || !appData) return;
+    const a = adAgent();
+    if (!a) { body.innerHTML = adEmpty('bi-person-x', 'Session ended', 'Please log in again from the Agent Portal.'); return; }
+    if (detailChartInstance) { detailChartInstance.destroy(); detailChartInstance = null; }
+    const type = detailState.type, meta = AD_META[type];
+    let inner = '';
+    window.__adChartPayload = null;
+    if (type === 'fail') inner = adFail(a);
+    else if (type === 'empathy') inner = adEmpathy(a);
+    else if (type === 'aht' || type === 'cfs') inner = adAhtCfs(a, type);
+    else if (type === 'login') inner = adLogin(a);
+    else if (type === 'adherence') inner = adAdherence(a);
+    else inner = adBreak(a);
+    const hl = adHeadline(a, type);
+    const crumb = document.getElementById('adCrumb');
+    if (crumb) crumb.innerHTML = `<i class="bi bi-person-badge-fill"></i> <b>${escHtml(a.name)}</b> · ${escHtml(a.vdiId || 'N/A')} · ID ${escHtml(a.id || 'N/A')}`;
+    body.innerHTML = `
+      <div class="ad-hero" style="--ad-c:${meta.color}">
+        <div class="ad-hero-ic"><i class="bi ${meta.icon}"></i></div>
+        <div class="ad-hero-txt">
+          <div class="ad-hero-title">${meta.title}</div>
+          <div class="ad-hero-sub">${escHtml(a.name)} · VDI ${escHtml(a.vdiId || 'N/A')} · ID ${escHtml(a.id || 'N/A')} · ${escHtml(a.tenure || '')}</div>
+        </div>
+        <div class="ad-hero-kpi"><div class="ad-hero-kpi-val">${escHtml(hl[0])}</div><div class="ad-hero-kpi-lbl">${hl[1]}</div></div>
+      </div>
+      ${inner}
+      <div class="ad-bottom-back"><button type="button" class="btn-action ad-back" onclick="backFromDetail()"><i class="bi bi-arrow-left"></i> Back to Scorecard</button></div>`;
+    adDrawChart();
+  }
+
+  function adCleanup() {
+    detailState = null; detailPushed = false;
+    if (detailChartInstance) { detailChartInstance.destroy(); detailChartInstance = null; }
+    const b = document.getElementById('agentDetailBody'); if (b) b.innerHTML = '';
+  }
+
+  function awTopBarRun() {
+    const bar = document.getElementById('awTopBar'); if (!bar) return;
+    bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run');
+  }
+  // Logo loader on every "load": shows the logo animation, runs the work behind it, then hides.
+  function awLogoFlash(msg, work, ms) {
+    showLoader(msg || 'Loading...');
+    setTimeout(() => {
+      try { if (work) work(); } catch (e) { console.error(e); }
+      setTimeout(hideLoader, 140);
+    }, ms || 600);
+  }
+  window.awLogoFlash = awLogoFlash; window.awTopBarRun = awTopBarRun;
+
+  function openAgentDetail(type) {
+    if (detailBusy || !AD_META[type] || !appData || !currentCardAgentName) return;
+    detailBusy = true;
+    awLogoFlash('Opening ' + AD_META[type].title + '...', () => {
+      detailState = { type: type, name: currentCardAgentName };
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.getAttribute('data-page') === 'My Performance'));
+      document.getElementById('page-Agent Detail').classList.add('active');
+      document.getElementById('pageTitle').innerText = AD_META[type].title;
+      document.body.classList.remove('sidebar-open');
+      adRender(); awTopBarRun(); window.scrollTo(0, 0);
+      try { history.pushState({ awDetail: 1 }, ''); detailPushed = true; } catch (err) { detailPushed = false; }
+    }, 650);
+    setTimeout(() => { detailBusy = false; }, 1000);
+  }
+
+  function closeAgentDetail() {
+    if (!detailState || detailBusy) return;
+    detailBusy = true;
+    awLogoFlash('Back to your scorecard...', () => {
+      adCleanup();
+      navTo('My Performance');
+      if (currentCardAgentName) { try { switchAgentSubTab(currentAgentSubTab); } catch (e) {} }
+    }, 450);
+    setTimeout(() => { detailBusy = false; }, 800);
+  }
+
+  function backFromDetail() {
+    if (detailPushed) {
+      try { history.back(); setTimeout(() => { if (detailState && !detailBusy) closeAgentDetail(); }, 450); return; } catch (e) {}
+    }
+    closeAgentDetail();
+  }
+  window.openAgentDetail = openAgentDetail; window.closeAgentDetail = closeAgentDetail; window.backFromDetail = backFromDetail;
+  window.addEventListener('popstate', () => { if (detailState) { detailPushed = false; closeAgentDetail(); } });
+
+  // Click / Enter on a KPI card with data-detail (single click or tap opens it)
+  document.addEventListener('click', function (e) {
+    const t = e.target.closest ? e.target.closest('[data-detail]') : null;
+    if (!t || !t.closest('#myPerfCardBox')) return;
+    openAgentDetail(t.getAttribute('data-detail'));
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-detail') || !t.closest('#myPerfCardBox')) return;
+    e.preventDefault(); openAgentDetail(t.getAttribute('data-detail'));
+  });
 </script>
 
 <script>
