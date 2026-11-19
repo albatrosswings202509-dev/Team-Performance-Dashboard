@@ -32,6 +32,7 @@
 <!-- html2pdf Library for PDF Export & Chart.js for Analytics -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <style>
   /* =========================================
@@ -789,6 +790,61 @@
   .pdf-export-mode .spark-row { display: none !important; }
   @media (max-width: 600px) { .pdf-brand-stamp { display: none; } .accent-switcher { padding: 4px 6px; } .accent-dot { width: 13px; height: 13px; } }
 
+
+  /* =====================================================================
+     TENURE FILTER PILLS (All | Regular | OJT), AGENT SUB-TABS, BUCKET CHART
+     ===================================================================== */
+  .tenure-filter-bar {
+    display: inline-flex; align-items: center; gap: 4px; padding: 4px;
+    border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card); flex-wrap: wrap;
+  }
+  .tenure-pill {
+    border: 0; background: transparent; color: var(--text-muted);
+    font-family: var(--heading); font-size: 11.5px; font-weight: 700;
+    padding: 7px 14px; border-radius: 9px; cursor: pointer;
+    transition: all 0.2s var(--ease); display: inline-flex; align-items: center; gap: 5px;
+  }
+  .tenure-pill:hover { color: var(--text-main); background: var(--bg-main); }
+  .tenure-pill.active {
+    background: var(--grad-brand); color: #fff;
+    box-shadow: 0 6px 14px -6px rgba(var(--accent-rgb), 0.7);
+  }
+  .filterbar-top-row {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 12px;
+  }
+  .btn-wa-copy {
+    background: linear-gradient(135deg, #16a34a 0%, #059669 100%) !important;
+    color: #fff !important; border: 0 !important;
+    box-shadow: 0 8px 18px -8px rgba(22, 163, 74, 0.65);
+  }
+  .btn-wa-copy:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* Agent Sub-Tabs */
+  .agent-subtabs {
+    max-width: 1000px; margin: 0 auto 14px; padding: 5px;
+    border-radius: 14px; background: var(--bg-card); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card); display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  .agent-subtab-btn {
+    border: 0; background: transparent; color: var(--text-muted);
+    font-family: var(--heading); font-size: 12px; font-weight: 700;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all 0.22s var(--ease);
+  }
+  .agent-subtab-btn:hover { color: var(--text-main); background: var(--bg-main); }
+  .agent-subtab-btn.active {
+    background: var(--grad-brand); color: #fff;
+    box-shadow: 0 8px 18px -8px rgba(var(--accent-rgb), 0.75);
+  }
+  .agent-subpanel { display: none; }
+  .agent-subpanel.active { display: block; animation: premiumPageFade 0.32s var(--ease) both; }
+  @media (max-width: 600px) {
+    .agent-subtab-btn { font-size: 11px; padding: 9px 6px; gap: 4px; }
+  }
+
 </style>
 </head>
 <body>
@@ -875,6 +931,14 @@
           <span class="hchip"><i class="bi bi-arrow-repeat"></i> Auto-refresh</span>
         </div>
       </div>
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="dash" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+        <button type="button" class="btn-action btn-wa-copy" id="copyWaBtn" onclick="copyWhatsAppSummary()"><i class="bi bi-whatsapp"></i><span class="btn-txt"> Copy WhatsApp Update</span></button>
+      </div>
       <div class="filterbar">
         <div class="fgroup"><label>IB Agent Wise Filter</label><select id="dashAgentFilter" onchange="renderDashboardKpis()"><option value="">All Agents (Entire TL Audits)</option></select></div>
         <div class="fgroup"><label>Audit Party Filter</label><select id="dashAuditPartyFilter" onchange="renderDashboardKpis()"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
@@ -883,8 +947,12 @@
       <section>
         <div class="grid-2">
           <div><div class="section-head"><h2>Fail Call Topics Breakdown</h2></div><div class="chart-container"><canvas id="rootCauseChart"></canvas></div></div>
-          <div><div class="section-head"><h2>Gamification & Awards</h2></div><div id="gamificationGrid" style="display:flex; flex-direction:column; gap:12px;"></div></div>
+          <div><div class="section-head"><h2>Bucket Distribution (A / B / C / D)</h2></div><div class="chart-container"><canvas id="bucketDistChart"></canvas></div></div>
         </div>
+      </section>
+      <section>
+        <div class="section-head"><h2>Gamification &amp; Awards</h2></div>
+        <div id="gamificationGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px;"></div>
       </section>
       <section><div class="section-head"><div class="section-head-left"><h2>Agent Leaderboard (Top 05 Highlights)</h2></div></div><div class="grid-4" id="leaderboardGrid"></div></section>
     </div>
@@ -922,6 +990,13 @@
 
     <!-- 3. AUDIT DETAILS -->
     <div class="page" id="page-Audit Details">
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="audit" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+      </div>
       <div class="filterbar">
         <div class="fgroup"><label>Audit Party Filter</label><select id="auditPartyFilter" onchange="renderView('Audit Details')"><option value="">All Audit Parties</option><option value="GP">GP</option><option value="Genex">Genex</option></select></div>
         <button class="btn-action" onclick="exportTableToCSV('auditTableEl', 'Audit_Details_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
@@ -940,6 +1015,13 @@
 
     <!-- 4. PARAMETER WISE EMPATHY (WITH AGENT FILTER) -->
     <div class="page" id="page-Parameter wise Empathy">
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="empathy" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+      </div>
       <div class="filterbar">
         <div class="fgroup">
           <label>Agent Wise Filter</label>
@@ -963,7 +1045,14 @@
 
     <!-- 5. FCR & SERVICE DELIVERY -->
     <div class="page" id="page-FCR, Quiz & SD">
-      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('fcrTableEl', 'FCR_SD_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="fcr" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+        <button class="btn-action" onclick="exportTableToCSV('fcrTableEl', 'FCR_SD_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+      </div>
       <section><div class="section-head"><div class="section-head-left"><h2>FCR & Service Delivery Insights</h2><span class="update-stamp" data-sheet="FCR"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="fcrSdKpis"></div></section>
       <section>
         <div class="section-head"><h2>Agent FCR, Quiz & Service Delivery Data</h2></div>
@@ -978,9 +1067,16 @@
 
     <!-- 6. COMPLAINT ESCALATION AND DKB % -->
     <div class="page" id="page-Complaint Escalation and DKB %">
-      <div class="filterbar" style="justify-content: flex-end;">
-        <button class="btn-action" onclick="exportTableToCSV('compTableEl', 'Complaint_Escalation.csv')"><i class="bi bi-filetype-csv"></i> Export Complaints</button>
-        <button class="btn-action" onclick="exportTableToCSV('dkbTableEl', 'DKB_Attendance.csv')"><i class="bi bi-filetype-csv"></i> Export DKB</button>
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="comp" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn-action" onclick="exportTableToCSV('compTableEl', 'Complaint_Escalation.csv')"><i class="bi bi-filetype-csv"></i> Export Complaints</button>
+          <button class="btn-action" onclick="exportTableToCSV('dkbTableEl', 'DKB_Attendance.csv')"><i class="bi bi-filetype-csv"></i> Export DKB</button>
+        </div>
       </div>
       <section><div class="section-head"><div class="section-head-left"><h2>Complaint & DKB Overview</h2><span class="update-stamp" data-sheet="Complaint"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="compDkbKpis"></div></section>
       <section>
@@ -1005,7 +1101,14 @@
 
     <!-- 7. LAG ADHERENCE & OVER BREAK -->
     <div class="page" id="page-Lag Adherence & Over Break">
-      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('lagTableEl', 'Lag_Adherence.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="lag" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+        <button class="btn-action" onclick="exportTableToCSV('lagTableEl', 'Lag_Adherence.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+      </div>
       <section><div class="section-head"><div class="section-head-left"><h2>Lag, Adherence & Break Summary</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="lagAdhKpis"></div></section>
       <section>
         <div class="section-head"><h2>Lag Adherence & Over Break Data</h2></div>
@@ -1020,7 +1123,14 @@
 
     <!-- 8. AHT & CFS -->
     <div class="page" id="page-AHT & CFS">
-      <div class="filterbar" style="justify-content: flex-end;"><button class="btn-action" onclick="exportTableToCSV('ahtTableEl', 'AHT_CFS_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button></div>
+      <div class="filterbar-top-row">
+        <div class="tenure-filter-bar" data-tenure-group="aht" role="group" aria-label="Tenure filter">
+          <button type="button" class="tenure-pill active" data-tenure="all" onclick="setTenureFilter('all')">All</button>
+          <button type="button" class="tenure-pill" data-tenure="regular" onclick="setTenureFilter('regular')">Regular</button>
+          <button type="button" class="tenure-pill" data-tenure="ojt" onclick="setTenureFilter('ojt')">OJT</button>
+        </div>
+        <button class="btn-action" onclick="exportTableToCSV('ahtTableEl', 'AHT_CFS_Report.csv')"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+      </div>
       <section><div class="section-head"><div class="section-head-left"><h2>AHT & CFS Insights</h2><span class="update-stamp" data-sheet="ORT"><i class="bi bi-clock-history"></i> Data up to: <span class="update-time-text">...</span></span></div></div><div class="kpi-row mb-3" id="ahtCfsKpis"></div></section>
       <section>
         <div class="section-head"><h2>Agent AHT & CFS Data</h2></div>
@@ -1268,6 +1378,234 @@
     }
   }
 
+
+  // =========================================================================
+  // NEW UPGRADES: TENURE FILTER, LOCAL CACHE, TARGET LINES, DATALABELS,
+  // BUCKET CHART, WHATSAPP SUMMARY & AGENT PORTAL SUB-TABS
+  // =========================================================================
+  const CACHE_STORAGE_KEY = 'aw_dashboard_cache_v1';
+  let currentTenureFilter = 'all'; // 'all' | 'regular' | 'ojt'
+  let currentAgentSubTab = 'scorecard'; // 'scorecard' | 'trends' | 'simulator'
+  let bucketDistChartInstance = null;
+
+  if (window.Chart && window.ChartDataLabels) {
+    Chart.register(ChartDataLabels);
+    Chart.defaults.set('plugins.datalabels', { display: false });
+  }
+
+  function setTenureFilter(tenure) {
+    currentTenureFilter = (tenure || 'all').toLowerCase();
+    document.querySelectorAll('.tenure-pill').forEach(btn => {
+      btn.classList.toggle('active', (btn.dataset.tenure || '').toLowerCase() === currentTenureFilter);
+    });
+    renderView(activeTab);
+    if (window.awToast) {
+      const lbl = currentTenureFilter === 'all' ? 'All Agents' : (currentTenureFilter === 'ojt' ? 'OJT Agents' : 'Regular Agents');
+      awToast('Showing ' + lbl, 'bi-funnel-fill', 1600);
+    }
+  }
+  window.setTenureFilter = setTenureFilter;
+
+  function switchAgentSubTab(tabKey) {
+    currentAgentSubTab = tabKey || 'scorecard';
+    document.querySelectorAll('.agent-subtab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.subtab === currentAgentSubTab);
+    });
+    document.querySelectorAll('.agent-subpanel').forEach(p => {
+      p.classList.toggle('active', p.dataset.subpanel === currentAgentSubTab);
+    });
+    if (currentAgentSubTab === 'trends' && currentCardAgentName && appData) {
+      const ag = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
+      if (ag) setTimeout(() => renderDailyTrendChart(ag, String(ag.tenure).toLowerCase() === 'ojt'), 60);
+    }
+    if (currentAgentSubTab === 'scorecard') {
+      animateScoreGauges(document.getElementById('myPerfCardBox'));
+    }
+  }
+  window.switchAgentSubTab = switchAgentSubTab;
+
+  function getAgentTenureMap() {
+    const map = {};
+    if (!appData || !appData.sheets) return map;
+    (appData.sheets['KPI'] || []).forEach(a => {
+      const t = String(a.tenure || '').toLowerCase().includes('ojt') ? 'ojt' : 'regular';
+      if (a.name) map[String(a.name).trim().toLowerCase()] = t;
+      if (a.vdiId) map[String(a.vdiId).trim().toLowerCase()] = t;
+      if (a.id) map[String(a.id).trim().toLowerCase()] = t;
+    });
+    (appData.sheets['Alignment'] || []).forEach(a => {
+      const rawT = String(a['Tenure'] || a['tenure'] || '').toLowerCase();
+      const t = rawT.includes('ojt') ? 'ojt' : 'regular';
+      if (a['Name']) {
+        const k = String(a['Name']).trim().toLowerCase();
+        if (!map[k]) map[k] = t;
+      }
+      if (a['VDI ID']) {
+        const k = String(a['VDI ID']).trim().toLowerCase();
+        if (!map[k]) map[k] = t;
+      }
+    });
+    return map;
+  }
+
+  function matchesTenure(rec) {
+    if (currentTenureFilter === 'all') return true;
+    const tMap = getAgentTenureMap();
+    const direct = String((rec && (rec.tenure || rec.Tenure)) || '').toLowerCase();
+    if (direct.includes('ojt')) return currentTenureFilter === 'ojt';
+    if (direct.includes('reg')) return currentTenureFilter === 'regular';
+    const keys = [rec && rec.name, rec && rec.agentName, rec && rec.Name, rec && rec.vdiId, rec && rec.id]
+      .map(x => String(x || '').trim().toLowerCase()).filter(Boolean);
+    for (let i = 0; i < keys.length; i++) {
+      if (tMap[keys[i]]) return tMap[keys[i]] === currentTenureFilter;
+    }
+    return currentTenureFilter === 'regular';
+  }
+
+  // Target Dashed Line Plugin for AHT (170s) & CFS (90%)
+  const targetDashedLinesPlugin = {
+    id: 'targetDashedLines',
+    afterDatasetsDraw(chart, args, opts) {
+      if (!opts || !opts.lines || !opts.lines.length) return;
+      const { ctx, chartArea, scales } = chart;
+      if (!chartArea || !scales) return;
+      ctx.save();
+      opts.lines.forEach(line => {
+        const scale = scales[line.axisId];
+        if (!scale || typeof scale.getPixelForValue !== 'function') return;
+        const y = scale.getPixelForValue(line.value);
+        if (y < chartArea.top || y > chartArea.bottom) return;
+        ctx.beginPath();
+        ctx.setLineDash([6, 5]);
+        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = line.color || '#f43f5e';
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = "700 10px 'IBM Plex Mono', monospace";
+        const tag = line.label || ('Target ' + line.value);
+        const tw = ctx.measureText(tag).width + 10;
+        const tx = line.align === 'right' ? chartArea.right - tw - 4 : chartArea.left + 4;
+        const ty = Math.max(chartArea.top + 2, y - 16);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+        ctx.fillRect(tx, ty, tw, 14);
+        ctx.fillStyle = line.color || '#fde68a';
+        ctx.fillText(tag, tx + 5, ty + 10.5);
+      });
+      ctx.restore();
+    }
+  };
+
+  // Bucket Distribution Chart (A / B / C / D)
+  function renderBucketDistributionChart() {
+    if (!appData) return;
+    const ctx = document.getElementById('bucketDistChart');
+    if (!ctx) return;
+    if (bucketDistChartInstance) bucketDistChartInstance.destroy();
+
+    const kpiList = (appData.sheets['KPI'] || []).filter(matchesTenure);
+    const counts = { A: 0, B: 0, C: 0, D: 0 };
+    kpiList.forEach(a => {
+      const b = String(a.bucket || 'D').trim().toUpperCase().charAt(0);
+      if (counts[b] !== undefined) counts[b]++;
+      else counts.D++;
+    });
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const labels = ['Bucket A (Top)', 'Bucket B (Good)', 'Bucket C (Avg)', 'Bucket D (Low)'];
+    const vals = [counts.A, counts.B, counts.C, counts.D];
+    const bgColors = ['#10b981', '#22d3ee', '#f59e0b', '#f43f5e'];
+
+    bucketDistChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: vals,
+          backgroundColor: bgColors,
+          borderWidth: 3,
+          borderColor: isDark ? '#0f172a' : '#fff',
+          borderRadius: 6,
+          spacing: 2,
+          hoverOffset: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '58%',
+        animation: { duration: 850, easing: 'easeOutQuart' },
+        plugins: {
+          legend: {
+            position: window.innerWidth < 600 ? 'bottom' : 'right',
+            labels: { color: textColor, usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12, font: { family: "'Inter', sans-serif", size: 10.5 } }
+          },
+          datalabels: {
+            display: true,
+            color: '#ffffff',
+            font: { family: "'Plus Jakarta Sans', sans-serif", weight: '800', size: 12 },
+            formatter: v => (v > 0 ? v : '')
+          }
+        }
+      },
+      plugins: [{
+        id: 'bucketCenterTotal',
+        afterDraw(chart) {
+          const a = chart.chartArea; if (!a) return;
+          const x = (a.left + a.right) / 2, y = (a.top + a.bottom) / 2, c = chart.ctx;
+          const total = vals.reduce((acc, n) => acc + n, 0);
+          c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.fillStyle = isDark ? '#f8fafc' : '#0f172a'; c.font = "800 24px 'Plus Jakarta Sans', sans-serif"; c.fillText(String(total), x, y - 7);
+          c.fillStyle = textColor; c.font = "700 9.5px 'Inter', sans-serif"; c.fillText('AGENTS', x, y + 14);
+          c.restore();
+        }
+      }]
+    });
+  }
+
+  // 1-Click WhatsApp Summary Copy
+  function copyWhatsAppSummary() {
+    if (!appData) {
+      if (window.awToast) awToast('Data still loading, try again in a moment', 'bi-info-circle-fill');
+      return;
+    }
+    const tl = appData.tlSummary || {};
+    const lb = appData.leaderboards || {};
+    const tenureLbl = currentTenureFilter === 'all' ? 'All Agents' : (currentTenureFilter === 'ojt' ? 'OJT' : 'Regular');
+    const dt = appData.lastUpdated ? new Date(appData.lastUpdated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-GB');
+    const top3Cfs = (lb.topCfs || []).slice(0, 3).map((a, i) => `${i + 1}. ${a.agentName} (${a.cfsDisplay})`).join(', ') || 'N/A';
+
+    const msg = [
+      `🦅 *Albatross Wings — Daily Team Update* (${dt})`,
+      `👥 *Segment:* ${tenureLbl} | *Active Agents:* ${appData.activeAgentsCount || 0}`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `📞 *Total Audits:* ${tl.totalAudit || 0} | *Pass %:* ${tl.passPercent || '0%'}`,
+      `⏱️ *Team AHT:* ${tl.aht || 'N/A'} (Target ≤170s)`,
+      `😊 *Team CFS:* ${tl.teamCfs || 'N/A'} (Target ≥90%)`,
+      `🎯 *Team FCR:* ${tl.fcr || 'N/A'}`,
+      `💜 *Empathy Pass:* ${tl.empathyPercent || '0%'}`,
+      `🏆 *Top 3 CFS:* ${top3Cfs}`
+    ].join('\n');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(() => {
+        if (window.awToast) awToast('WhatsApp update copied to clipboard!', 'bi-whatsapp');
+      }).catch(() => fallbackCopyText(msg));
+    } else {
+      fallbackCopyText(msg);
+    }
+  }
+  function fallbackCopyText(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); if (window.awToast) awToast('WhatsApp update copied!', 'bi-whatsapp'); } catch (e) {}
+    ta.remove();
+  }
+  window.copyWhatsAppSummary = copyWhatsAppSummary;
+
   window.addEventListener('DOMContentLoaded', () => {
     hydrateBrandLogos();
     const savedTheme = localStorage.getItem('aw_theme') || 'light';
@@ -1277,7 +1615,17 @@
     document.documentElement.setAttribute('data-accent', savedAccent);
     document.querySelectorAll('.accent-dot').forEach(d => d.classList.toggle('active', d.dataset.setAccent === savedAccent));
     localStorage.removeItem('aw_agent_login_time');
-    setTimeout(finishInitialSplash, 3400); // Hard safety fallback if offline
+    try {
+      const cached = localStorage.getItem(CACHE_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && (parsed.tlSummary || parsed.sheets)) {
+          applyDashboardData(parsed);
+          if (window.awToast) awToast('Showing cached data · syncing live...', 'bi-lightning-charge-fill', 1800);
+        }
+      }
+    } catch (e) {}
+    setTimeout(finishInitialSplash, 3200); // Hard safety fallback if offline
     loadDashboard(false);
   });
 
@@ -1299,6 +1647,7 @@
       data = JSON.parse(data);
     }
     appData = data;
+    try { localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
     const dt = new Date(appData.lastUpdated);
     document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
     document.getElementById('liveChip').classList.remove('stale');
@@ -1562,7 +1911,7 @@
       };
     }
 
-    dailyTrendChartInstance = new Chart(ctx, {
+    dailyTrendChartInstance = new Chart(ctx, { plugins: [targetDashedLinesPlugin],
       type: 'bar',
       data: { labels, datasets },
       options: {
@@ -1572,6 +1921,23 @@
         interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { labels: { color: textColor, font: { size: 11 } } },
+          datalabels: {
+            display: c => c.parsed.y !== null && c.parsed.y !== undefined && c.parsed.y > 0,
+            anchor: 'end',
+            align: 'top',
+            offset: 2,
+            color: c => c.dataset.label.includes('AHT') ? '#fbbf24' : '#34d399',
+            font: { family: "'IBM Plex Mono', monospace", weight: '700', size: 9.5 },
+            formatter: (v, c) => c.dataset.label.includes('AHT') ? (Math.round(v) + 's') : (v.toFixed(0) + '%')
+          },
+          targetDashedLines: {
+            lines: isOjtAgent
+              ? [{ axisId: 'yAht', value: 170, color: '#f87171', label: 'Target 170s', align: 'left' }]
+              : [
+                  { axisId: 'yAht', value: 170, color: '#f87171', label: 'AHT 170s', align: 'left' },
+                  { axisId: 'yCfs', value: 90, color: '#34d399', label: 'CFS 90%', align: 'right' }
+                ]
+          },
           tooltip: {
             callbacks: {
               label: function(c) {
@@ -1617,7 +1983,7 @@
     });
     document.getElementById('empathyTeamKpis').innerHTML = kpiHtml;
 
-    const tableRows = agentObj ? [agentObj] : (emp.agentList || []);
+    const tableRows = agentObj ? [agentObj] : (emp.agentList || []).filter(matchesTenure);
     document.getElementById('empathyHeader').innerHTML = `<tr><th onclick="sortTable('empathyTableEl', 0)">VDI ID <i class="bi bi-chevron-expand"></i></th><th onclick="sortTable('empathyTableEl', 1)">Agent Name <i class="bi bi-chevron-expand"></i></th>${headers.map((h, i) => `<th onclick="sortTable('empathyTableEl', ${i+2}, true)">${h} <i class="bi bi-chevron-expand"></i></th>`).join('')}</tr>`;
     document.getElementById('empathyBody').innerHTML = tableRows.map(agent => {
       return `<tr><td class="num fw-bold">${agent.vdiId || 'N/A'}</td><td class="fw-bold text-start">${agent.agentName || 'N/A'}</td>${headers.map(h => {
@@ -1706,18 +2072,19 @@
     const selectedAgent = (document.getElementById('dashAgentFilter')?.value || '').toLowerCase();
     const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
     const tl = appData.tlSummary || {};
+    renderBucketDistributionChart();
     let totalAudit = tl.totalAudit || 0, totalPass = tl.totalPass || 0, totalFail = tl.totalFail || 0;
     let passPercent = tl.passPercent || '0%', failPercent = tl.failPercent || '0%';
     let empathyPercent = tl.empathyPercent || '0%', cfsVal = tl.teamCfs || 'N/A', ahtVal = tl.aht || 'N/A';
     let fcrVal = tl.fcr || 'N/A', compPct = tl.complaintEscalationPct || '0%', sdCount = tl.sdCount || 0, dkbPct = tl.dkbPercent || 'N/A';
     let passPercentVal = parseFloat(passPercent), failPercentVal = parseFloat(failPercent);
 
-    if (selectedAgent || selectedParty) {
+    if (selectedAgent || selectedParty || currentTenureFilter !== 'all') {
       const allCalls = appData.sheets['Audited Call Details'] || [];
       const filteredCalls = allCalls.filter(c => {
         const matchAgent = !selectedAgent || String(c.agentName).toLowerCase() === selectedAgent || String(c.vdiId).toLowerCase() === selectedAgent;
         const matchParty = !selectedParty || String(c.auditParty).toLowerCase().includes(selectedParty);
-        return matchAgent && matchParty;
+        return matchAgent && matchParty && matchesTenure(c);
       });
       totalAudit = filteredCalls.length; totalPass = 0; totalFail = 0;
       filteredCalls.forEach(c => { const resVal = String(c.result).toLowerCase(); if (resVal === 'pass') totalPass++; else if (resVal === 'fail') totalFail++; });
@@ -1726,7 +2093,7 @@
       let empPassSum = 0, empFailSum = 0;
       filteredCalls.forEach(c => { empPassSum += parseInt(c.empPass) || 0; empFailSum += parseInt(c.empFail) || 0; });
       if (empPassSum === 0 && empFailSum === 0) {
-        const perfList = appData.sheets['KPI'] || []; const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
+        const perfList = (appData.sheets['KPI'] || []).filter(matchesTenure); const relevantPerf = selectedAgent ? perfList.filter(a => String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent) : perfList;
         relevantPerf.forEach(a => { empPassSum += parseInt(a.empathyPassSum) || 0; empFailSum += parseInt(a.empathyFailSum) || 0; });
       }
       empathyPercent = (empPassSum + empFailSum) > 0 ? ((empPassSum / (empPassSum + empFailSum)) * 100).toFixed(1) + '%' : '0.0%';
@@ -1799,7 +2166,19 @@
           legend: { position: window.innerWidth < 600 ? 'bottom' : 'right', labels: { color: textColor, usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12, font: { family: "'Inter', sans-serif", size: 10 } } }
         }
       },
-      plugins: [{
+      plugins: [
+        {
+          id: 'rcDataLabelsCfg',
+          beforeInit(chart) {
+            chart.options.plugins.datalabels = {
+              display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 && ctx.chart.data.labels[ctx.dataIndex] !== 'No Fail Calls Found',
+              color: '#ffffff',
+              font: { family: "'Plus Jakarta Sans', sans-serif", weight: '800', size: 11 },
+              formatter: v => v
+            };
+          }
+        },
+        {
         id: 'centerTotal',
         afterDraw(chart) {
           const a = chart.chartArea; if (!a) return;
@@ -1815,7 +2194,7 @@
 
   function renderGamification() {
     if(!appData) return;
-    const audits = appData.sheets['Audit Details']?.list || []; const kpi = appData.sheets['KPI'] || [];
+    const audits = (appData.sheets['Audit Details']?.list || []).filter(matchesTenure); const kpi = (appData.sheets['KPI'] || []).filter(matchesTenure);
     const zeroCeAgents = audits.filter(a => a.totalAudits > 0 && a.totalFail === 0);
     const zeroList = zeroCeAgents.length > 0 ? zeroCeAgents.map(a => `<li style="margin-bottom:4px;">${a.agentName} <span style="opacity:0.6; font-size:10px;">(${a.totalAudits} audits)</span></li>`).join('') : "<li>No agents found yet</li>";
 
@@ -1839,10 +2218,10 @@
       renderDashboardKpis(); renderRootCauseChart(); renderGamification();
       const lb = appData.leaderboards || {};
       document.getElementById('leaderboardGrid').innerHTML = `
-        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>${(lb.topCfs || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>${(lb.topAht || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>${(lb.topEmpathy || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}</tbody></table></div></div>
-        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>${(lb.topCe || []).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}</tbody></table></div></div>`;
+        <div class="lb-card"><div class="pname"><i class="bi bi-award-fill text-warning"></i> TOP 05 CFS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CFS %</th></tr></thead><tbody>${(lb.topCfs || []).filter(matchesTenure).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-success">${a.cfsDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-lightning-charge-fill text-info"></i> TOP 05 AHT</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>AHT</th></tr></thead><tbody>${(lb.topAht || []).filter(matchesTenure).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-info">${a.ahtDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-heart-fill text-danger"></i> TOP 05 EMPATHY</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>Empathy%</th></tr></thead><tbody>${(lb.topEmpathy || []).filter(matchesTenure).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.empathyDisplay}</td></tr>`).join('')}</tbody></table></div></div>
+        <div class="lb-card"><div class="pname"><i class="bi bi-exclamation-octagon-fill text-danger"></i> TOP 05 CE HOLDERS</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Agent</th><th>CE Fails</th></tr></thead><tbody>${(lb.topCe || []).filter(matchesTenure).map((a, i) => `<tr><td>${i+1}</td><td class="text-start">${a.agentName}</td><td class="num text-danger">${a.ceCount}</td></tr>`).join('')}</tbody></table></div></div>`;
       return;
     }
 
@@ -1851,7 +2230,7 @@
       const allCalls = appData.sheets['Audited Call Details'] || []; const activeAgents = appData.sheets['Alignment'] || [];
       const filteredAudits = allCalls.filter(c => !partyFilter || String(c.auditParty || '').toLowerCase().includes(partyFilter));
       let auditDetailsList = []; let failCountAgent = 0, failFreeCountAgent = 0, empathyMetCount = 0, empathyBelowTargetAgent = 0;
-      activeAgents.forEach(agent => {
+      activeAgents.filter(matchesTenure).forEach(agent => {
         const vdi = String(agent['VDI ID'] || '').trim().toLowerCase(); const name = String(agent['Name'] || '').trim().toLowerCase();
         const agentAudits = filteredAudits.filter(r => (vdi && String(r.vdiId||'').toLowerCase()===vdi) || (name && String(r.agentName||'').toLowerCase()===name));
         const totalAudits = agentAudits.length; const passes = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'pass').length; const fails = agentAudits.filter(r => String(r.result||'').toLowerCase() === 'fail').length;
@@ -1874,29 +2253,46 @@
     }
 
     if (tab === 'FCR, Quiz & SD') {
-      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] }; const tot = fcrSd.summary.totalAgents || fcrSd.list.length;
-      document.getElementById('fcrSdKpis').innerHTML = `${renderCardHtml("FCR Target Meet", `${fcrSd.summary.fcrMeet92Count || 0} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", (fcrSd.summary.fcrMeet92Count/tot)*100)}${renderCardHtml("Service Delivery", `${fcrSd.summary.agentsWithSdCount || 0} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", (fcrSd.summary.agentsWithSdCount/tot)*100)}`;
-      document.getElementById('fcrSdTable').innerHTML = fcrSd.list.map(a => { let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0; return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`; }).join('');
+      const fcrSd = appData.sheets['FCR, Quiz & SD'] || { summary: {}, list: [] };
+      const fcrList = (fcrSd.list || []).filter(matchesTenure);
+      const tot = currentTenureFilter === 'all' ? (fcrSd.summary.totalAgents || fcrList.length) : fcrList.length;
+      const meet92 = currentTenureFilter === 'all' ? (fcrSd.summary.fcrMeet92Count || 0) : fcrList.filter(a => parseFloat(String(a.fcrPercent).replace('%','')) >= 92).length;
+      const withSd = currentTenureFilter === 'all' ? (fcrSd.summary.agentsWithSdCount || 0) : fcrList.filter(a => (parseFloat(a.serviceDeliveryCount) || 0) > 0).length;
+      document.getElementById('fcrSdKpis').innerHTML = `${renderCardHtml("FCR Target Meet", `${meet92} / ${tot}`, "Target >= 92%", "Count", "delivered", "Good", "text-success", tot ? (meet92/tot)*100 : 0)}${renderCardHtml("Service Delivery", `${withSd} / ${tot}`, "Agents with SD", "Count", "nokpi", "Info", "text-info", tot ? (withSd/tot)*100 : 0)}`;
+      document.getElementById('fcrSdTable').innerHTML = fcrList.map(a => { let isFcrGood = !isNaN(parseFloat(String(a.fcrPercent).replace('%',''))) && parseFloat(String(a.fcrPercent).replace('%','')) >= 92.0; return `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.vdiId}</td><td class="num ${isFcrGood ? 'text-success fw-bold' : 'text-danger fw-bold'}">${a.fcrPercent}</td><td class="num text-primary fw-bold">${a.quizScore || 'N/A'}</td><td class="num">${a.serviceDeliveryCount}</td></tr>`; }).join('');
       return;
     }
 
     if (tab === 'Complaint Escalation and DKB %') {
-      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] }; const tot = compDkb.summary.totalAgents || compDkb.list.length;
-      document.getElementById('compDkbKpis').innerHTML = `${renderCardHtml("Complaint Target", `${compDkb.summary.compMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", (compDkb.summary.compMetCount/tot)*100)}${renderCardHtml("DKB Target", `${compDkb.summary.dkbMetCount || 0} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", (compDkb.summary.dkbMetCount/tot)*100)}`;
-      document.getElementById('complaintTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
-      document.getElementById('dkbTable').innerHTML = compDkb.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
+      const compDkb = appData.sheets['Complaint Escalation and DKB %'] || { summary: {}, list: [] };
+      const cList = (compDkb.list || []).filter(matchesTenure);
+      const tot = currentTenureFilter === 'all' ? (compDkb.summary.totalAgents || cList.length) : cList.length;
+      const compMet = currentTenureFilter === 'all' ? (compDkb.summary.compMetCount || 0) : cList.filter(a => parseFloat(String(a.escalationPercent).replace('%','')) >= 95).length;
+      const dkbMet = currentTenureFilter === 'all' ? (compDkb.summary.dkbMetCount || 0) : cList.filter(a => parseFloat(String(a.dkbPercent).replace('%','')) >= 95).length;
+      document.getElementById('compDkbKpis').innerHTML = `${renderCardHtml("Complaint Target", `${compMet} / ${tot}`, "Target >= 95%", "Count", "delivered", "Good", "text-success", tot ? (compMet/tot)*100 : 0)}${renderCardHtml("DKB Target", `${dkbMet} / ${tot}`, "Target >= 95%", "Count", "nokpi", "Info", "text-info", tot ? (dkbMet/tot)*100 : 0)}`;
+      document.getElementById('complaintTable').innerHTML = cList.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.valid}</td><td class="num text-danger">${a.invalid}</td><td class="num">${a.totalComplaints}</td><td class="num text-primary fw-bold">${a.escalationPercent}</td></tr>`).join('');
+      document.getElementById('dkbTable').innerHTML = cList.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num text-success">${a.present}</td><td class="num text-danger">${a.absent}</td><td class="num text-info fw-bold">${a.dkbPercent}</td><td>${a.health}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'Lag Adherence & Over Break') {
-      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] }; const tot = lagAdh.summary.totalAgents || lagAdh.list.length;
-      document.getElementById('lagAdhKpis').innerHTML = `${renderCardHtml("Over Break Target", `${lagAdh.summary.overBreakZeroCount || 0} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", (lagAdh.summary.overBreakZeroCount/tot)*100)}${renderCardHtml("Lag Time Target", `${lagAdh.summary.lagZeroCount || 0} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", (lagAdh.summary.lagZeroCount/tot)*100)}${renderCardHtml("Adherence Target", `${lagAdh.summary.adhMetCount || 0} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", (lagAdh.summary.adhMetCount/tot)*100)}`;
-      document.getElementById('lagAdhTable').innerHTML = lagAdh.list.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
+      const lagAdh = appData.sheets['Lag Adherence & Over Break'] || { summary: {}, list: [] };
+      const lList = (lagAdh.list || []).filter(matchesTenure);
+      const tot = currentTenureFilter === 'all' ? (lagAdh.summary.totalAgents || lList.length) : lList.length;
+      const obZero = currentTenureFilter === 'all' ? (lagAdh.summary.overBreakZeroCount || 0) : lList.filter(a => !a.hasOverBreak).length;
+      const lagZero = currentTenureFilter === 'all' ? (lagAdh.summary.lagZeroCount || 0) : lList.filter(a => String(a.lagTime || '0') === '0' || String(a.lagTime || '').startsWith('00:00')).length;
+      const adhMet = currentTenureFilter === 'all' ? (lagAdh.summary.adhMetCount || 0) : lList.filter(a => parseFloat(String(a.adherence).replace('%','')) >= 100).length;
+      document.getElementById('lagAdhKpis').innerHTML = `${renderCardHtml("Over Break Target", `${obZero} / ${tot}`, "No Extra Break", "Count", "delivered", "Good", "text-success", tot ? (obZero/tot)*100 : 0)}${renderCardHtml("Lag Time Target", `${lagZero} / ${tot}`, "No Lag Time", "Count", "nokpi", "Info", "text-info", tot ? (lagZero/tot)*100 : 0)}${renderCardHtml("Adherence Target", `${adhMet} / ${tot}`, "100% Meet", "Count", "delivered", "Good", "text-success", tot ? (adhMet/tot)*100 : 0)}`;
+      document.getElementById('lagAdhTable').innerHTML = lList.map(a => `<tr class="${a.hasOverBreak ? 'row-overbreak' : ''}"><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.adherence}</td><td class="num ${a.hasOverBreak ? 'text-overbreak' : ''}">${a.extraBreak}</td><td class="num">${a.lagTime}</td></tr>`).join('');
       return;
     }
 
     if (tab === 'AHT & CFS') {
-      const ahtCfs = appData.sheets['AHT & CFS'] || { summary: {}, list: [] }; const tot = ahtCfs.summary.totalAgents || ahtCfs.list.length; const validCfsCount = ahtCfs.summary.validCfsAgentCount !== undefined ? ahtCfs.summary.validCfsAgentCount : tot;
+      const ahtCfsRaw = appData.sheets['AHT & CFS'] || { summary: {}, list: [] };
+      const ahtFilteredList = (ahtCfsRaw.list || []).filter(matchesTenure);
+      const ahtCfs = { summary: ahtCfsRaw.summary, list: currentTenureFilter === 'all' ? (ahtCfsRaw.list || []) : ahtFilteredList };
+      const tot = currentTenureFilter === 'all' ? (ahtCfs.summary.totalAgents || ahtCfs.list.length) : ahtCfs.list.length;
+      const validCfsCount = currentTenureFilter === 'all' ? (ahtCfs.summary.validCfsAgentCount !== undefined ? ahtCfs.summary.validCfsAgentCount : tot) : ahtCfs.list.length;
       document.getElementById('ahtCfsKpis').innerHTML = `${renderCardHtml("AHT Target Meet", `${ahtCfs.summary.ahtMetCount || 0} / ${tot}`, "Target <= 170s", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.ahtMetCount/tot)*100)}${renderCardHtml("CFS Target Meet", `${ahtCfs.summary.cfsMetCount || 0} / ${validCfsCount}`, "Target >= 90%", "Count", "delivered", "Good", "text-success", (ahtCfs.summary.cfsMetCount/(validCfsCount||tot))*100)}`;
       document.getElementById('ahtCfsTable').innerHTML = ahtCfs.list.map(a => `<tr><td class="fw-bold text-start">${a.agentName}</td><td class="num">${a.ahtSec}</td><td><span class="pill ${String(a.ahtStatus).toLowerCase().includes('target') ? 'good' : 'bad'}">${a.ahtStatus}</span></td><td class="num">${a.cfsPercent}</td><td><span class="pill ${String(a.cfsStatus).toLowerCase().includes('target') ? 'good' : (a.cfsStatus === 'Below Target' ? 'bad' : '')}">${a.cfsStatus}</span></td></tr>`).join('');
       return;
@@ -2109,9 +2505,14 @@
 
     const reportDateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-    box.innerHTML = `
-      ${greetingBannerHtml}
-      ${advancedHtml}
+    const subTabsNavHtml = isAgentPortal ? `
+      <div class="agent-subtabs" role="tablist" aria-label="Agent Portal Sections">
+        <button type="button" class="agent-subtab-btn ${currentAgentSubTab === 'scorecard' ? 'active' : ''}" data-subtab="scorecard" onclick="switchAgentSubTab('scorecard')"><i class="bi bi-card-heading"></i> My Scorecard</button>
+        <button type="button" class="agent-subtab-btn ${currentAgentSubTab === 'trends' ? 'active' : ''}" data-subtab="trends" onclick="switchAgentSubTab('trends')"><i class="bi bi-graph-up"></i> Trends &amp; Errors</button>
+        <button type="button" class="agent-subtab-btn ${currentAgentSubTab === 'simulator' ? 'active' : ''}" data-subtab="simulator" onclick="switchAgentSubTab('simulator')"><i class="bi bi-sliders"></i> Bonus Simulator</button>
+      </div>` : '';
+
+    const scorecardInner = `
       <div class="pdf-card-wrapper" id="pdfCardTarget">
         <img class="pdf-watermark aw-logo-img" alt="" aria-hidden="true">
         <div class="pdf-header-bar">
@@ -2171,8 +2572,24 @@
           <span>Albatross Wings Performance Tracker · Together We Fly Higher</span>
           <span>Generated on ${reportDateStr} · Confidential</span>
         </div>
-        ${simulatorHtml}
       </div>`;
+
+    if (isAgentPortal) {
+      box.innerHTML = `
+        ${greetingBannerHtml}
+        ${subTabsNavHtml}
+        <div class="agent-subpanel ${currentAgentSubTab === 'scorecard' ? 'active' : ''}" data-subpanel="scorecard">
+          ${scorecardInner}
+        </div>
+        <div class="agent-subpanel ${currentAgentSubTab === 'trends' ? 'active' : ''}" data-subpanel="trends">
+          ${advancedHtml}
+        </div>
+        <div class="agent-subpanel ${currentAgentSubTab === 'simulator' ? 'active' : ''}" data-subpanel="simulator">
+          <div style="max-width:1000px;margin:0 auto;">${simulatorHtml}</div>
+        </div>`;
+    } else {
+      box.innerHTML = scorecardInner + simulatorHtml;
+    }
 
     hydrateBrandLogos(box);
     animateScoreGauges(box);
@@ -2407,11 +2824,11 @@
   var bn = document.createElement('nav');
   bn.className = 'bottom-nav'; bn.setAttribute('aria-label', 'Primary');
   bn.innerHTML =
-    '<button class="bn-item" data-page="Dashboard"><i class="bi bi-grid-fill"></i>Home</button>' +
-    '<button class="bn-item" data-page="My Performance"><i class="bi bi-person-fill"></i>Me</button>' +
-    '<button class="bn-item" data-page="Audit Details"><i class="bi bi-card-checklist"></i>Audits</button>' +
+    '<button class="bn-item" data-page="Dashboard"><i class="bi bi-grid-fill"></i>Dashboard</button>' +
+    '<button class="bn-item" data-page="My Performance"><i class="bi bi-person-fill"></i>Agent</button>' +
+    '<button class="bn-item" data-page="Parameter wise Empathy"><i class="bi bi-heart-pulse-fill"></i>Empathy</button>' +
     '<button class="bn-item" data-page="Audited Call Details"><i class="bi bi-telephone-fill"></i>Calls</button>' +
-    '<button class="bn-item" data-more="1"><i class="bi bi-three-dots"></i>More</button>';
+    '<button class="bn-item" data-more="1"><i class="bi bi-list"></i>Menu</button>';
   document.body.appendChild(bn);
   bn.addEventListener('click', function (e) {
     var b = e.target.closest('.bn-item'); if (!b) return;
