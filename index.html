@@ -944,6 +944,7 @@
   .dkb-day-box:hover { transform: translateY(-2px); }
   .dkb-day-box.present { background: var(--bg-good); border-color: rgba(16, 185, 129, 0.45); color: var(--color-good); }
   .dkb-day-box.absent { background: var(--bg-bad); border-color: rgba(225, 29, 72, 0.45); color: var(--color-bad); }
+  .dkb-day-box.warn-box { background: var(--bg-warn); border-color: rgba(217, 119, 6, 0.55); color: var(--color-warn); }
   .dkb-day-box.other { background: var(--bg-main); border-color: var(--border-color); color: var(--text-muted); }
   .dkb-day-code { font-family: var(--heading); font-size: 15px; font-weight: 800; line-height: 1; }
   .dkb-day-date { font-family: var(--mono); font-size: 9.5px; font-weight: 700; opacity: 0.9; white-space: nowrap; }
@@ -1759,7 +1760,6 @@
     const savedAccent = localStorage.getItem('aw_accent') || 'blue';
     document.documentElement.setAttribute('data-accent', savedAccent);
     document.querySelectorAll('.accent-dot').forEach(d => d.classList.toggle('active', d.dataset.setAccent === savedAccent));
-    localStorage.removeItem('aw_agent_login_time');
     try {
       const cached = localStorage.getItem(CACHE_STORAGE_KEY);
       if (cached) {
@@ -1770,23 +1770,38 @@
         }
       }
     } catch (e) {}
+    restoreSavedAgentSession();
     setTimeout(finishInitialSplash, 3200); // Hard safety fallback if offline
     loadDashboard(false);
   });
 
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
-  function navTo(tabName) {
-    if (detailState) adCleanup();
-    awTopBarRun();
-    activeTab = tabName;
-    if (tabName === 'My Performance') checkSessionTimeout();
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + tabName).classList.add('active');
-    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-    if(activeNav) activeNav.classList.add('active');
-    document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
-    document.body.classList.remove('sidebar-open'); renderView(tabName);
+  function navTo(tabName, skipLogoAnim = false) {
+    const doSwitch = () => {
+      if (detailState) adCleanup();
+      awTopBarRun();
+      activeTab = tabName;
+      try { localStorage.setItem('aw_active_tab', tabName); } catch (e) {}
+      if (tabName === 'My Performance') {
+        checkSessionTimeout();
+        restoreSavedAgentSession(true);
+      }
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const pageEl = document.getElementById('page-' + tabName);
+      if (pageEl) pageEl.classList.add('active');
+      const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
+      if (activeNav) activeNav.classList.add('active');
+      document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
+      document.body.classList.remove('sidebar-open');
+      renderView(tabName);
+    };
+    if (!skipLogoAnim) {
+      const label = tabName === 'My Performance' ? 'Agent Portal' : tabName;
+      awLogoFlash('Loading ' + label + '...', doSwitch, 420);
+    } else {
+      doSwitch();
+    }
   }
 
   function applyDashboardData(data) {
@@ -1810,7 +1825,16 @@
         timeText.innerText = sheetDt.toLocaleString('en-GB', options);
       } else { timeText.innerText = globalDateStr; }
     });
-    renderView(activeTab);
+    if (detailState && currentCardAgentName) {
+      adRender();
+    } else if (activeTab === 'My Performance' && currentCardAgentName) {
+      const personalArea = document.getElementById('agentPersonalArea');
+      if (personalArea && personalArea.style.display === 'block') {
+        renderAgentCardSafe(currentCardAgentName, 'myPerfCardBox', true);
+      }
+    } else {
+      renderView(activeTab);
+    }
     try { checkPerformanceAlerts(data); } catch (e) {}
     finishInitialSplash();
   }
@@ -1942,6 +1966,7 @@
     const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
       localStorage.setItem('aw_agent_login_time', String(Date.now()));
+      localStorage.setItem('aw_logged_agent', String(agent['Name'] || ''));
       document.getElementById('loginError').style.display = 'none';
       const expiredMsg = document.getElementById('sessionExpiredMsg');
       if (expiredMsg) expiredMsg.style.display = 'none';
@@ -1961,10 +1986,41 @@
     } else { document.getElementById('loginError').style.display = 'block'; }
   }
 
+  function restoreSavedAgentSession(stayOnCurrentTab = false) {
+    try {
+      const savedAgent = localStorage.getItem('aw_logged_agent') || '';
+      const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
+      if (!savedAgent || !loginTime || (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) {
+        if (savedAgent) {
+          localStorage.removeItem('aw_logged_agent');
+          localStorage.removeItem('aw_agent_login_time');
+        }
+        return;
+      }
+      // Refresh active session timestamp on page reload so user stays logged in
+      localStorage.setItem('aw_agent_login_time', String(Date.now()));
+      currentCardAgentName = savedAgent;
+      const loginArea = document.getElementById('agentLoginArea');
+      const personalArea = document.getElementById('agentPersonalArea');
+      if (loginArea) loginArea.style.display = 'none';
+      if (personalArea) personalArea.style.display = 'block';
+      if (appData && appData.sheets && appData.sheets['KPI']) {
+        renderAgentCardSafe(savedAgent, 'myPerfCardBox', true);
+      }
+      if (!stayOnCurrentTab) {
+        const savedTab = localStorage.getItem('aw_active_tab');
+        if (savedTab === 'My Performance' && activeTab !== 'My Performance') {
+          navTo('My Performance', true);
+        }
+      }
+    } catch (e) {}
+  }
+
   function logoutAgent(isExpired = false) {
     const wasOnDetail = !!detailState;
     if (wasOnDetail) adCleanup();
     localStorage.removeItem('aw_agent_login_time');
+    localStorage.removeItem('aw_logged_agent');
     currentCardAgentName = '';
     document.getElementById('agentLoginInput').value = '';
     document.getElementById('agentLoginArea').style.display = 'block';
@@ -1973,7 +2029,7 @@
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
     const expiredMsg = document.getElementById('sessionExpiredMsg');
     if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
-    if (wasOnDetail) navTo('My Performance');
+    if (wasOnDetail) navTo('My Performance', true);
   }
 
   // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
@@ -2894,9 +2950,108 @@
     return list.find(a => String(a.name) === String(currentCardAgentName));
   }
   function adAgentKey(a) { return String(a.key || a.id || a.vdiId || a.name || '').trim().toLowerCase(); }
+  function parseDetailDate(str) {
+    const s = String(str || '').trim();
+    if (!s) return null;
+    const months = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
+    const m1 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+    if (m1) {
+      const mo = months[m1[2].slice(0, 3).toLowerCase()];
+      if (mo !== undefined) return new Date(parseInt(m1[3], 10), mo, parseInt(m1[1], 10));
+    }
+    const m2 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m2) {
+      // Handle MM/DD/YYYY or DD/MM/YYYY safely
+      const a = parseInt(m2[1], 10), b = parseInt(m2[2], 10), y = parseInt(m2[3], 10);
+      if (a > 12) return new Date(y, b - 1, a);
+      return new Date(y, a - 1, b);
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function fmtDetailDate(dt) {
+    const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dd = String(dt.getDate()).padStart(2, '0');
+    return `${dd} ${mNames[dt.getMonth()]} ${dt.getFullYear()}`;
+  }
+
+  function getGlobalLatestDate(mapObj, fallbackRows) {
+    let maxTime = -1, maxDate = null;
+    const scan = rows => {
+      (rows || []).forEach(r => {
+        const dt = parseDetailDate(r.d);
+        if (dt && dt.getTime() > maxTime) { maxTime = dt.getTime(); maxDate = dt; }
+      });
+    };
+    if (mapObj && typeof mapObj === 'object') {
+      Object.values(mapObj).forEach(scan);
+    }
+    scan(fallbackRows);
+    return maxDate;
+  }
+
+  // Fills missing dates from the 1st of the month up to the latest date as Dayoff
+  function fillDayoffGaps(rows, globalMap) {
+    if (!rows || !rows.length) return [];
+    const byYmd = {};
+    let earliest = null;
+    rows.forEach(r => {
+      const dt = parseDetailDate(r.d);
+      if (!dt) return;
+      const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+      byYmd[key] = Object.assign({}, r, { day: String(dt.getDate()), isDayoff: false });
+      if (!earliest || dt.getTime() < earliest.getTime()) earliest = dt;
+    });
+    const latest = getGlobalLatestDate(globalMap, rows);
+    if (!earliest || !latest || latest.getTime() < earliest.getTime()) {
+      return rows.map(r => Object.assign({}, r, { isDayoff: false }));
+    }
+    // Start from the 1st of the earliest month up to the latest date
+    const start = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+    const filled = [];
+    for (let cur = new Date(start.getTime()); cur.getTime() <= latest.getTime(); cur.setDate(cur.getDate() + 1)) {
+      const key = `${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`;
+      if (byYmd[key]) {
+        filled.push(byYmd[key]);
+      } else {
+        filled.push({
+          d: fmtDetailDate(cur),
+          day: String(cur.getDate()),
+          isDayoff: true
+        });
+      }
+    }
+    return filled;
+  }
+
+  function buildDayStripHtml(title, goodLabel, badLabel, boxes, extraLegendHtml = '') {
+    const boxesHtml = boxes.map(b => {
+      const cls = b.tone === 'good' ? 'present' : (b.tone === 'bad' ? 'absent' : (b.tone === 'warn' ? 'warn-box' : 'other'));
+      return `<div class="dkb-day-box ${cls}" title="${escHtml(b.tip || '')}">
+        <div class="dkb-day-code" style="${b.smallCode ? 'font-size:11px;' : ''}">${escHtml(b.code)}</div>
+        <div class="dkb-day-date">${escHtml(b.date)}</div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="dkb-strip-card">
+        <div class="dkb-strip-head">
+          <div class="dkb-strip-title"><i class="bi bi-calendar2-week-fill text-primary"></i> ${escHtml(title)}</div>
+          <div class="dkb-legend">
+            <span><i class="dkb-dot p"></i> ${escHtml(goodLabel)}</span>
+            ${extraLegendHtml}
+            <span><i class="dkb-dot a"></i> ${escHtml(badLabel)}</span>
+            <span><i class="dkb-dot" style="background:var(--text-muted-dim);"></i> Dayoff</span>
+          </div>
+        </div>
+        <div class="dkb-box-grid">${boxesHtml}</div>
+      </div>`;
+  }
+
   function adDayRows(a) {
     const dw = (appData && appData.dayWise) || {};
-    return dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    const raw = dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, dw);
   }
   function adCalls(a) {
     const key = adAgentKey(a);
@@ -2955,7 +3110,7 @@
     if (!meta.sheetFound) return adEmpty('bi-file-earmark-x', 'Sheet "ORT Day wise" not found', 'The sheet must be named exactly <b>ORT Day wise</b>.');
     const missing = adMissingCols(type);
     if (missing.length) return adEmpty('bi-table', 'Column not found in "ORT Day wise"', 'Could not find: <b>' + missing.map(k => AD_COL_NAMES[k] || k).join(', ') + '</b>. Please check the header names in the sheet.');
-    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent\'s ID / VDI ID / Name.');
+    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent's ID / VDI ID / Name.');
   }
   function adPartialWarn(type) {
     const missing = adMissingCols(type);
@@ -3009,75 +3164,217 @@
     return stats + adSection('N-CE Calls & Remarks (' + withNce.length + ')', note, body);
   }
 
+  function adCsatDayRows(a) {
+    const cd = (appData && appData.cfsDayWise) || {};
+    const raw = cd[adAgentKey(a)] || cd[String(a.id || '').trim().toLowerCase()] || cd[String(a.vdiId || '').trim().toLowerCase()] || cd[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, cd);
+  }
+
   function adAhtCfs(a, type) {
     const isAht = type === 'aht';
     const T = a.targets || {};
-    const target = isAht ? adNum(T.aht, 170) : adNum(T.csat, 90);
-    const rows = adDayRows(a).filter(r => (isAht ? r.aht : r.cfs) !== null && (isAht ? r.aht : r.cfs) !== undefined);
-    if (!rows.length) return adNoDay(type);
-    const vals = rows.map(r => isAht ? r.aht : r.cfs);
+
+    if (!isAht) {
+      const target = adNum(T.csat, 90);
+      const allRows = adCsatDayRows(a);
+      const activeRows = allRows.filter(r => !r.isDayoff && r.cfsPct !== null && r.cfsPct !== undefined && !isNaN(parseFloat(r.cfsPct)));
+      if (!activeRows.length) {
+        return adEmpty('bi-emoji-neutral', 'No CSAT Q1 records found', 'No valid Q1 responses (excluding 3) were found for this agent in the CSAT sheet.');
+      }
+      const vals = activeRows.map(r => parseFloat(r.cfsPct));
+      const totCalls = activeRows.reduce((s, r) => s + (parseInt(r.totalCalls, 10) || 0), 0);
+      const totCsat = activeRows.reduce((s, r) => s + (parseInt(r.csatCalls, 10) || 0), 0);
+      const totDsat = activeRows.reduce((s, r) => s + (parseInt(r.dsatCalls, 10) || 0), 0);
+      const overallPct = totCalls > 0 ? (totCsat / totCalls) * 100 : adAvg(vals);
+      const bestIdx = vals.indexOf(Math.max.apply(null, vals));
+      const worstIdx = vals.indexOf(Math.min.apply(null, vals));
+      const bestRow = activeRows[bestIdx], worstRow = activeRows[worstIdx];
+      const fPct = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
+
+      const boxes = allRows.map(r => {
+        if (r.isDayoff || r.cfsPct === null || r.cfsPct === undefined || isNaN(parseFloat(r.cfsPct))) {
+          return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+        }
+        const v = parseFloat(r.cfsPct);
+        let tone = 'bad';
+        if (v >= target) tone = 'good';
+        else if (v >= 89.0) tone = 'warn';
+        const scoreOnly = (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '%';
+        return {
+          code: scoreOnly,
+          date: r.day || adShort(r.d),
+          tone: tone,
+          smallCode: true,
+          tip: `${r.d} — CFS: ${fPct(v)} (Total: ${r.totalCalls}, CSAT: ${r.csatCalls}, DSAT: ${r.dsatCalls})`
+        };
+      });
+
+      const stripHtml = buildDayStripHtml(
+        `Day-wise CFS Strip (1st Onward)`,
+        `>= ${target}% (Target Meet)`,
+        `< 89% (Not Meet)`,
+        boxes,
+        `<span><i class="dkb-dot" style="background:#f59e0b;"></i> 89–90%</span>`
+      );
+
+      const stats = `<div class="ad-stats">
+        ${adStat('Overall CFS %', fPct(overallPct), overallPct >= target ? 'good' : (overallPct >= 89 ? 'warn' : 'bad'), 'bi-emoji-smile-fill')}
+        ${adStat('Total / CSAT / DSAT', `${totCalls} / ${totCsat} / ${totDsat}`, '', 'bi-telephone-inbound-fill')}
+        ${adStat('Best Day · ' + escHtml(adShort(bestRow.d)), fPct(vals[bestIdx]), 'good', 'bi-trophy-fill')}
+        ${adStat('Lowest Day · ' + escHtml(adShort(worstRow.d)), fPct(vals[worstIdx]), 'bad', 'bi-graph-down-arrow')}
+      </div>`;
+
+      const trs = allRows.map(r => {
+        if (r.isDayoff || r.cfsPct === null || r.cfsPct === undefined || isNaN(parseFloat(r.cfsPct))) {
+          return adRow([escHtml(r.d), '—', '—', '—', '<span class="pill">Dayoff</span>'],
+            ['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], ['num fw-bold', 'num', 'num', 'num', '']);
+        }
+        const v = parseFloat(r.cfsPct);
+        let pillCls = 'bad', statusTxt = 'Not Meet';
+        if (v >= target) { pillCls = 'good'; statusTxt = fPct(v) + ' · Meet'; }
+        else if (v >= 89.0) { pillCls = 'warn'; statusTxt = fPct(v) + ' · 89–90%'; }
+        else { statusTxt = fPct(v) + ' · Not Meet'; }
+        return adRow(
+          [
+            escHtml(r.d),
+            String(r.totalCalls || 0),
+            `<span class="text-success fw-bold">${r.csatCalls || 0}</span>`,
+            `<span class="text-danger fw-bold">${r.dsatCalls || 0}</span>`,
+            `<span class="pill ${pillCls}">${escHtml(statusTxt)}</span>`
+          ],
+          ['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'],
+          ['num fw-bold', 'num', 'num', 'num', '']
+        );
+      });
+
+      return stripHtml + stats + adSection('Day-wise CFS Table (CSAT Q1, Excl. 3)', 'Chronological order (1st onward). Q1 score 3 excluded; >3 = CSAT, <3 = DSAT.', adTable(['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], trs));
+    }
+
+    const target = adNum(T.aht, 170);
+    const allRows = adDayRows(a);
+    const activeRows = allRows.filter(r => !r.isDayoff && r.aht !== null && r.aht !== undefined);
+    if (!activeRows.length) return adNoDay('aht');
+    const vals = activeRows.map(r => r.aht);
     const avg = adAvg(vals);
-    const best = isAht ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
-    const worst = isAht ? Math.max.apply(null, vals) : Math.min.apply(null, vals);
-    const bestRow = rows[vals.indexOf(best)], worstRow = rows[vals.indexOf(worst)];
-    const meets = v => isAht ? v <= target : v >= target;
+    const best = Math.min.apply(null, vals);
+    const worst = Math.max.apply(null, vals);
+    const bestRow = activeRows[vals.indexOf(best)], worstRow = activeRows[vals.indexOf(worst)];
+    const meets = v => v <= target;
     const metDays = vals.filter(meets).length;
-    const unit = isAht ? 's' : '%';
-    const f = v => isAht ? Math.round(v) + 's' : (Math.round(v * 10) / 10) + '%';
+    const f = v => Math.round(v) + 's';
+
+    const boxes = allRows.map(r => {
+      const val = r.aht;
+      const isOff = r.isDayoff || val === null || val === undefined;
+      if (isOff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const ok = meets(val);
+      return { code: Math.round(val) + 's', date: r.day || adShort(r.d), tone: ok ? 'good' : 'bad', smallCode: true, tip: `${r.d} — ${f(val)} (${ok ? 'Target Meet' : 'Missed'})` };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise AHT Strip (1st Onward)', `<= ${target}s`, `> ${target}s`, boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Average ' + (isAht ? 'AHT' : 'CFS'), f(avg), meets(avg) ? 'good' : 'bad', 'bi-speedometer2')}
+      ${adStat('Average AHT', f(avg), meets(avg) ? 'good' : 'bad', 'bi-speedometer2')}
       ${adStat('Best Day · ' + escHtml(adShort(bestRow.d)), f(best), 'good', 'bi-trophy-fill')}
       ${adStat('Weakest Day · ' + escHtml(adShort(worstRow.d)), f(worst), 'bad', 'bi-graph-down-arrow')}
-      ${adStat('Days On Target', metDays + ' / ' + rows.length, metDays === rows.length ? 'good' : 'warn', 'bi-bullseye')}
+      ${adStat('Days On Target', metDays + ' / ' + activeRows.length, metDays === activeRows.length ? 'good' : 'warn', 'bi-bullseye')}
     </div>`;
-    const chart = `<div class="chart-container ad-chart-box"><canvas id="adChart"></canvas></div>`;
-    const trs = rows.map(r => {
-      const v = isAht ? r.aht : r.cfs; const ok = meets(v);
-      const diff = isAht ? (ok ? 'Target Meet' : '+' + Math.round(v - target) + 's over') : (ok ? 'Target Meet' : Math.round((target - v) * 10) / 10 + '% below');
+
+    const trs = allRows.map(r => {
+      const v = r.aht;
+      if (r.isDayoff || v === null || v === undefined) {
+        return adRow([escHtml(r.d), '<span class="text-muted fw-bold">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'AHT (Sec)', 'vs Target'], ['num fw-bold', '', '']);
+      }
+      const ok = meets(v);
+      const diff = ok ? 'Target Meet' : '+' + Math.round(v - target) + 's over';
       return adRow([escHtml(r.d), `<span class="${ok ? 'text-success' : 'text-danger'} fw-bold">${f(v)}</span>`, `<span class="pill ${ok ? 'good' : 'bad'}">${diff}</span>`],
-        ['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], ['num fw-bold', 'num', '']);
+        ['Date', 'AHT (Sec)', 'vs Target'], ['num fw-bold', 'num', '']);
     });
-    window.__adChartPayload = { type: type, rows: rows.slice(-31), target: target, unit: unit };
-    return stats + adSection('Trend (Target ' + (isAht ? '<= ' + target + 's' : '>= ' + target + '%') + ')', '', chart)
-      + adSection('Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Table', 'Source: ORT Day wise sheet. Chronological order (1st onward).', adTable(['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], trs));
+
+    return stripHtml + stats + adSection('Day-wise AHT Table', 'Source: ORT Day wise sheet. Chronological order (1st onward).', adTable(['Date', 'AHT (Sec)', 'vs Target'], trs));
   }
 
   function adLogin(a) {
     const rows = adDayRows(a);
-    if (!rows.length) return adNoDay('login');
-    const lagMins = rows.map(r => durToMin(r.lag));
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) return adNoDay('login');
+
+    const lagMins = activeRows.map(r => durToMin(r.lag));
     const lagDays = lagMins.filter(m => !isNaN(m) && m > 0).length;
     const totalLag = lagMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
-    const logins = rows.map(r => r.login).filter(v => v !== null && v !== undefined);
+    const logins = activeRows.map(r => r.login).filter(v => v !== null && v !== undefined);
     const avgLogin = adAvg(logins);
+
+    const boxes = rows.map(r => {
+      if (r.isDayoff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const lagM = durToMin(r.lag);
+      const hasLag = !isNaN(lagM) && lagM > 0;
+      return {
+        code: hasLag ? fmtMin(lagM) : 'OK',
+        date: r.day || adShort(r.d),
+        tone: hasLag ? 'bad' : 'good',
+        smallCode: true,
+        tip: `${r.d} — ${hasLag ? 'Lag: ' + fmtMin(lagM) : 'No Lag'}`
+      };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise Login & Lag Strip (1st Onward)', 'No Lag', 'Lag Found', boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Days With Lag', lagDays, lagDays > 0 ? 'bad' : 'good', 'bi-hourglass-split')}
       ${adStat('Total Lag Time', fmtMin(totalLag), totalLag > 0 ? 'bad' : 'good', 'bi-clock-history')}
       ${adStat('Avg Login %', isNaN(avgLogin) ? '—' : (Math.round(avgLogin * 10) / 10) + '%', !isNaN(avgLogin) && avgLogin >= 100 ? 'good' : 'warn', 'bi-percent')}
     </div>`;
+
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="text-muted">Dayoff</span>', '<span class="text-muted">Dayoff</span>', '<span class="pill">Dayoff</span>', '<span class="text-muted">Dayoff</span>'],
+          ['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], ['num fw-bold', '', '', '', '']);
+      }
       const lagM = durToMin(r.lag); const hasLag = !isNaN(lagM) && lagM > 0;
       return adRow([escHtml(r.d), adDash(r.tr), adDash(r.rt), `<span class="${hasLag ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.lag)}</span>`,
         r.login === null || r.login === undefined ? '—' : `<span class="${r.login >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.login}%</span>`],
         ['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], ['num fw-bold', 'num', 'num', 'num', 'num']);
     });
-    return adPartialWarn('login') + stats + adSection('Day-wise Login Hour', 'Target Ready, Ready Time and Lag Time for each day. Chronological order (1st onward).', adTable(['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], trs));
+    return adPartialWarn('login') + stripHtml + stats + adSection('Day-wise Login Hour', 'Target Ready, Ready Time and Lag Time for each day. Chronological order (1st onward).', adTable(['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], trs));
   }
 
   function adAdherence(a) {
-    const rows = adDayRows(a).filter(r => r.adh !== null && r.adh !== undefined);
-    if (!rows.length) return adNoDay('adherence');
-    const okDays = rows.filter(r => r.adh >= 100).length;
-    const halfDays = rows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
-    const avg = adAvg(rows.map(r => r.adh));
+    const allRows = adDayRows(a);
+    const activeRows = allRows.filter(r => !r.isDayoff && r.adh !== null && r.adh !== undefined);
+    if (!activeRows.length) return adNoDay('adherence');
+
+    const okDays = activeRows.filter(r => r.adh >= 100).length;
+    const halfDays = activeRows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
+    const avg = adAvg(activeRows.map(r => r.adh));
+
+    const boxes = allRows.map(r => {
+      if (r.isDayoff || r.adh === null || r.adh === undefined) {
+        return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      }
+      const ok = r.adh >= 100;
+      return {
+        code: Math.round(r.adh) + '%',
+        date: r.day || adShort(r.d),
+        tone: ok ? 'good' : 'bad',
+        smallCode: true,
+        tip: `${r.d} — Adherence: ${r.adh}%`
+      };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise Adherence Strip (1st Onward)', '100% Okay', '< 100% Missed', boxes);
+
     const stats = `<div class="ad-stats">
       ${adStat('Days Okay (100%)', okDays, 'good', 'bi-check-circle-fill')}
       ${adStat('Login / Logout Missed (50%)', halfDays, halfDays > 0 ? 'bad' : 'good', 'bi-exclamation-triangle-fill')}
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Average Adherence', (Math.round(avg * 10) / 10) + '%', avg >= 100 ? 'good' : 'warn', 'bi-percent')}
     </div>`;
-    const trs = rows.map(r => {
+
+    const trs = allRows.map(r => {
+      if (r.isDayoff || r.adh === null || r.adh === undefined) {
+        return adRow([escHtml(r.d), '<span class="text-muted fw-bold">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'Adherence %', 'Remarks'], ['num fw-bold', '', '']);
+      }
       let remark, cls;
       if (r.adh >= 100) { remark = 'Okay'; cls = 'good'; }
       else if (Math.abs(r.adh - 50) < 0.5) { remark = 'Login or Logout Missed'; cls = 'bad'; }
@@ -3086,48 +3383,78 @@
       return adRow([escHtml(r.d), `<span class="${r.adh >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.adh}%</span>`, `<span class="pill ${cls}">${remark}</span>`],
         ['Date', 'Adherence %', 'Remarks'], ['num fw-bold', 'num', '']);
     });
-    return stats + adSection('Day-wise Adherence', '<b>100%</b> = Okay &nbsp;·&nbsp; <b>50%</b> = Login or Logout missed. Chronological order (1st onward).', adTable(['Date', 'Adherence %', 'Remarks'], trs));
+    return stripHtml + stats + adSection('Day-wise Adherence', '<b>100%</b> = Okay &nbsp;·&nbsp; <b>50%</b> = Login or Logout missed. Chronological order (1st onward).', adTable(['Date', 'Adherence %', 'Remarks'], trs));
   }
 
   function adBreak(a) {
     const rows = adDayRows(a);
-    if (!rows.length) return adNoDay('break');
-    const ebMins = rows.map(r => durToMin(r.eb));
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) return adNoDay('break');
+
+    const ebMins = activeRows.map(r => durToMin(r.eb));
     const extraDays = ebMins.filter(m => !isNaN(m) && m > 0).length;
     const totalExtra = ebMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
     const longest = ebMins.reduce((s, m) => Math.max(s, isNaN(m) ? 0 : m), 0);
+
+    const boxes = rows.map(r => {
+      if (r.isDayoff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const m = durToMin(r.eb);
+      const hasExtra = !isNaN(m) && m > 0;
+      return {
+        code: hasExtra ? fmtMin(m) : 'OK',
+        date: r.day || adShort(r.d),
+        tone: hasExtra ? 'bad' : 'good',
+        smallCode: true,
+        tip: `${r.d} — ${hasExtra ? 'Extra Break: ' + fmtMin(m) : 'No Extra Break'}`
+      };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise Over Break Strip (1st Onward)', 'No Extra Break', 'Extra Break', boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Days With Extra Break', extraDays, extraDays > 0 ? 'bad' : 'good', 'bi-cup-hot-fill')}
       ${adStat('Total Extra Break', fmtMin(totalExtra), totalExtra > 0 ? 'bad' : 'good', 'bi-clock-history')}
       ${adStat('Longest Extra Break', fmtMin(longest), longest > 0 ? 'warn' : 'good', 'bi-alarm-fill')}
     </div>`;
+
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="text-muted">Dayoff</span>', '<span class="text-muted">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', '', '', '']);
+      }
       const m = durToMin(r.eb); const hasExtra = !isNaN(m) && m > 0;
       return adRow([escHtml(r.d), adDash(r.tb), adDash(r.bt), `<span class="${hasExtra ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.eb)}</span>`],
         ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', 'num', 'num', 'num']);
     });
-    return adPartialWarn('break') + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Chronological order (1st onward).', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
+    return adPartialWarn('break') + stripHtml + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Chronological order (1st onward).', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
   }
 
   function adDkbRows(a) {
     const dw = (appData && appData.dkbDayWise) || {};
-    return dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    const raw = dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, dw);
   }
 
   function adDkb(a) {
     const rows = adDkbRows(a);
-    if (!rows.length) {
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) {
       return adEmpty('bi-calendar-x', 'No DKB day-wise records', 'No date-wise Present/Absent entries were found for this agent in the DKB sheet.');
     }
-    const presentCnt = rows.filter(r => r.code === 'P').length;
-    const absentCnt = rows.filter(r => r.code === 'A').length;
+    const presentCnt = activeRows.filter(r => r.code === 'P').length;
+    const absentCnt = activeRows.filter(r => r.code === 'A').length;
     const totalValid = presentCnt + absentCnt;
     const pct = totalValid > 0 ? ((presentCnt / totalValid) * 100) : NaN;
     const pctStr = !isNaN(pct) ? pct.toFixed(1) + '%' : (a.dkbPct || 'N/A');
 
-    // Top small day-wise boxes (P = green + date below, A = red + date below), ordered 1st -> onward
+    // Top small day-wise boxes (P = green + date below, A = red + date below, OFF = Dayoff), ordered 1st -> onward
     const boxesHtml = rows.map(r => {
+      if (r.isDayoff) {
+        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — Dayoff">
+          <div class="dkb-day-code" style="font-size:11px;">OFF</div>
+          <div class="dkb-day-date">${escHtml(r.day || adShort(r.d))}</div>
+        </div>`;
+      }
       const cls = r.code === 'P' ? 'present' : (r.code === 'A' ? 'absent' : 'other');
       const shortDate = r.day ? String(r.day) : adShort(r.d);
       return `<div class="dkb-day-box ${cls}" title="${escHtml(r.d)} — ${escHtml(r.status)}">
@@ -3143,6 +3470,7 @@
           <div class="dkb-legend">
             <span><i class="dkb-dot p"></i> P = Present (${presentCnt})</span>
             <span><i class="dkb-dot a"></i> A = Absent (${absentCnt})</span>
+            <span><i class="dkb-dot" style="background:var(--text-muted-dim);"></i> Dayoff</span>
           </div>
         </div>
         <div class="dkb-box-grid">${boxesHtml}</div>
@@ -3151,11 +3479,15 @@
     const stats = `<div class="ad-stats">
       ${adStat('Present Days', presentCnt, 'good', 'bi-check-circle-fill')}
       ${adStat('Absent Days', absentCnt, absentCnt > 0 ? 'bad' : 'good', 'bi-x-circle-fill')}
-      ${adStat('Total Tracked', totalValid || rows.length, '', 'bi-calendar3')}
+      ${adStat('Total Tracked', totalValid || activeRows.length, '', 'bi-calendar3')}
       ${adStat('DKB Present %', escHtml(pctStr), (!isNaN(pct) && pct >= 95) ? 'good' : 'warn', 'bi-percent')}
     </div>`;
 
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="pill">Dayoff</span>', '<span class="text-muted">Dayoff</span>'],
+          ['Date', 'Status', 'Category'], ['num fw-bold', '', '']);
+      }
       const pillCls = r.code === 'P' ? 'good' : (r.code === 'A' ? 'bad' : 'warn');
       return adRow(
         [escHtml(r.d), `<span class="pill ${pillCls}">${escHtml(r.code === 'P' ? 'P · Present' : (r.code === 'A' ? 'A · Absent' : r.status))}</span>`, escHtml(r.category || '—')],
@@ -3451,7 +3783,7 @@
 
   // --- Weekly Report Card (Auto-generated every Sunday + live 7-day breakdown) ---
   function buildWeeklyReportCardHtml(agent, isOjtAgent) {
-    const dayRows = adDayRows(agent).slice(-7);
+    const dayRows = adDayRows(agent).filter(r => !r.isDayoff).slice(-7);
     if (dayRows.length < 2) return '';
     const isSunday = new Date().getDay() === 0;
     const validAht = dayRows.filter(r => r.aht !== null && r.aht !== undefined && r.aht > 0);
