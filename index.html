@@ -3681,14 +3681,57 @@
     const target = adNum((a.targets || {}).esc, 95);
     const allRows = adComplaintRows(a);
     const activeRows = allRows.filter(r => !r.isDayoff && r.totalComplaints !== undefined && r.totalComplaints > 0);
+    const fPct = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
+
     if (!activeRows.length) {
-      return adEmpty('bi-check2-circle', 'No date-wise complaint records found', 'No complaint escalation entries were found for this agent in the Complaint sheet.');
+      const compList = (appData && appData.sheets && appData.sheets['Complaint Escalation and DKB %'] && appData.sheets['Complaint Escalation and DKB %'].list) || [];
+      const rec = compList.find(x => (a.vdiId && x.vdiId === a.vdiId) || (a.name && x.agentName === a.name));
+      const totAll = rec ? (parseInt(rec.totalComplaints, 10) || 0) : (parseInt(a.totalEscCount, 10) || 0);
+      const totValid = rec ? (parseInt(rec.valid, 10) || 0) : (parseInt(a.validEscCount, 10) || 0);
+      const totInvalid = rec ? (parseInt(rec.invalid, 10) || 0) : (parseInt(a.invalidEscCount, 10) || Math.max(0, totAll - totValid));
+      const overallPct = totAll > 0 ? (totValid / totAll) * 100 : 100;
+      const pctLabel = (overallPct % 1 === 0 ? overallPct.toFixed(0) : overallPct.toFixed(1)) + '%';
+      const ok = overallPct >= target;
+
+      const stripHtml = buildDayStripHtml(
+        'Complaint Escalation Summary Strip',
+        `>= ${target}% (Valid)`,
+        `< ${target}% (Below Target)`,
+        [{
+          code: pctLabel,
+          date: 'Overall',
+          tone: ok ? 'good' : 'bad',
+          smallCode: true,
+          tip: `Overall Escalation: ${fPct(overallPct)} (Total: ${totAll}, Valid: ${totValid}, Invalid: ${totInvalid})`
+        }]
+      );
+
+      const stats = `<div class="ad-stats">
+        ${adStat('Total Complaint', totAll, '', 'bi-inboxes-fill')}
+        ${adStat('Total Valid', totValid, 'good', 'bi-check-circle-fill')}
+        ${adStat('Total Invalid', totInvalid, totInvalid > 0 ? 'bad' : 'good', 'bi-x-circle-fill')}
+        ${adStat('Escalation %', fPct(overallPct), ok ? 'good' : 'bad', 'bi-percent')}
+      </div>`;
+
+      const trs = [adRow(
+        [
+          'Overall',
+          String(totAll),
+          `<span class="text-success fw-bold">${totValid}</span>`,
+          `<span class="text-danger fw-bold">${totInvalid}</span>`,
+          `<span class="pill ${ok ? 'good' : 'bad'}">${escHtml(fPct(overallPct))}</span>`
+        ],
+        ['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'],
+        ['num fw-bold', 'num', 'num', 'num', '']
+      )];
+
+      return stripHtml + stats + adSection('Complaint Escalation Summary', 'Summary from Complaint sheet (no separate dated rows found for this agent).', adTable(['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'], trs));
     }
+
     const totAll = activeRows.reduce((s, r) => s + (parseInt(r.totalComplaints, 10) || 0), 0);
     const totValid = activeRows.reduce((s, r) => s + (parseInt(r.valid, 10) || 0), 0);
     const totInvalid = activeRows.reduce((s, r) => s + (parseInt(r.invalid, 10) || 0), 0);
     const overallPct = totAll > 0 ? (totValid / totAll) * 100 : 100;
-    const fPct = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
 
     const boxes = allRows.map(r => {
       if (r.isDayoff || !r.totalComplaints) {
