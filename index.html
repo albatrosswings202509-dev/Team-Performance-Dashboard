@@ -937,7 +937,7 @@
     display: flex; flex-wrap: wrap; gap: 8px;
   }
   .dkb-day-box {
-    width: 48px; min-height: 54px; border-radius: 10px; padding: 6px 4px;
+    width: 56px; min-height: 56px; border-radius: 10px; padding: 6px 4px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     border: 1.5px solid transparent; transition: transform 0.2s var(--ease);
   }
@@ -2418,10 +2418,49 @@
     const selectedParty = (document.getElementById('dashAuditPartyFilter')?.value || '').toLowerCase();
     const tl = appData.tlSummary || {};
     renderBucketDistributionChart();
+
     let totalAudit = tl.totalAudit || 0, totalPass = tl.totalPass || 0, totalFail = tl.totalFail || 0;
     let passPercent = tl.passPercent || '0%', failPercent = tl.failPercent || '0%';
     let empathyPercent = tl.empathyPercent || '0%', cfsVal = tl.teamCfs || 'N/A', ahtVal = tl.aht || 'N/A';
-    let fcrVal = tl.fcr || 'N/A', compPct = tl.complaintEscalationPct || '0%', sdCount = tl.sdCount || 0, dkbPct = tl.dkbPercent || 'N/A';
+    let adhVal = tl.adherencePct || 'N/A', lagVal = tl.lagHour || 'N/A', breakVal = tl.overBreak || 'N/A';
+    let fcrVal = tl.fcr || 'N/A', sdCount = tl.sdCount || 0, dkbPct = tl.dkbPercent || 'N/A', quizVal = tl.quizScore || 'N/A';
+
+    // Compute Complaint Escalation % from tlSummary or pool from Complaint sheet list
+    let compPct = tl.complaintEscalationPct;
+    let compSub = (tl.complaintTotal !== undefined && tl.complaintTotal > 0)
+      ? `Valid: ${tl.complaintValid || 0} / Total: ${tl.complaintTotal}`
+      : 'Valid Complaints Rate';
+    const compSheetList = (appData.sheets['Complaint Escalation and DKB %']?.list || []);
+    if ((!compPct || compPct === 'N/A' || (compPct === '0.0%' && !(tl.complaintTotal > 0))) && compSheetList.length > 0) {
+      let totV = 0, totC = 0;
+      compSheetList.forEach(c => { totV += parseInt(c.valid, 10) || 0; totC += parseInt(c.totalComplaints, 10) || 0; });
+      compPct = totC > 0 ? ((totV / totC) * 100).toFixed(1) + '%' : '100.0%';
+      if (totC > 0) compSub = `Valid: ${totV} / Total: ${totC}`;
+    }
+    if (!compPct) compPct = '0.0%';
+
+    // Fallbacks for Adherence, Lag Hour, Over Break, Quiz from sheet lists if not in tlSummary
+    const lagSheetList = (appData.sheets['Lag Adherence & Over Break']?.list || []);
+    if ((!adhVal || adhVal === 'N/A') && lagSheetList.length > 0) {
+      let aSum = 0, aCnt = 0;
+      lagSheetList.forEach(x => { const n = parseFloat(String(x.adherence || '').replace('%', '')); if (!isNaN(n)) { aSum += n; aCnt++; } });
+      if (aCnt > 0) adhVal = (aSum / aCnt).toFixed(1) + '%';
+    }
+    if ((!lagVal || lagVal === 'N/A') && lagSheetList.length > 0) {
+      const lagAgents = lagSheetList.filter(x => x.lagTime && x.lagTime !== 'No Lag').length;
+      lagVal = lagAgents > 0 ? `${lagAgents} Agents Lag` : 'No Lag';
+    }
+    if ((!breakVal || breakVal === 'N/A') && lagSheetList.length > 0) {
+      const obAgents = lagSheetList.filter(x => x.hasOverBreak).length;
+      breakVal = obAgents > 0 ? `${obAgents} Extra Break` : 'No Extra Break';
+    }
+    const fcrSheetList = (appData.sheets['FCR, Quiz & SD']?.list || []);
+    if ((!quizVal || quizVal === 'N/A') && fcrSheetList.length > 0) {
+      let qSum = 0, qCnt = 0;
+      fcrSheetList.forEach(x => { const n = parseFloat(String(x.quizScore || '').replace('%', '')); if (!isNaN(n)) { qSum += n; qCnt++; } });
+      if (qCnt > 0) quizVal = (qSum / qCnt).toFixed(1) + '%';
+    }
+
     let passPercentVal = parseFloat(passPercent), failPercentVal = parseFloat(failPercent);
 
     if (selectedAgent || selectedParty || currentTenureFilter !== 'all') {
@@ -2442,21 +2481,64 @@
         relevantPerf.forEach(a => { empPassSum += parseInt(a.empathyPassSum) || 0; empFailSum += parseInt(a.empathyFailSum) || 0; });
       }
       empathyPercent = (empPassSum + empFailSum) > 0 ? ((empPassSum / (empPassSum + empFailSum)) * 100).toFixed(1) + '%' : '0.0%';
+
+      // Also filter KPI metrics when specific agent or tenure is selected
+      const kpiFiltered = (appData.sheets['KPI'] || []).filter(a => {
+        const matchA = !selectedAgent || String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent;
+        return matchA && matchesTenure(a);
+      });
+      if (selectedAgent && kpiFiltered.length === 1) {
+        const ag = kpiFiltered[0];
+        cfsVal = ag.cfsPct || ag.cfsPercent || 'N/A';
+        ahtVal = ag.aht || 'N/A';
+        adhVal = ag.adherencePct || 'N/A';
+        lagVal = ag.lagHour || 'No Lag';
+        breakVal = ag.overBreak || 'No Extra Break';
+        fcrVal = ag.fcrPercent || ag.fcrPct || 'N/A';
+        sdCount = ag.sdCount !== undefined ? ag.sdCount : 0;
+        compPct = ag.escalationAccuracyPct || '100.0%';
+        compSub = `Valid: ${ag.validEscCount || 0} / Total: ${ag.totalEscCount || 0}`;
+        dkbPct = ag.dkbPct || 'N/A';
+        quizVal = ag.quizScore || 'N/A';
+      } else if (currentTenureFilter !== 'all' && kpiFiltered.length > 0) {
+        let totV = 0, totC = 0, sdSum = 0, qSum = 0, qCnt = 0, aSum = 0, aCnt = 0;
+        kpiFiltered.forEach(ag => {
+          totV += parseInt(ag.validEscCount, 10) || 0;
+          totC += parseInt(ag.totalEscCount, 10) || 0;
+          sdSum += parseInt(ag.sdCount, 10) || 0;
+          const qn = parseFloat(String(ag.quizScore || '').replace('%', '')); if (!isNaN(qn)) { qSum += qn; qCnt++; }
+          const an = parseFloat(String(ag.adherencePct || '').replace('%', '')); if (!isNaN(an)) { aSum += an; aCnt++; }
+        });
+        compPct = totC > 0 ? ((totV / totC) * 100).toFixed(1) + '%' : '100.0%';
+        compSub = `Valid: ${totV} / Total: ${totC}`;
+        sdCount = sdSum;
+        if (qCnt > 0) quizVal = (qSum / qCnt).toFixed(1) + '%';
+        if (aCnt > 0) adhVal = (aSum / aCnt).toFixed(1) + '%';
+      }
     }
 
+    const adhNum = parseFloat(String(adhVal).replace('%', ''));
+    const compNum = parseFloat(String(compPct).replace('%', ''));
+    const lagGood = lagVal === 'No Lag' || lagVal === '0' || lagVal === '0h 0m';
+    const breakGood = breakVal === 'No Extra Break' || breakVal === '0m' || breakVal === '0';
+
+    // Exact requested KPI grid order:
+    // CE, Empathy, CFS, AHT, Adherence, Lag Hour, Break, FCR, Service Delivery, Complaint Escalation, DKB, Quiz
     const grid = document.getElementById('tlKpiGrid');
     if (grid) {
       grid.innerHTML = `
-        ${renderCardHtml("Total Audits", totalAudit, "Overall Audits Count", "Metric", "nokpi", "Count", "text-main")}
-        ${renderCardHtml("Total Pass", `${totalPass} (${passPercent})`, "Overall Pass Rate", "Metric", "delivered", "Pass", "text-success", passPercentVal)}
-        ${renderCardHtml("Audit Fail", `${totalFail} (${failPercent})`, "Overall Fail Rate", "Metric", "missed", "Fail", "text-danger", failPercentVal)}
+        ${renderCardHtml("CE (Audit Fail)", `${totalFail} (${failPercent})`, `Total Audits: ${totalAudit} | Pass: ${totalPass} (${passPercent})`, "Metric", totalFail === 0 ? "delivered" : "missed", totalFail === 0 ? "Zero CE" : "Fail Found", totalFail === 0 ? "text-success" : "text-danger", failPercentVal)}
         ${renderCardHtml("Empathy %", empathyPercent, "Overall Empathy Pass", "Metric", "delivered", "Empathy", "text-purple", empathyPercent)}
         ${renderCardHtml("Team CFS %", cfsVal, "Customer Satisfaction", "Metric", "nokpi", "CFS", "text-main", cfsVal, buildSparklineHtml(getTeamDailySeries('cfs'), false, '%'))}
         ${renderCardHtml("Team AHT", ahtVal, "Average Handling Time", "Metric", "warn", "AHT", "text-warning", null, buildSparklineHtml(getTeamDailySeries('aht'), true, 's'))}
+        ${renderCardHtml("Adherence %", adhVal, "Schedule Adherence", "Metric", !isNaN(adhNum) && adhNum >= 100 ? "delivered" : "warn", "Adherence", !isNaN(adhNum) && adhNum >= 100 ? "text-success" : "text-warning", adhVal)}
+        ${renderCardHtml("Lag Hour", lagVal, "Login Readiness Lag", "Metric", lagGood ? "delivered" : "missed", lagGood ? "On Time" : "Lag Found", lagGood ? "text-success" : "text-danger")}
+        ${renderCardHtml("Break", breakVal, "Over Break Status", "Metric", breakGood ? "delivered" : "missed", breakGood ? "On Schedule" : "Extra Break", breakGood ? "text-success" : "text-danger")}
         ${renderCardHtml("Team FCR %", fcrVal, "First Call Resolution", "Metric", "delivered", "FCR", "text-success", fcrVal)}
-        ${renderCardHtml("Complaint Valid %", compPct, "Valid Complaints Rate", "Metric", "warn", "Complaint", "text-warning", compPct)}
-        ${renderCardHtml("SD Count", sdCount, "Service Delivery", "Metric", "delivered", "SD", "text-success")}
-        ${renderCardHtml("Team DKB %", dkbPct, "Attendance %", "Metric", "nokpi", "DKB", "text-info", dkbPct)}`;
+        ${renderCardHtml("Service Delivery", sdCount, "Total Service Delivery", "Metric", "delivered", "SD", "text-success")}
+        ${renderCardHtml("Complaint Escalation %", compPct, compSub, "Metric", !isNaN(compNum) && compNum >= 95 ? "delivered" : "warn", "Escalation", !isNaN(compNum) && compNum >= 95 ? "text-success" : "text-warning", compPct)}
+        ${renderCardHtml("Team DKB %", dkbPct, "Attendance %", "Metric", "nokpi", "DKB", "text-info", dkbPct)}
+        ${renderCardHtml("Quiz Score %", quizVal, "Team Quiz Average", "Metric", "delivered", "Quiz", "text-info", quizVal)}`;
     }
   }
 
@@ -2877,11 +2959,9 @@
         </div>
 
         <div class="pdf-grid-3">
-          ${renderCardHtml("Audit Fail Rate", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct, '', 'fail')}
-          ${renderCardHtml("Valid Complaint", agent.validCompCount || 0, "Valid complaints", `KPI: ${fmtScore(agent.score_validComplaint)}`, renderBadgeCls(agent.score_validComplaint, agent.validCompCount === 0 ? 'delivered' : 'missed'), agent.validCompCount === 0 ? 'Target Meet' : 'Complaint Found', agent.validCompCount === 0 ? 'text-success' : 'text-danger')}
+          ${renderCardHtml("CE (Audit Fail Rate)", agent.auditFailPct || '0%', `Total Audits: ${agent.totalAudits || 0} (Pass: ${agent.passCount || 0}, Fail: ${agent.failCount || 0})`, `KPI: ${fmtScore(agent.score_criticalError)}`, renderBadgeCls(agent.score_criticalError, isFailMet ? 'delivered' : 'missed'), isFailMet ? 'Target Meet' : 'Fail Found', isFailMet ? 'text-success' : 'text-danger', agent.auditFailPct, '', 'fail')}
           ${renderCardHtml("Empathy Pass %", agent.empathyPct || '0%', `Pass: ${agent.empathyPassSum || 0} | Fail: ${agent.empathyFailSum || 0}`, `KPI: ${fmtScore(agent.score_empathy)}`, renderBadgeCls(agent.score_empathy, isEmpMet ? 'delivered' : 'missed'), isEmpMet ? 'Target Meet' : 'Below Target', isEmpMet ? 'text-success' : 'text-danger', agent.empathyPct, '', 'empathy')}
           ${renderCardHtml("CSAT / CFS %", agent.cfsPct || agent.cfsPercent || 'N/A', `Target: ${T.csat || '>= 90%'}`, `KPI: ${fmtScore(agent.score_cfs)}`, renderBadgeCls(agent.score_cfs, isCfsMet ? 'delivered' : 'missed'), isCfsMet ? 'Target Meet' : 'Below Target', isCfsMet ? 'text-success' : 'text-danger', agent.cfsPct || agent.cfsPercent, agentCfsSpark, 'cfs')}
-          ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? (M.fcr ? 'delivered' : 'missed') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'delivered' : 'missed')), (M.fcr != null) ? (M.fcr ? 'Target Meet' : 'Below Target') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'Target Meet' : 'Below Target'), (M.fcr != null) ? (M.fcr ? 'text-success' : 'text-danger') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'text-success' : 'text-danger'), agent.fcrPercent || agent.fcrPct)}
 
           <div class="pdf-kpi-card w-100 kpi-clickable" data-detail="aht" role="button" tabindex="0" title="Click to view day-wise details" style="position:relative;">
              <div class="kpi-card-header"><div class="pdf-kpi-title">AHT (Seconds)</div><span class="pdf-badge ${renderBadgeCls(agent.score_aht, isAhtMet ? 'delivered' : 'missed')}">${isAhtMet ? 'Target Meet' : 'Exceeds'}</span></div>
@@ -2892,12 +2972,13 @@
           </div>
 
           ${renderCardHtml("Adherence %", agent.adherencePct || 'N/A', `Target: ${T.adh || '>= 100%'}`, `KPI: ${fmtScore(agent.score_adherence)}`, renderBadgeCls(agent.score_adherence, isAdhMet ? 'delivered' : 'missed'), isAdhMet ? 'Target Meet' : 'Below Target', isAdhMet ? 'text-success' : 'text-warning', agent.adherencePct, '', 'adherence')}
-          ${renderCardHtml("Login Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance, '', 'login')}
+          ${renderCardHtml("Lag Hour", agent.loginHourCompliance != null ? agent.loginHourCompliance + '%' : 'N/A', `Lag: ${agent.lagHour || '0h 0m'} | Target: ${T.login || '>= 100%'}`, `KPI: ${fmtScore(agent.score_loginHour)}`, renderBadgeCls(agent.score_loginHour, agent.loginHourCompliance >= 100 ? 'delivered' : 'missed'), agent.score_loginHour === 'NO KPI' ? 'NO KPI' : (agent.loginHourCompliance >= 100 ? 'Target Meet' : 'Below Target'), agent.loginHourCompliance >= 100 ? 'text-success' : 'text-danger', agent.loginHourCompliance, '', 'login')}
           ${renderCardHtml("Over Break", agent.overBreak || 'N/A', "Target: As Per Schedule", `KPI: ${fmtScore(agent.score_breakTime)}`, renderBadgeCls(agent.score_breakTime, agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'delivered' : 'missed'), agent.score_breakTime === 'NO KPI' ? 'NO KPI' : (agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'No Extra Break' : 'Extra Break Taken'), agent.overBreak === '0m' || agent.overBreak === '0' || agent.overBreak === 'No Extra Break' ? 'text-success' : 'text-danger', null, '', 'break')}
-
-          ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
+          ${renderCardHtml("FCR %", agent.fcrPercent || agent.fcrPct || 'N/A', `Target: ${T.fcr || '>= 93%'}`, `KPI: ${fmtScore(agent.score_fcr)}`, renderBadgeCls(agent.score_fcr, (M.fcr != null) ? (M.fcr ? 'delivered' : 'missed') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'delivered' : 'missed')), (M.fcr != null) ? (M.fcr ? 'Target Meet' : 'Below Target') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'Target Meet' : 'Below Target'), (M.fcr != null) ? (M.fcr ? 'text-success' : 'text-danger') : (!isNaN(parseFloat(agent.fcrPercent)) && parseFloat(agent.fcrPercent) >= 93.0 ? 'text-success' : 'text-danger'), agent.fcrPercent || agent.fcrPct)}
+          ${renderCardHtml("Service Delivery", agent.sdCount !== undefined ? agent.sdCount : 0, "Total Service Delivery", "Metric", "delivered", "SD", "text-success")}
+          ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Valid: ${agent.validEscCount || 0} / Total: ${agent.totalEscCount || 0} (Target: ${T.esc || '>= 95%'})`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct, '', 'complaint')}
           ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct, '', 'dkb')}
-          ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Target: ${T.esc || '>= 95%'}`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct)}
+          ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
 
           <div class="pdf-kpi-card predicted-bucket-card">
             <div class="gauge-box">
@@ -2981,7 +3062,8 @@
     login:     { title: 'Login Hour Day-wise',   icon: 'bi-box-arrow-in-right',     color: '#38bdf8' },
     adherence: { title: 'Adherence Day-wise',    icon: 'bi-calendar-check-fill',    color: '#10b981' },
     break:     { title: 'Over Break Day-wise',   icon: 'bi-cup-hot-fill',           color: '#fb7185' },
-    dkb:       { title: 'DKB Attendance Day-wise', icon: 'bi-calendar2-check-fill', color: '#10b981' }
+    dkb:       { title: 'DKB Attendance Day-wise', icon: 'bi-calendar2-check-fill', color: '#10b981' },
+    complaint: { title: 'Complaint Escalation Day-wise', icon: 'bi-exclamation-triangle-fill', color: '#f59e0b' }
   };
   const AD_COL_NAMES = { aht: 'AHT', cfs: 'CFS%', targetReady: 'Target Ready', readyTime: 'Ready Time', lagTime: 'Lag Time', adherence: 'Adherence%', targetBreak: 'Target Break', breakTime: 'Break Time', extraBreak: 'Extra Break' };
   const AD_REQ_COLS = { aht: ['aht'], cfs: ['cfs'], login: ['targetReady', 'readyTime', 'lagTime'], adherence: ['adherence'], break: ['targetBreak', 'breakTime', 'extraBreak'] };
@@ -3038,6 +3120,11 @@
   }
 
   // Fills missing dates from the 1st of the month up to the latest date as Dayoff
+  function fmtDayMonth(dt) {
+    const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${dt.getDate()} ${mNames[dt.getMonth()]}`;
+  }
+
   function fillDayoffGaps(rows, globalMap) {
     if (!rows || !rows.length) return [];
     const byYmd = {};
@@ -3046,12 +3133,12 @@
       const dt = parseDetailDate(r.d);
       if (!dt) return;
       const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
-      byYmd[key] = Object.assign({}, r, { day: String(dt.getDate()), isDayoff: false });
+      byYmd[key] = Object.assign({}, r, { day: fmtDayMonth(dt), isDayoff: false });
       if (!earliest || dt.getTime() < earliest.getTime()) earliest = dt;
     });
     const latest = getGlobalLatestDate(globalMap, rows);
     if (!earliest || !latest || latest.getTime() < earliest.getTime()) {
-      return rows.map(r => Object.assign({}, r, { isDayoff: false }));
+      return rows.map(r => Object.assign({}, r, { day: adShort(r.d), isDayoff: false }));
     }
     // Start from the 1st of the earliest month up to the latest date
     const start = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
@@ -3063,7 +3150,7 @@
       } else {
         filled.push({
           d: fmtDetailDate(cur),
-          day: String(cur.getDate()),
+          day: fmtDayMonth(cur),
           isDayoff: true
         });
       }
@@ -3296,10 +3383,10 @@
             ['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], ['num fw-bold', 'num', 'num', 'num', '']);
         }
         const v = parseFloat(r.cfsPct);
-        let pillCls = 'bad', statusTxt = 'Not Meet';
-        if (v >= target) { pillCls = 'good'; statusTxt = fPct(v) + ' · Meet'; }
-        else if (v >= 89.0) { pillCls = 'warn'; statusTxt = fPct(v) + ' · 89–90%'; }
-        else { statusTxt = fPct(v) + ' · Not Meet'; }
+        let pillCls = 'bad';
+        if (v >= target) pillCls = 'good';
+        else if (v >= 89.0) pillCls = 'warn';
+        const statusTxt = fPct(v);
         return adRow(
           [
             escHtml(r.d),
@@ -3564,6 +3651,98 @@
     return stripHtml + stats + adSection('Date-wise DKB Attendance Log', 'Chronological order (1st onward). Source: DKB sheet.', adTable(['Date', 'Status', 'Category'], trs));
   }
 
+  function adComplaintRows(a) {
+    const cd = (appData && appData.complaintDayWise) || {};
+    const candidates = [adAgentKey(a), a.id, a.vdiId, a.name]
+      .map(x => String(x || '').trim().toLowerCase())
+      .filter(Boolean);
+    let raw = null;
+    for (let i = 0; i < candidates.length; i++) {
+      if (Array.isArray(cd[candidates[i]]) && cd[candidates[i]].length > 0) {
+        raw = cd[candidates[i]];
+        break;
+      }
+    }
+    if (!raw) {
+      const normCandidates = candidates.map(c => c.replace(/[^a-z0-9]/g, ''));
+      const keys = Object.keys(cd);
+      for (let k = 0; k < keys.length; k++) {
+        const nk = keys[k].replace(/[^a-z0-9]/g, '');
+        if (nk && normCandidates.includes(nk) && Array.isArray(cd[keys[k]]) && cd[keys[k]].length > 0) {
+          raw = cd[keys[k]];
+          break;
+        }
+      }
+    }
+    return fillDayoffGaps(raw || [], cd);
+  }
+
+  function adComplaint(a) {
+    const target = adNum((a.targets || {}).esc, 95);
+    const allRows = adComplaintRows(a);
+    const activeRows = allRows.filter(r => !r.isDayoff && r.totalComplaints !== undefined && r.totalComplaints > 0);
+    if (!activeRows.length) {
+      return adEmpty('bi-check2-circle', 'No date-wise complaint records found', 'No complaint escalation entries were found for this agent in the Complaint sheet.');
+    }
+    const totAll = activeRows.reduce((s, r) => s + (parseInt(r.totalComplaints, 10) || 0), 0);
+    const totValid = activeRows.reduce((s, r) => s + (parseInt(r.valid, 10) || 0), 0);
+    const totInvalid = activeRows.reduce((s, r) => s + (parseInt(r.invalid, 10) || 0), 0);
+    const overallPct = totAll > 0 ? (totValid / totAll) * 100 : 100;
+    const fPct = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
+
+    const boxes = allRows.map(r => {
+      if (r.isDayoff || !r.totalComplaints) {
+        return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — No Complaint / Dayoff` };
+      }
+      const v = parseFloat(r.escPct);
+      const ok = !isNaN(v) && v >= target;
+      const pctLabel = !isNaN(v) ? ((v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '%') : 'N/A';
+      return {
+        code: pctLabel,
+        date: r.day || adShort(r.d),
+        tone: ok ? 'good' : 'bad',
+        smallCode: true,
+        tip: `${r.d} — Escalation: ${pctLabel} (Total: ${r.totalComplaints}, Valid: ${r.valid}, Invalid: ${r.invalid})`
+      };
+    });
+
+    const stripHtml = buildDayStripHtml(
+      'Day-wise Complaint Escalation Strip (1st Onward)',
+      `>= ${target}% (Valid)`,
+      `< ${target}% (Below Target)`,
+      boxes
+    );
+
+    const stats = `<div class="ad-stats">
+      ${adStat('Total Complaint', totAll, '', 'bi-inboxes-fill')}
+      ${adStat('Total Valid', totValid, 'good', 'bi-check-circle-fill')}
+      ${adStat('Total Invalid', totInvalid, totInvalid > 0 ? 'bad' : 'good', 'bi-x-circle-fill')}
+      ${adStat('Escalation %', fPct(overallPct), overallPct >= target ? 'good' : 'bad', 'bi-percent')}
+    </div>`;
+
+    const trs = allRows.map(r => {
+      if (r.isDayoff || !r.totalComplaints) {
+        return adRow([escHtml(r.d), '—', '—', '—', '<span class="pill">No Data / Off</span>'],
+          ['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'], ['num fw-bold', 'num', 'num', 'num', '']);
+      }
+      const v = parseFloat(r.escPct);
+      const ok = !isNaN(v) && v >= target;
+      return adRow(
+        [
+          escHtml(r.d),
+          String(r.totalComplaints || 0),
+          `<span class="text-success fw-bold">${r.valid || 0}</span>`,
+          `<span class="text-danger fw-bold">${r.invalid || 0}</span>`,
+          `<span class="pill ${ok ? 'good' : 'bad'}">${escHtml(fPct(v))}</span>`
+        ],
+        ['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'],
+        ['num fw-bold', 'num', 'num', 'num', '']
+      );
+    });
+
+    return stripHtml + stats + adSection('Date-wise Complaint Escalation Log', 'Chronological order (1st onward). Source: Complaint sheet.', adTable(['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'], trs));
+  }
+
   function adHeadline(a, type) {
     switch (type) {
       case 'fail': return [a.auditFailPct || '0.0%', 'Audit Fail Rate'];
@@ -3573,6 +3752,7 @@
       case 'login': return [a.loginHourCompliance != null ? a.loginHourCompliance + '%' : 'N/A', 'Login Hour'];
       case 'adherence': return [a.adherencePct || 'N/A', 'Adherence'];
       case 'dkb': return [a.dkbPct || 'N/A', 'DKB Present %'];
+      case 'complaint': return [a.escalationAccuracyPct || 'N/A', 'Escalation %'];
       default: return [a.overBreak || 'N/A', 'Over Break'];
     }
   }
@@ -3620,6 +3800,7 @@
     else if (type === 'login') inner = adLogin(a);
     else if (type === 'adherence') inner = adAdherence(a);
     else if (type === 'dkb') inner = adDkb(a);
+    else if (type === 'complaint') inner = adComplaint(a);
     else inner = adBreak(a);
     const hl = adHeadline(a, type);
     const crumb = document.getElementById('adCrumb');
