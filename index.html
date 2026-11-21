@@ -2892,6 +2892,7 @@
     if (grid) {
       grid.innerHTML = `
         ${renderCardHtml("Total Call Audit", totalAudit, `Pass: ${totalPass} (${passPercent}) | Fail: ${totalFail}`, "Audit Count", "delivered", "Audited", "text-primary", passPercent)}
+        ${renderCardHtml("Total Pass Call", `${totalPass} (${passPercent})`, `Out of ${totalAudit} Total Audits`, "Audit Pass", totalPass > 0 ? "delivered" : "nokpi", totalPass > 0 ? "Pass Calls" : "No Pass", totalPass > 0 ? "text-success" : "text-muted", passPercentVal)}
         ${renderCardHtml("Total Call Fail (CE)", `${totalFail} (${failPercent})`, `Out of ${totalAudit} Total Audits`, "Critical Error", totalFail === 0 ? "delivered" : "missed", totalFail === 0 ? "Zero CE" : "Fail Found", totalFail === 0 ? "text-success" : "text-danger", failPercentVal)}
         ${renderCardHtml("Total Empathy Parameter", empParamTotal, `Overall Empathy Pass: ${empathyPercent}`, "Parameters", "nokpi", "Total Param", "text-info", empathyPercent)}
         ${renderCardHtml("Total Empathy Parameter Pass", empPassTotal, `Pass Rate: ${empPassBarPct}% of ${empParamTotal}`, "Empathy Pass", "delivered", "Passed", "text-success", empPassBarPct)}
@@ -5332,6 +5333,83 @@
     0%, 72% { left: -120%; }
     100% { left: 160%; }
   }
+</style>
+<style>
+  /* =====================================================================
+     PREMIUM LOGO-MATCHED PROGRESS BARS (Albatross Gold, Copper & Teal)
+     ===================================================================== */
+  .kpi-prog-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 6px !important;
+    padding-top: 4px !important;
+  }
+  .kpi-prog-track {
+    position: relative !important;
+    flex: 1 !important;
+    height: 9px !important;
+    border-radius: 999px !important;
+    background: rgba(15, 27, 48, 0.08) !important;
+    border: 1px solid rgba(184, 134, 43, 0.18) !important;
+    overflow: hidden !important;
+  }
+  [data-theme="dark"] .kpi-prog-track {
+    background: rgba(20, 35, 61, 0.92) !important;
+    border: 1px solid rgba(227, 185, 100, 0.22) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45) !important;
+  }
+  .kpi-prog-fill {
+    position: relative !important;
+    height: 100% !important;
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, #B8862B 0%, #E3B964 55%, #E07B39 100%) !important;
+    box-shadow: 0 0 12px rgba(227, 185, 100, 0.42) !important;
+    transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    overflow: hidden !important;
+  }
+  [data-theme="dark"] .kpi-prog-fill {
+    background: linear-gradient(90deg, #E07B39 0%, #E3B964 55%, #F1E7D0 100%) !important;
+    box-shadow: 0 0 14px rgba(227, 185, 100, 0.52) !important;
+  }
+  .kpi-prog-fill::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent) !important;
+    transform: translateX(-100%) !important;
+    animation: awProgSheen 2.8s ease-in-out infinite !important;
+  }
+  @keyframes awProgSheen {
+    0% { transform: translateX(-100%); }
+    60%, 100% { transform: translateX(130%); }
+  }
+  .pdf-kpi-card:has(.pdf-badge.delivered) .kpi-prog-fill {
+    background: linear-gradient(90deg, #1F8A9C 0%, #3FB6A8 55%, #E3B964 100%) !important;
+    box-shadow: 0 0 12px rgba(63, 182, 168, 0.42) !important;
+  }
+  .pdf-kpi-card:has(.pdf-badge.missed) .kpi-prog-fill {
+    background: linear-gradient(90deg, #C94332 0%, #E5604D 60%, #E07B39 100%) !important;
+    box-shadow: 0 0 12px rgba(229, 96, 77, 0.42) !important;
+  }
+  .pdf-kpi-card:has(.pdf-badge.warn) .kpi-prog-fill {
+    background: linear-gradient(90deg, #C85F1F 0%, #E8A33A 55%, #E3B964 100%) !important;
+    box-shadow: 0 0 12px rgba(232, 163, 58, 0.42) !important;
+  }
+  .pdf-kpi-card:has(.pdf-badge.nokpi) .kpi-prog-fill {
+    background: linear-gradient(90deg, #1F8A9C 0%, #3AA6B9 60%, #E3B964 100%) !important;
+    box-shadow: 0 0 12px rgba(58, 166, 185, 0.38) !important;
+  }
+  .kpi-prog-pct {
+    font-family: var(--mono) !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    min-width: 42px !important;
+    text-align: right !important;
+    color: var(--aw-gold) !important;
+    letter-spacing: -0.01em !important;
+  }
+  .pdf-export-mode .kpi-prog-fill::after { display: none !important; }
 </style>
 </body>
 </html>
