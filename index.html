@@ -1361,14 +1361,20 @@
     <div class="status-cluster">
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
       <button class="theme-btn search-btn" onclick="openPalette()" title="Quick search"><i class="bi bi-search"></i><span class="btn-txt">Search</span><kbd>Ctrl K</kbd></button>
-      <div class="accent-switcher" id="accentSwitcher" title="Accent Colour">
-        <button type="button" class="accent-dot active" data-set-accent="blue" aria-label="Blue accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="indigo" aria-label="Indigo accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="emerald" aria-label="Emerald accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="rose" aria-label="Rose accent"></button>
+      <div class="ctrl-popover-wrap" id="notifWrap">
+        <button type="button" class="theme-btn notif-bell-btn" id="notifToggleBtn" onclick="toggleNotifPanel()" title="Notifications & Alerts">
+          <i class="bi bi-bell-fill"></i>
+          <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+        </button>
+        <div class="ctrl-dropdown notif-panel" id="notifMenu" role="dialog" aria-label="Notifications">
+          <div class="ctrl-drop-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>Performance Alerts</span>
+            <button type="button" class="mini-link-btn" onclick="clearAllNotifs()">Clear</button>
+          </div>
+          <div id="notifBrowserRow" class="notif-perm-row"></div>
+          <div class="notif-list" id="notifFeedList"></div>
+        </div>
       </div>
-      <button id="langToggleBtn" class="theme-btn" onclick="toggleLanguage()" title="Switch Bangla / English"><i class="bi bi-translate"></i><span id="langToggleTxt" style="font-size:11px;font-weight:800;">বাং</span></button>
-      <button id="notifToggleBtn" class="theme-btn" onclick="requestNotificationPermission()" title="Enable Performance Alerts"><i class="bi bi-bell-fill"></i></button>
       <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="bi bi-moon-fill"></i></button>
       <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refresh now</span></button>
     </div>
@@ -2270,27 +2276,33 @@
   function renderBadgeCls(scoreStr, defClass) { return scoreStr === 'NO KPI' || scoreStr === 'N/A' || scoreStr === 'NO DATA' ? 'nokpi' : defClass; }
 
   function renderCardHtml(title, value, sub, scoreBadge, badgeStatus, badgeText, valClass, percValue = null, sparkHtml = '', detailKey = '') {
-    let chartHtml = '';
+    let progressHtml = '';
     if (percValue !== null && percValue !== 'N/A') {
       let p = parseFloat(String(percValue).replace('%', ''));
       if (!isNaN(p)) {
         let drawP = Math.min(Math.max(p, 0), 100);
-        let strokeVar = 'var(--color-blue)';
-        if (badgeStatus === 'delivered' || valClass.includes('success')) strokeVar = 'var(--color-good)';
-        if (badgeStatus === 'missed' || valClass.includes('danger')) strokeVar = 'var(--color-bad)';
-        if (badgeStatus === 'warn' || valClass.includes('warning')) strokeVar = 'var(--color-warn)';
-        if (valClass.includes('purple')) strokeVar = '#8b5cf6';
-        let radius = 18; let circ = 2 * Math.PI * radius; let offset = circ - (drawP / 100) * circ;
-        chartHtml = `
-          <div class="kpi-chart-col"><div class="svg-chart-container"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="${radius}" fill="none" stroke="var(--chart-bg)" stroke-width="4.5"></circle><circle cx="24" cy="24" r="${radius}" fill="none" stroke="${strokeVar}" stroke-width="4.5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 24 24)" style="filter: drop-shadow(0 0 2px ${strokeVar})"></circle></svg><div class="svg-chart-val">${p % 1 === 0 ? p : p.toFixed(1)}%</div></div></div>`;
+        let barColor = 'var(--color-blue)';
+        if (badgeStatus === 'delivered' || valClass.includes('success')) barColor = 'var(--color-good)';
+        if (badgeStatus === 'missed' || valClass.includes('danger')) barColor = 'var(--color-bad)';
+        if (badgeStatus === 'warn' || valClass.includes('warning')) barColor = 'var(--color-warn)';
+        if (valClass.includes('purple')) barColor = '#8b5cf6';
+        let pctLabel = (p % 1 === 0 ? p.toFixed(0) : p.toFixed(1)) + '%';
+        progressHtml = `
+          <div class="kpi-prog-wrap">
+            <div class="kpi-prog-track">
+              <div class="kpi-prog-fill" style="width:${drawP}%; background:${barColor};"></div>
+            </div>
+            <span class="kpi-prog-pct" style="color:${barColor};">${pctLabel}</span>
+          </div>`;
       }
     }
-    const clickAttrs = detailKey ? ` data-detail="${detailKey}" role="button" tabindex="0" title="Click to view day-wise details"` : '';
+    const clickAttrs = detailKey ? ` data-detail="${detailKey}" role="button" tabindex="0" title="Click to view details"` : '';
     const hintHtml = detailKey ? '<span class="kpi-detail-hint">Details <i class="bi bi-chevron-right"></i></span>' : '';
     return `
     <div class="pdf-kpi-card w-100${detailKey ? ' kpi-clickable' : ''}"${clickAttrs}>
       <div class="kpi-card-header"><div class="pdf-kpi-title">${title}</div><span class="pdf-badge ${badgeStatus}">${badgeText}</span></div>
-      <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${valClass}">${value}</div><div class="pdf-kpi-sub">${sub}</div></div>${chartHtml}</div>
+      <div class="kpi-card-body"><div class="kpi-value-col"><div class="pdf-kpi-value ${valClass}">${value}</div><div class="pdf-kpi-sub">${sub}</div></div></div>
+      ${progressHtml}
       ${sparkHtml || ''}
       <div class="pdf-score-badge">${scoreBadge}</div>
       ${hintHtml}
@@ -2847,13 +2859,44 @@
     const lagGood = lagVal === 'No Lag' || lagVal === '0' || lagVal === '0h 0m';
     const breakGood = breakVal === 'No Extra Break' || breakVal === '0m' || breakVal === '0';
 
-    // Exact requested KPI grid order:
-    // CE, Empathy, CFS, AHT, Adherence, Lag Hour, Break, FCR, Service Delivery, Complaint Escalation, DKB, Quiz
+    // Compute Total Empathy Parameter, Pass & Fail counts dynamically from Audited Call Details or tlSummary
+    let empPassTotal = 0, empFailTotal = 0;
+    const allCallsForEmp = (appData.sheets['Audited Call Details'] || []).filter(c => {
+      const matchAgent = !selectedAgent || String(c.agentName).toLowerCase() === selectedAgent || String(c.vdiId).toLowerCase() === selectedAgent;
+      const matchParty = !selectedParty || String(c.auditParty).toLowerCase().includes(selectedParty);
+      return matchAgent && matchParty && matchesTenure(c);
+    });
+    allCallsForEmp.forEach(c => {
+      empPassTotal += parseInt(c.empPass, 10) || 0;
+      empFailTotal += parseInt(c.empFail, 10) || 0;
+    });
+    if ((empPassTotal + empFailTotal) === 0 && !selectedAgent && !selectedParty && currentTenureFilter === 'all') {
+      empPassTotal = parseInt(tl.empathyPassSum, 10) || 0;
+      empFailTotal = parseInt(tl.empathyFailSum, 10) || 0;
+    }
+    if ((empPassTotal + empFailTotal) === 0) {
+      const kpiSubset = (appData.sheets['KPI'] || []).filter(a => {
+        const matchA = !selectedAgent || String(a.name).toLowerCase() === selectedAgent || String(a.vdiId).toLowerCase() === selectedAgent;
+        return matchA && matchesTenure(a);
+      });
+      kpiSubset.forEach(a => {
+        empPassTotal += parseInt(a.empathyPassSum, 10) || 0;
+        empFailTotal += parseInt(a.empathyFailSum, 10) || 0;
+      });
+    }
+    const empParamTotal = empPassTotal + empFailTotal;
+    const empPassBarPct = empParamTotal > 0 ? ((empPassTotal / empParamTotal) * 100).toFixed(1) : '0.0';
+    const empFailBarPct = empParamTotal > 0 ? ((empFailTotal / empParamTotal) * 100).toFixed(1) : '0.0';
+
     const grid = document.getElementById('tlKpiGrid');
     if (grid) {
       grid.innerHTML = `
-        ${renderCardHtml("CE (Audit Fail)", `${totalFail} (${failPercent})`, `Total Audits: ${totalAudit} | Pass: ${totalPass} (${passPercent})`, "Metric", totalFail === 0 ? "delivered" : "missed", totalFail === 0 ? "Zero CE" : "Fail Found", totalFail === 0 ? "text-success" : "text-danger", failPercentVal)}
-        ${renderCardHtml("Empathy %", empathyPercent, "Overall Empathy Pass", "Metric", "delivered", "Empathy", "text-purple", empathyPercent)}
+        ${renderCardHtml("Total Call Audit", totalAudit, `Pass: ${totalPass} (${passPercent}) | Fail: ${totalFail}`, "Audit Count", "delivered", "Audited", "text-primary", passPercent)}
+        ${renderCardHtml("Total Call Fail (CE)", `${totalFail} (${failPercent})`, `Out of ${totalAudit} Total Audits`, "Critical Error", totalFail === 0 ? "delivered" : "missed", totalFail === 0 ? "Zero CE" : "Fail Found", totalFail === 0 ? "text-success" : "text-danger", failPercentVal)}
+        ${renderCardHtml("Total Empathy Parameter", empParamTotal, `Overall Empathy Pass: ${empathyPercent}`, "Parameters", "nokpi", "Total Param", "text-info", empathyPercent)}
+        ${renderCardHtml("Total Empathy Parameter Pass", empPassTotal, `Pass Rate: ${empPassBarPct}% of ${empParamTotal}`, "Empathy Pass", "delivered", "Passed", "text-success", empPassBarPct)}
+        ${renderCardHtml("Total Empathy Parameter Fail", empFailTotal, `Fail Rate: ${empFailBarPct}% of ${empParamTotal}`, "Empathy Fail", empFailTotal === 0 ? "delivered" : "missed", empFailTotal === 0 ? "Zero Fail" : "Failed", empFailTotal === 0 ? "text-success" : "text-danger", empFailBarPct)}
+        ${renderCardHtml("Empathy %", empathyPercent, `Pass: ${empPassTotal} | Fail: ${empFailTotal}`, "Metric", "delivered", "Empathy", "text-purple", empathyPercent)}
         ${renderCardHtml("Team CFS %", cfsVal, "Customer Satisfaction", "Metric", "nokpi", "CFS", "text-main", cfsVal, buildSparklineHtml(getTeamDailySeries('cfs'), false, '%'))}
         ${renderCardHtml("Team AHT", ahtVal, "Average Handling Time", "Metric", "warn", "AHT", "text-warning", null, buildSparklineHtml(getTeamDailySeries('aht'), true, 's'))}
         ${renderCardHtml("Adherence %", adhVal, "Schedule Adherence", "Metric", !isNaN(adhNum) && adhNum >= 100 ? "delivered" : "warn", "Adherence", !isNaN(adhNum) && adhNum >= 100 ? "text-success" : "text-warning", adhVal)}
@@ -3303,7 +3346,7 @@
           ${renderCardHtml("Service Delivery", agent.sdCount !== undefined ? agent.sdCount : 0, "Total Service Delivery", "Metric", "delivered", "SD", "text-success")}
           ${renderCardHtml("Complaint Esc.", agent.escalationAccuracyPct || 'N/A', `Valid: ${agent.validEscCount || 0} / Total: ${agent.totalEscCount || 0} (Target: ${T.esc || '>= 95%'})`, (isOjtAgent ? 'KPI: ' + fmtScore(agent.score_esc_base) : 'Bonus: ' + fmtBp(agent.bonusPenalty_esc)), renderBadgeCls(isOjtAgent ? agent.score_esc_base : agent.bonusPenalty_esc, isEscMet ? 'delivered' : 'missed'), isEscMet ? (isOjtAgent ? 'Target Meet' : 'Bonus Eligible') : (isOjtAgent ? 'Below Target' : 'None'), isEscMet ? 'text-success' : 'text-danger', agent.escalationAccuracyPct, '', 'complaint')}
           ${renderCardHtml("DKB % (Attendance)", agent.dkbPct || 'N/A', `Target: ${T.dkb || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_dkb)}`, renderBadgeCls(agent.bonusPenalty_dkb, isDkbMet ? 'delivered' : 'missed'), isDkbMet ? 'Bonus Eligible' : (agent.bonusPenalty_dkb < 0 ? 'Penalty' : 'None'), isDkbMet ? 'text-success' : 'text-danger', agent.dkbPct, '', 'dkb')}
-          ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore)}
+          ${renderCardHtml("Quiz Score %", agent.quizScore !== undefined ? agent.quizScore : 'N/A', `Target: ${T.quiz || '>= 95%'}`, `Bonus/Penalty: ${fmtBp(agent.bonusPenalty_quiz)}`, renderBadgeCls(agent.bonusPenalty_quiz, (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'delivered' : 'missed'), agent.bonusPenalty_quiz === 'NO KPI' ? 'NO KPI' : ((typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'Bonus Eligible' : (agent.bonusPenalty_quiz < 0 ? 'Penalty' : 'None')), (typeof agent.bonusPenalty_quiz === 'number' && agent.bonusPenalty_quiz > 0) ? 'text-success' : 'text-danger', agent.quizScore, '', 'quiz')}
 
           <div class="pdf-kpi-card predicted-bucket-card">
             <div class="gauge-box">
@@ -3388,7 +3431,8 @@
     adherence: { title: 'Adherence Day-wise',    icon: 'bi-calendar-check-fill',    color: '#10b981' },
     break:     { title: 'Over Break Day-wise',   icon: 'bi-cup-hot-fill',           color: '#fb7185' },
     dkb:       { title: 'DKB Attendance Day-wise', icon: 'bi-calendar2-check-fill', color: '#10b981' },
-    complaint: { title: 'Complaint Escalation Day-wise', icon: 'bi-exclamation-triangle-fill', color: '#f59e0b' }
+    complaint: { title: 'Complaint Escalation Day-wise', icon: 'bi-exclamation-triangle-fill', color: '#f59e0b' },
+    quiz:      { title: 'Quiz Phase-wise Breakdown (Ph-1 to Ph-4)', icon: 'bi-patch-question-fill', color: '#3AA6B9' }
   };
   const AD_COL_NAMES = { aht: 'AHT', cfs: 'CFS%', targetReady: 'Target Ready', readyTime: 'Ready Time', lagTime: 'Lag Time', adherence: 'Adherence%', targetBreak: 'Target Break', breakTime: 'Break Time', extraBreak: 'Extra Break' };
   const AD_REQ_COLS = { aht: ['aht'], cfs: ['cfs'], login: ['targetReady', 'readyTime', 'lagTime'], adherence: ['adherence'], break: ['targetBreak', 'breakTime', 'extraBreak'] };
@@ -4111,6 +4155,103 @@
     return stripHtml + stats + adSection('Date-wise Complaint Escalation Log', 'Chronological order (1st onward). Source: Complaint sheet.', adTable(['Date', 'Total Complaint', 'Total Valid', 'Total Invalid', 'Escalation %'], trs));
   }
 
+  function adQuiz(a) {
+    const target = adNum((a.targets || {}).quiz, 95);
+    const qp = (appData && appData.quizPhases) || {};
+    const candidates = [adAgentKey(a), a.id, a.vdiId, a.name]
+      .map(x => String(x || '').trim().toLowerCase())
+      .filter(Boolean);
+    let raw = null;
+    for (let i = 0; i < candidates.length; i++) {
+      if (Array.isArray(qp[candidates[i]]) && qp[candidates[i]].length > 0) {
+        raw = qp[candidates[i]];
+        break;
+      }
+    }
+    if (!raw) {
+      const normCandidates = candidates.map(c => c.replace(/[^a-z0-9]/g, ''));
+      const keys = Object.keys(qp);
+      for (let k = 0; k < keys.length; k++) {
+        const nk = keys[k].replace(/[^a-z0-9]/g, '');
+        if (nk && normCandidates.includes(nk) && Array.isArray(qp[keys[k]]) && qp[keys[k]].length > 0) {
+          raw = qp[keys[k]];
+          break;
+        }
+      }
+    }
+    const phases = ['Ph-1', 'Ph-2', 'Ph-3', 'Ph-4'].map(phName => {
+      const found = Array.isArray(raw) ? raw.find(x => String(x.phase || '').toLowerCase() === phName.toLowerCase()) : null;
+      const num = found && found.scoreNum !== null && found.scoreNum !== undefined ? parseFloat(found.scoreNum) : NaN;
+      return {
+        phase: phName,
+        scoreNum: !isNaN(num) ? num : null,
+        scoreStr: found && found.scoreStr ? found.scoreStr : (!isNaN(num) ? num + '%' : 'N/A')
+      };
+    });
+
+    const validScores = phases.map(p => p.scoreNum).filter(n => n !== null);
+    const overallNum = validScores.length > 0
+      ? validScores.reduce((s, n) => s + n, 0) / validScores.length
+      : parseFloat(String(a.quizScore || '').replace('%', ''));
+    const overallStr = !isNaN(overallNum) ? ((overallNum % 1 === 0 ? overallNum.toFixed(0) : overallNum.toFixed(1)) + '%') : (a.quizScore || 'N/A');
+
+    const boxes = phases.map(p => {
+      if (p.scoreNum === null) {
+        return { code: 'N/A', date: p.phase, tone: 'off', smallCode: true, tip: `${p.phase} — Not Attended / No Score` };
+      }
+      const ok = p.scoreNum >= target;
+      return {
+        code: p.scoreStr,
+        date: p.phase,
+        tone: ok ? 'good' : 'bad',
+        smallCode: true,
+        tip: `${p.phase} — Score: ${p.scoreStr} (Target >= ${target}%)`
+      };
+    });
+
+    const stripHtml = buildDayStripHtml(
+      'Quiz Phase-wise Strip (Ph-1, Ph-2, Ph-3, Ph-4)',
+      `>= ${target}% (Target Meet)`,
+      `< ${target}% (Below Target)`,
+      boxes
+    );
+
+    const stats = `<div class="ad-stats">
+      ${adStat('Ph-1 Score', escHtml(phases[0].scoreStr), phases[0].scoreNum !== null ? (phases[0].scoreNum >= target ? 'good' : 'bad') : '', 'bi-1-circle-fill')}
+      ${adStat('Ph-2 Score', escHtml(phases[1].scoreStr), phases[1].scoreNum !== null ? (phases[1].scoreNum >= target ? 'good' : 'bad') : '', 'bi-2-circle-fill')}
+      ${adStat('Ph-3 Score', escHtml(phases[2].scoreStr), phases[2].scoreNum !== null ? (phases[2].scoreNum >= target ? 'good' : 'bad') : '', 'bi-3-circle-fill')}
+      ${adStat('Ph-4 Score', escHtml(phases[3].scoreStr), phases[3].scoreNum !== null ? (phases[3].scoreNum >= target ? 'good' : 'bad') : '', 'bi-4-circle-fill')}
+    </div>`;
+
+    const trs = phases.map(p => {
+      if (p.scoreNum === null) {
+        return adRow([`<b>${escHtml(p.phase)}</b>`, '—', '<span class="pill">Pending / N/A</span>'],
+          ['Quiz Phase', 'Score %', 'Status'], ['', 'num', '']);
+      }
+      const ok = p.scoreNum >= target;
+      return adRow(
+        [
+          `<b>${escHtml(p.phase)}</b>`,
+          `<span class="${ok ? 'text-success' : 'text-danger'} fw-bold">${escHtml(p.scoreStr)}</span>`,
+          `<span class="pill ${ok ? 'good' : 'bad'}">${ok ? 'Target Meet' : 'Below Target'}</span>`
+        ],
+        ['Quiz Phase', 'Score %', 'Status'],
+        ['', 'num', '']
+      );
+    });
+    trs.push(adRow(
+      [
+        '<b>Overall Average</b>',
+        `<span class="text-primary fw-bold">${escHtml(overallStr)}</span>`,
+        `<span class="pill ${!isNaN(overallNum) && overallNum >= target ? 'good' : 'warn'}">Target >= ${target}%</span>`
+      ],
+      ['Quiz Phase', 'Score %', 'Status'],
+      ['', 'num', '']
+    ));
+
+    return stripHtml + stats + adSection('Phase-wise Quiz Score Log (Ph-1 to Ph-4)', 'Individual phase scores and overall average from the Quiz sheet.', adTable(['Quiz Phase', 'Score %', 'Status'], trs));
+  }
+
   function adHeadline(a, type) {
     switch (type) {
       case 'fail': return [a.auditFailPct || '0.0%', 'Audit Fail Rate'];
@@ -4121,6 +4262,7 @@
       case 'adherence': return [a.adherencePct || 'N/A', 'Adherence'];
       case 'dkb': return [a.dkbPct || 'N/A', 'DKB Present %'];
       case 'complaint': return [a.escalationAccuracyPct || 'N/A', 'Escalation %'];
+      case 'quiz': return [a.quizScore !== undefined ? a.quizScore : 'N/A', 'Overall Quiz %'];
       default: return [a.overBreak || 'N/A', 'Over Break'];
     }
   }
@@ -4169,6 +4311,7 @@
     else if (type === 'adherence') inner = adAdherence(a);
     else if (type === 'dkb') inner = adDkb(a);
     else if (type === 'complaint') inner = adComplaint(a);
+    else if (type === 'quiz') inner = adQuiz(a);
     else inner = adBreak(a);
     const hl = adHeadline(a, type);
     const crumb = document.getElementById('adCrumb');
@@ -4841,19 +4984,6 @@
     else if (e.key === 'Enter') { e.preventDefault(); runSel(); }
   });
 
-  /* ---------- Accent Colour Switcher ---------- */
-  document.addEventListener('click', function (e) {
-    var dot = e.target.closest('.accent-dot[data-set-accent]');
-    if (!dot) return;
-    var acc = dot.dataset.setAccent;
-    document.documentElement.classList.add('theme-anim');
-    document.documentElement.setAttribute('data-accent', acc);
-    try { localStorage.setItem('aw_accent', acc); } catch (err) {}
-    $$('.accent-dot').forEach(function (d) { d.classList.toggle('active', d.dataset.setAccent === acc); });
-    setTimeout(function () { document.documentElement.classList.remove('theme-anim'); }, 500);
-    toast('Accent switched to ' + acc.charAt(0).toUpperCase() + acc.slice(1), 'bi-palette-fill', 1800);
-  });
-
   /* ---------- Cursor-Follow Spotlight (Desktop only) ---------- */
   if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     document.addEventListener('pointermove', function (e) {
@@ -4867,5 +4997,341 @@
 
 })();
 </script>
+
+<style>
+  /* === ALL TABLES CENTER ALIGNED === */
+  table thead th,
+  table tbody td,
+  table tbody td.text-start,
+  .table-wrap table th,
+  .table-wrap table td,
+  .cardify th,
+  .cardify td {
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+  .ad-remark {
+    text-align: center !important;
+    margin: 0 auto;
+  }
+
+  /* === KPI HORIZONTAL PROGRESS BAR === */
+  .kpi-prog-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .kpi-prog-track {
+    flex: 1;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--chart-bg);
+    overflow: hidden;
+    position: relative;
+  }
+  .kpi-prog-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .kpi-prog-pct {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 40px;
+    text-align: right;
+  }
+  .pdf-export-mode .kpi-prog-wrap { margin-top: 2px !important; }
+  .pdf-export-mode .kpi-prog-track { height: 5px !important; background: #e2e8f0 !important; }
+
+  /* === UPGRADED TOPBAR CONTROLS: COLOR PICKER DROPDOWN, LANG SEGMENT & NOTIF DRAWER === */
+  .ctrl-popover-wrap { position: relative; display: inline-flex; align-items: center; }
+  .ctrl-pill-btn { gap: 7px; padding: 0 11px; }
+  .swatch-preview {
+    width: 13px; height: 13px; border-radius: 50%;
+    background: linear-gradient(135deg, #E3B964, #E07B39);
+    border: 1.5px solid rgba(255,255,255,0.45);
+    flex-shrink: 0;
+  }
+  .ctrl-dropdown {
+    display: none; position: absolute; right: 0; top: calc(100% + 8px);
+    min-width: 205px; padding: 8px; border-radius: 14px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    box-shadow: 0 20px 42px -12px rgba(0, 0, 0, 0.55); z-index: 220;
+  }
+  .ctrl-dropdown.open { display: block; animation: popupCard 0.2s var(--ease) both; }
+  .ctrl-drop-head {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted-dim); padding: 4px 8px 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 6px;
+  }
+  .accent-opt {
+    width: 100%; border: 0; background: transparent; color: var(--text-main);
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px;
+    font: 600 12.5px var(--sans); cursor: pointer; text-align: left; transition: background 0.18s;
+  }
+  .accent-opt:hover { background: var(--bg-blue); }
+  .accent-opt.active { background: var(--bg-blue); color: var(--color-blue); font-weight: 700; }
+  .accent-opt .sw { width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.3); }
+
+  /* Notification Center Dropdown */
+  .notif-bell-btn { position: relative; padding: 0 11px; }
+  .notif-badge {
+    position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px;
+    border-radius: 999px; background: var(--color-bad); color: #fff;
+    font: 800 10px/17px var(--mono); text-align: center;
+  }
+  .notif-panel { width: 310px; max-width: 88vw; padding: 10px; }
+  .mini-link-btn {
+    border: 0; background: none; color: var(--color-blue); font: 700 10.5px var(--sans);
+    cursor: pointer; padding: 2px 4px;
+  }
+  .notif-perm-row {
+    padding: 8px 10px; border-radius: 9px; background: var(--bg-blue);
+    margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; font-size: 11px; font-weight: 600; color: var(--text-main);
+  }
+  .notif-perm-btn {
+    border: 0; border-radius: 7px; padding: 5px 9px; background: var(--grad-brand);
+    color: #1A1206; font: 800 10.5px var(--sans); cursor: pointer; white-space: nowrap;
+  }
+  .notif-list { max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .notif-item {
+    padding: 8px 10px; border-radius: 9px; background: var(--bg-main);
+    border: 1px solid var(--border-color); font-size: 11.5px; line-height: 1.4;
+  }
+  .notif-item .nt { font-weight: 800; color: var(--text-main); display: flex; justify-content: space-between; gap: 6px; }
+  .notif-item .nt time { font-size: 9.5px; font-weight: 600; color: var(--text-muted-dim); font-family: var(--mono); }
+  .notif-item .nb { color: var(--text-muted); margin-top: 2px; }
+  .notif-empty { text-align: center; padding: 18px 8px; color: var(--text-muted-dim); font-size: 11.5px; }
+</style>
+
+<script>
+(function() {
+  
+
+  // === UPGRADED NOTIFICATION CENTER (In-App Feed + Browser Push) ===
+  const NOTIF_LOG_KEY = 'aw_notif_feed_v1';
+  function getNotifFeed() {
+    try { return JSON.parse(localStorage.getItem(NOTIF_LOG_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function saveNotifFeed(list) {
+    try { localStorage.setItem(NOTIF_LOG_KEY, JSON.stringify(list.slice(0, 20))); } catch (e) {}
+  }
+
+  function renderNotifCenter() {
+    const permRow = document.getElementById('notifBrowserRow');
+    const listEl = document.getElementById('notifFeedList');
+    const badgeEl = document.getElementById('notifBadge');
+    const feed = getNotifFeed();
+    const unread = feed.filter(x => !x.read).length;
+
+    if (badgeEl) {
+      badgeEl.style.display = unread > 0 ? 'inline-block' : 'none';
+      badgeEl.textContent = String(unread);
+    }
+    if (permRow) {
+      if (!('Notification' in window)) {
+        permRow.innerHTML = '<span><i class="bi bi-bell-fill text-warning"></i> In-App Alerts Active</span>';
+      } else if (Notification.permission === 'granted') {
+        permRow.innerHTML = '<span><i class="bi bi-check-circle-fill text-success"></i> Push &amp; In-App Alerts On</span>';
+      } else {
+        permRow.innerHTML = '<span>Browser Push Alerts</span><button type="button" class="notif-perm-btn" onclick="requestNotificationPermission()">Enable</button>';
+      }
+    }
+    if (listEl) {
+      if (!feed.length) {
+        listEl.innerHTML = '<div class="notif-empty"><i class="bi bi-bell-slash" style="font-size:20px;display:block;margin-bottom:4px;"></i>No recent alerts yet.</div>';
+      } else {
+        listEl.innerHTML = feed.map(item => `
+          <div class="notif-item">
+            <div class="nt"><span>${item.title}</span><time>${item.time}</time></div>
+            <div class="nb">${item.body}</div>
+          </div>`).join('');
+      }
+    }
+  }
+
+  window.toggleNotifPanel = function() {
+    toggleCtrlPopover('notifMenu');
+    const menu = document.getElementById('notifMenu');
+    if (menu && menu.classList.contains('open')) {
+      const feed = getNotifFeed().map(x => Object.assign({}, x, { read: true }));
+      saveNotifFeed(feed);
+      renderNotifCenter();
+    }
+  };
+
+  window.clearAllNotifs = function() {
+    saveNotifFeed([]);
+    renderNotifCenter();
+  };
+
+  const _origSendAlert = window.sendBrowserAlert;
+  window.sendBrowserAlert = function(title, body) {
+    const feed = getNotifFeed();
+    const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    feed.unshift({ title: title, body: body, time: nowStr, read: false });
+    saveNotifFeed(feed);
+    renderNotifCenter();
+    if (typeof _origSendAlert === 'function') _origSendAlert(title, body);
+  };
+
+  window.addEventListener('DOMContentLoaded', function() {
+    const savedAcc = localStorage.getItem('aw_accent') || 'blue';
+    syncAccentUI(savedAcc);
+    const savedL = localStorage.getItem('aw_lang') || 'en';
+    document.querySelectorAll('.lang-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === savedL));
+    renderNotifCenter();
+  });
+})();
+</script>
+
+<style>
+  /* =====================================================================
+     PREMIUM PAID-SAAS LOGO ANIMATION (Dual Orbital Rings + Shimmer Ray + Aura)
+     ===================================================================== */
+  .aw-splash {
+    background:
+      radial-gradient(600px 340px at 50% 35%, rgba(227, 185, 100, 0.14), transparent 70%),
+      radial-gradient(500px 300px at 50% 65%, rgba(58, 166, 185, 0.12), transparent 70%),
+      #070D18 !important;
+  }
+  .splash-ring-wrap {
+    position: relative;
+    width: 154px !important;
+    height: 154px !important;
+    display: grid;
+    place-items: center;
+  }
+  .splash-ring-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(227, 185, 100, 0.26) 0%, rgba(224, 123, 57, 0.08) 55%, transparent 75%);
+    filter: blur(12px);
+    animation: awAuraBreath 2.6s ease-in-out infinite;
+    z-index: 0;
+  }
+  .splash-ring-wrap::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(227, 185, 100, 0.28);
+    animation: awShockwave 2.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    pointer-events: none;
+  }
+  .splash-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(
+      from 0deg,
+      #E3B964 0deg,
+      #E07B39 85deg,
+      rgba(227, 185, 100, 0.08) 140deg,
+      #3AA6B9 220deg,
+      #F1E7D0 300deg,
+      #E3B964 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: splashSpin 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    filter: drop-shadow(0 0 16px rgba(227, 185, 100, 0.55));
+    z-index: 1;
+  }
+  .splash-ring-inner {
+    position: absolute;
+    inset: 9px;
+    border-radius: 50%;
+    border: 1px dashed rgba(58, 166, 185, 0.45);
+    animation: splashSpin 7.5s linear infinite reverse;
+    z-index: 1;
+  }
+  .splash-logo {
+    position: relative;
+    z-index: 2;
+    width: 112px !important;
+    height: 112px !important;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgba(15, 27, 48, 0.72);
+    padding: 4px;
+    box-shadow:
+      inset 0 0 0 1px rgba(241, 231, 208, 0.22),
+      0 14px 32px -8px rgba(0, 0, 0, 0.75);
+    animation: awPaidLogoLevitate 3.2s cubic-bezier(0.37, 0, 0.63, 1) infinite !important;
+  }
+  @keyframes awPaidLogoLevitate {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+      filter: drop-shadow(0 10px 24px rgba(227, 185, 100, 0.28)) brightness(1);
+    }
+    50% {
+      transform: translateY(-6px) scale(1.045);
+      filter: drop-shadow(0 16px 34px rgba(224, 123, 57, 0.55)) brightness(1.12);
+    }
+  }
+  @keyframes awAuraBreath {
+    0%, 100% { transform: scale(0.92); opacity: 0.55; }
+    50% { transform: scale(1.16); opacity: 0.95; }
+  }
+  @keyframes awShockwave {
+    0% { transform: scale(0.9); opacity: 0.75; }
+    100% { transform: scale(1.36); opacity: 0; }
+  }
+
+  /* Sidebar Logo Luxury Halo & Sweep */
+  .sidebar-brand .logo.logo-img-wrap {
+    position: relative;
+    width: 46px !important;
+    height: 46px !important;
+    padding: 2px !important;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(227, 185, 100, 0.65), rgba(224, 123, 57, 0.35), rgba(58, 166, 185, 0.55)) !important;
+    box-shadow: 0 0 0 1px rgba(227, 185, 100, 0.35), 0 8px 20px -6px rgba(0, 0, 0, 0.65) !important;
+    overflow: hidden;
+    animation: awSidebarBadgePulse 4s ease-in-out infinite;
+  }
+  .sidebar-brand .logo.logo-img-wrap::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -120%;
+    width: 65%;
+    height: 180%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: rotate(24deg);
+    animation: awLogoGlossSweep 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .sidebar-brand .logo.logo-img-wrap img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0F1B30;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .sidebar-brand:hover .logo.logo-img-wrap {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 2px rgba(227, 185, 100, 0.75), 0 0 22px rgba(227, 185, 100, 0.45) !important;
+  }
+  .sidebar-brand:hover .logo.logo-img-wrap img {
+    transform: scale(1.06) rotate(-3deg);
+  }
+  @keyframes awSidebarBadgePulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(227, 185, 100, 0.35), 0 8px 20px -6px rgba(0, 0, 0, 0.65); }
+    50% { box-shadow: 0 0 0 2px rgba(227, 185, 100, 0.62), 0 10px 24px -5px rgba(224, 123, 57, 0.42); }
+  }
+  @keyframes awLogoGlossSweep {
+    0%, 72% { left: -120%; }
+    100% { left: 160%; }
+  }
+</style>
 </body>
 </html>
