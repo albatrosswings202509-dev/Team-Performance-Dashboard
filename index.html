@@ -28,23 +28,23 @@
      CSS VARIABLES: DAY & NIGHT MODES
      ========================================= */
   :root {
-    --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --text-muted-dim: #94a3b8; --border-color: #e2e8f0;
-    --sidebar-bg: #101d34; --sidebar-text: #dde3ef; --sidebar-border: rgba(255, 255, 255, 0.1);
-    --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
-    --shadow-hover: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.15);
-    --color-good: #059669; --bg-good: #d1fae5; --color-bad: #e11d48; --bg-bad: #ffe4e6;
-    --color-warn: #d97706; --bg-warn: #fef3c7; --color-blue: #3b82f6; --bg-blue: #dbeafe;
-    --chart-bg: #e2e8f0; --bucket-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); --bucket-text: #ffffff;
+    --bg-main: #F3F5F9; --bg-card: #ffffff; --text-main: #0F1B30; --text-muted: #3B4A63; --text-muted-dim: #6B778C; --border-color: rgba(15, 27, 48, 0.09);
+    --sidebar-bg: #0F1B30; --sidebar-text: #B9B6AA; --sidebar-border: rgba(241, 231, 208, 0.09);
+    --shadow-card: 0 4px 6px -1px rgba(15, 27, 48, 0.05), 0 2px 4px -2px rgba(15, 27, 48, 0.03);
+    --shadow-hover: 0 12px 24px -8px rgba(15, 27, 48, 0.08), 0 0 0 1px rgba(184, 134, 43, 0.18);
+    --color-good: #1E8F7E; --bg-good: rgba(30, 143, 126, 0.12); --color-bad: #C94332; --bg-bad: rgba(201, 67, 50, 0.12);
+    --color-warn: #C58412; --bg-warn: rgba(197, 132, 18, 0.12); --color-blue: #B8862B; --bg-blue: rgba(184, 134, 43, 0.10);
+    --chart-bg: #e9e4d8; --bucket-bg: linear-gradient(135deg, #14233D 0%, #0A1220 100%); --bucket-text: #E3B964;
     --focus-bg: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); --focus-border: #ffc9c9; --focus-title: #c92a2a;
     --sans: 'Inter', -apple-system, sans-serif; --mono: 'IBM Plex Mono', monospace;
   }
   [data-theme="dark"] {
-    --bg-main: #0b0f19; --bg-card: linear-gradient(145deg, #111827 0%, #0f172a 100%); --text-main: #f8fafc; --text-muted: #94a3b8; --text-muted-dim: #64748b; --border-color: #1e293b;
-    --sidebar-bg: #0b0f19; --sidebar-text: #94a3b8; --sidebar-border: #1e293b;
-    --shadow-card: 0 10px 25px -5px rgba(6, 182, 212, 0.10); --shadow-hover: 0 12px 24px -8px rgba(6, 182, 212, 0.25), 0 0 0 1px rgba(6, 182, 212, 0.3);
-    --color-good: #10b981; --bg-good: rgba(16, 185, 129, 0.15); --color-bad: #f43f5e; --bg-bad: rgba(244, 63, 94, 0.15);
-    --color-warn: #f59e0b; --bg-warn: rgba(245, 158, 11, 0.15); --color-blue: #22d3ee; --bg-blue: rgba(34, 211, 238, 0.15);
-    --chart-bg: #1e293b; --bucket-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bucket-text: #22d3ee;
+    --bg-main: #0A1220; --bg-card: linear-gradient(145deg, #14233D 0%, #0F1B30 100%); --text-main: #F1E7D0; --text-muted: #B9B6AA; --text-muted-dim: #7F8CA3; --border-color: rgba(241, 231, 208, 0.09);
+    --sidebar-bg: #0A1220; --sidebar-text: #B9B6AA; --sidebar-border: rgba(241, 231, 208, 0.09);
+    --shadow-card: 0 10px 25px -5px rgba(227, 185, 100, 0.10); --shadow-hover: 0 12px 24px -8px rgba(227, 185, 100, 0.22), 0 0 0 1px rgba(227, 185, 100, 0.3);
+    --color-good: #3FB6A8; --bg-good: rgba(63, 182, 168, 0.15); --color-bad: #E5604D; --bg-bad: rgba(229, 96, 77, 0.15);
+    --color-warn: #E8A33A; --bg-warn: rgba(232, 163, 58, 0.15); --color-blue: #E3B964; --bg-blue: rgba(227, 185, 100, 0.12);
+    --chart-bg: #14233D; --bucket-bg: linear-gradient(135deg, #0F1B30 0%, #0A1220 100%); --bucket-text: #E3B964;
     --focus-bg: linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%); --focus-border: #450a0a; --focus-title: #f87171;
   }
 
@@ -58,7 +58,7 @@
   body.sidebar-collapsed .sidebar { width: 0; min-width: 0; border: none; }
   .sidebar-inner { width: 240px; }
   .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--sidebar-border); white-space: nowrap; }
-  .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #3b6fd9, #7c5fd6); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
+  .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #E3B964, #E07B39); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
   .sidebar-brand .name { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; }
   .sidebar-nav { padding: 12px 8px; flex: 1; }
   .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--sidebar-text); white-space: nowrap; transition: all 0.22s; min-height: 44px; }
@@ -112,7 +112,7 @@
   /* KPI CARD SYSTEM */
   .pdf-card-wrapper { background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); max-width: 1000px; margin: 10px auto; box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15); animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes popupCard { 0% { opacity: 0; transform: scale(0.96) translateY(12px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-  .pdf-header-bar { background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2); }
+  .pdf-header-bar { background: linear-gradient(135deg, #0F1B30 0%, #14233D 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2); }
   [data-theme="dark"] .pdf-header-bar { background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%); border: 1px solid #334155; }
   .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
   .pdf-agent-sub { font-size: 11.5px; color: #94a3b8; }
@@ -259,17 +259,17 @@
      PREMIUM LAYER  — same theme tokens, upgraded surfaces, motion, responsive
      ===================================================================== */
   :root {
-    --glass: rgba(248, 250, 252, 0.78); --glass-border: rgba(15, 23, 42, 0.07);
-    --grad-brand: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-    --ring: 0 0 0 3px rgba(59, 130, 246, 0.35);
+    --glass: rgba(243, 245, 249, 0.78); --glass-border: rgba(15, 27, 48, 0.07);
+    --grad-brand: linear-gradient(135deg, #B8862B 0%, #C85F1F 100%);
+    --ring: 0 0 0 3px rgba(184, 134, 43, 0.35);
     --radius: 14px; --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+    --shadow-lg: 0 24px 48px -16px rgba(15, 27, 48, 0.18);
     --safe-b: env(safe-area-inset-bottom, 0px);
   }
   [data-theme="dark"] {
-    --glass: rgba(11, 15, 25, 0.72); --glass-border: rgba(148, 163, 184, 0.13);
-    --grad-brand: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
-    --ring: 0 0 0 3px rgba(34, 211, 238, 0.35);
+    --glass: rgba(10, 18, 32, 0.72); --glass-border: rgba(241, 231, 208, 0.13);
+    --grad-brand: linear-gradient(135deg, #E3B964 0%, #E07B39 100%);
+    --ring: 0 0 0 3px rgba(227, 185, 100, 0.35);
     --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
   }
 
@@ -343,7 +343,7 @@
 
   /* ---------- Hero ---------- */
   .hero { position: relative; overflow: hidden; border-radius: 20px; padding: 24px 28px; margin-bottom: 20px; color: #fff;
-    background: linear-gradient(135deg, #101d34 0%, #1a2e52 55%, #27407a 100%); box-shadow: var(--shadow-lg); }
+    background: linear-gradient(135deg, #0F1B30 0%, #14233D 55%, #27407a 100%); box-shadow: var(--shadow-lg); }
   [data-theme="dark"] .hero { background: linear-gradient(135deg, #0b0f19 0%, #0f172a 50%, #1e1b4b 100%); border: 1px solid var(--glass-border); }
   .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(28px); pointer-events: none; }
   .hero::before { width: 320px; height: 320px; right: -80px; top: -140px; background: radial-gradient(circle, rgba(59, 130, 246, 0.55), transparent 65%); animation: floatOrb 9s ease-in-out infinite; }
@@ -507,11 +507,19 @@
      ===================================================================== */
   :root {
     --heading: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
-    --accent-rgb: 59, 130, 246;
+    --accent-rgb: 184, 134, 43;
   }
-  [data-theme="dark"] { --accent-rgb: 34, 211, 238; }
+  [data-theme="dark"] { --accent-rgb: 227, 185, 100; }
 
   /* Accent Colour Switcher Palettes */
+  [data-accent="gold"] {
+    --color-blue: #B8862B; --bg-blue: rgba(184, 134, 43, 0.10); --grad-brand: linear-gradient(135deg, #B8862B 0%, #C85F1F 100%);
+    --ring: 0 0 0 3px rgba(184, 134, 43, 0.35); --accent-rgb: 184, 134, 43;
+  }
+  [data-theme="dark"][data-accent="gold"] {
+    --color-blue: #E3B964; --bg-blue: rgba(227, 185, 100, 0.12); --grad-brand: linear-gradient(135deg, #E3B964 0%, #E07B39 100%);
+    --ring: 0 0 0 3px rgba(227, 185, 100, 0.35); --accent-rgb: 227, 185, 100;
+  }
   [data-accent="indigo"] {
     --color-blue: #6366f1; --bg-blue: #e0e7ff; --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     --ring: 0 0 0 3px rgba(99, 102, 241, 0.35); --accent-rgb: 99, 102, 241;
@@ -632,7 +640,7 @@
   }
   .accent-dot:hover { transform: scale(1.22); }
   .accent-dot.active { border-color: var(--text-main); transform: scale(1.18); box-shadow: 0 0 0 2px var(--bg-card); }
-  .accent-dot[data-set-accent="blue"] { background: linear-gradient(135deg, #3b82f6, #22d3ee); }
+  .accent-dot[data-set-accent="blue"] { background: linear-gradient(135deg, #E3B964, #E07B39); }
   .accent-dot[data-set-accent="indigo"] { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
   .accent-dot[data-set-accent="emerald"] { background: linear-gradient(135deg, #10b981, #14b8a6); }
   .accent-dot[data-set-accent="rose"] { background: linear-gradient(135deg, #f43f5e, #ec4899); }
@@ -933,6 +941,7 @@
   .dkb-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
   .dkb-dot.p { background: #10b981; }
   .dkb-dot.a { background: #e11d48; }
+  .dkb-dot.o { background: var(--text-muted-dim); }
   .dkb-box-grid {
     display: flex; flex-wrap: wrap; gap: 8px;
   }
@@ -1035,14 +1044,6 @@
     <div class="status-cluster">
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
       <button class="theme-btn search-btn" onclick="openPalette()" title="Quick search"><i class="bi bi-search"></i><span class="btn-txt">Search</span><kbd>Ctrl K</kbd></button>
-      <div class="accent-switcher" id="accentSwitcher" title="Accent Colour">
-        <button type="button" class="accent-dot active" data-set-accent="blue" aria-label="Blue accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="indigo" aria-label="Indigo accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="emerald" aria-label="Emerald accent"></button>
-        <button type="button" class="accent-dot" data-set-accent="rose" aria-label="Rose accent"></button>
-      </div>
-      <button id="langToggleBtn" class="theme-btn" onclick="toggleLanguage()" title="Switch Bangla / English"><i class="bi bi-translate"></i><span id="langToggleTxt" style="font-size:11px;font-weight:800;">বাং</span></button>
-      <button id="notifToggleBtn" class="theme-btn" onclick="requestNotificationPermission()" title="Enable Performance Alerts"><i class="bi bi-bell-fill"></i></button>
       <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="bi bi-moon-fill"></i></button>
       <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refresh now</span></button>
     </div>
@@ -1504,6 +1505,27 @@
     }
   }
 
+  // Refreshing the page (or GitHub Pages' 30s auto-refresh) used to drop the
+  // agent back to the login screen even though their session was still
+  // valid, because nothing ever re-opened "My Performance" after reload.
+  // This restores it once, as soon as appData (and so the agent list) is
+  // available, if a valid un-expired session + identity are still saved.
+  let sessionRestoreAttempted = false;
+  function restoreAgentSession() {
+    if (sessionRestoreAttempted) return;
+    const identity = localStorage.getItem('aw_agent_identity');
+    const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
+    if (!identity || !loginTime || (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) return;
+    if (!appData || !appData.sheets || !appData.sheets['Alignment']) return;
+    sessionRestoreAttempted = true;
+    const activeAgents = appData.sheets['Alignment'] || [];
+    const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === identity || String(a['ID']||'').toLowerCase() === identity || String(a['Name']||'').toLowerCase() === identity);
+    if (!agent) { logoutAgent(true); return; }
+    document.getElementById('agentLoginArea').style.display = 'none';
+    document.getElementById('agentPersonalArea').style.display = 'block';
+    renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true);
+  }
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') checkSessionTimeout();
   });
@@ -1529,6 +1551,9 @@
   // BUCKET CHART, WHATSAPP SUMMARY & AGENT PORTAL SUB-TABS
   // =========================================================================
   const CACHE_STORAGE_KEY = 'aw_dashboard_cache_v1';
+  // GitHub Pages only: paste your deployed Apps Script Web App URL (ends with /exec)
+  // here for instant sheet->webpage updates. Leave '' to use data.json.
+  const APPS_SCRIPT_LIVE_URL = '';
   let currentTenureFilter = 'all'; // 'all' | 'regular' | 'ojt'
   let currentAgentSubTab = 'scorecard'; // 'scorecard' | 'trends' | 'simulator'
   let bucketDistChartInstance = null;
@@ -1756,17 +1781,18 @@
     const savedTheme = localStorage.getItem('aw_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     if(savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
-    const savedAccent = localStorage.getItem('aw_accent') || 'blue';
+    const savedAccent = 'blue'; try { localStorage.removeItem('aw_accent'); localStorage.removeItem('aw_lang'); } catch (e) {}
     document.documentElement.setAttribute('data-accent', savedAccent);
     document.querySelectorAll('.accent-dot').forEach(d => d.classList.toggle('active', d.dataset.setAccent === savedAccent));
-    localStorage.removeItem('aw_agent_login_time');
     try {
       const cached = localStorage.getItem(CACHE_STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && (parsed.tlSummary || parsed.sheets)) {
           applyDashboardData(parsed);
-          if (window.awToast) awToast('Showing cached data · syncing live...', 'bi-lightning-charge-fill', 1800);
+          // Cached data is on screen already -> no splash/loading at all
+          const sp = document.getElementById('awSplash'); if (sp) sp.classList.add('is-hidden');
+          splashBootDone = true;
         }
       }
     } catch (e) {}
@@ -1778,23 +1804,29 @@
   function navTo(tabName) {
     if (detailState) adCleanup();
     awTopBarRun();
-    activeTab = tabName;
-    if (tabName === 'My Performance') checkSessionTimeout();
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + tabName).classList.add('active');
-    const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-    if(activeNav) activeNav.classList.add('active');
-    document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
-    document.body.classList.remove('sidebar-open'); renderView(tabName);
+    awLogoFlash('Loading ' + (tabName === 'My Performance' ? 'Agent Portal' : tabName) + '...', () => {
+      activeTab = tabName;
+      if (tabName === 'My Performance') checkSessionTimeout();
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + tabName).classList.add('active');
+      const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
+      if(activeNav) activeNav.classList.add('active');
+      document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
+      document.body.classList.remove('sidebar-open'); renderView(tabName);
+    }, 380);
   }
 
   function applyDashboardData(data) {
+    const rawSig = (typeof data === 'string') ? data : JSON.stringify(data);
     if (typeof data === 'string') {
       data = JSON.parse(data);
     }
+    // Nothing changed since the last render -> skip (no flicker, no re-render)
+    if (window.__awLastSig === rawSig && appData) { finishInitialSplash(); return; }
+    window.__awLastSig = rawSig;
     appData = data;
-    try { localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+    try { localStorage.setItem(CACHE_STORAGE_KEY, rawSig); } catch (e) {}
     const dt = new Date(appData.lastUpdated);
     document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
     document.getElementById('liveChip').classList.remove('stale');
@@ -1811,7 +1843,7 @@
       } else { timeText.innerText = globalDateStr; }
     });
     renderView(activeTab);
-    try { checkPerformanceAlerts(data); } catch (e) {}
+    try { restoreAgentSession(); } catch (e) {}
     finishInitialSplash();
   }
 
@@ -1838,9 +1870,19 @@
     }
 
     try {
-      const res = await fetch('./data.json?t=' + new Date().getTime());
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      applyDashboardData(await res.json());
+      let live = null;
+      if (APPS_SCRIPT_LIVE_URL) {
+        try {
+          const r1 = await fetch(APPS_SCRIPT_LIVE_URL + (APPS_SCRIPT_LIVE_URL.indexOf('?') > -1 ? '&' : '?') + 'data=1&t=' + Date.now());
+          if (r1.ok) live = await r1.text();
+        } catch (e) { live = null; }
+      }
+      if (live) { applyDashboardData(live); }
+      else {
+        const res = await fetch('./data.json?t=' + new Date().getTime());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        applyDashboardData(await res.text());
+      }
     } catch (err) {
       console.error(err); document.getElementById('liveChip').classList.add('stale'); document.getElementById('liveMeta').innerText = 'Connection Error';
       if (window.showConnError) window.showConnError(); finishInitialSplash();
@@ -1849,8 +1891,11 @@
     }
   }
 
-  // Auto-refresh every 30s on GitHub Pages, every 2 mins on Apps Script
-  setInterval(() => { loadDashboard(false); }, IS_APPS_SCRIPT ? 120000 : 30000);
+  // Silent background refresh (served from cache, so it is cheap) + instant
+  // refresh whenever the person returns to the tab.
+  setInterval(() => { if (!document.hidden) loadDashboard(false); }, 8000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) loadDashboard(false); });
+  window.addEventListener('focus', () => loadDashboard(false));
 
   function downloadKpiPdf() {
     const el = document.getElementById('pdfCardTarget');
@@ -1942,6 +1987,7 @@
     const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
       localStorage.setItem('aw_agent_login_time', String(Date.now()));
+      localStorage.setItem('aw_agent_identity', input);
       document.getElementById('loginError').style.display = 'none';
       const expiredMsg = document.getElementById('sessionExpiredMsg');
       if (expiredMsg) expiredMsg.style.display = 'none';
@@ -1965,6 +2011,7 @@
     const wasOnDetail = !!detailState;
     if (wasOnDetail) adCleanup();
     localStorage.removeItem('aw_agent_login_time');
+    localStorage.removeItem('aw_agent_identity');
     currentCardAgentName = '';
     document.getElementById('agentLoginInput').value = '';
     document.getElementById('agentLoginArea').style.display = 'block';
@@ -3013,8 +3060,16 @@
     const isAht = type === 'aht';
     const T = a.targets || {};
     const target = isAht ? adNum(T.aht, 170) : adNum(T.csat, 90);
-    const rows = adDayRows(a).filter(r => (isAht ? r.aht : r.cfs) !== null && (isAht ? r.aht : r.cfs) !== undefined);
+    const allRows = adDayRows(a);
+    const rows = allRows.filter(r => (isAht ? r.aht : r.cfs) !== null && (isAht ? r.aht : r.cfs) !== undefined);
     if (!rows.length) return adNoDay(type);
+    const stripHtml = adBoxStrip(allRows, {
+      title: 'Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Strip',
+      valueFn: r => isAht ? r.aht : r.cfs,
+      isGood: v => isAht ? v <= target : v >= target,
+      fmtBox: v => isAht ? Math.round(v) + 's' : (Math.round(v * 10) / 10) + '%',
+      goodLabel: 'Target Met', badLabel: 'Below Target'
+    });
     const vals = rows.map(r => isAht ? r.aht : r.cfs);
     const avg = adAvg(vals);
     const best = isAht ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
@@ -3038,13 +3093,21 @@
         ['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], ['num fw-bold', 'num', '']);
     });
     window.__adChartPayload = { type: type, rows: rows.slice(-31), target: target, unit: unit };
-    return stats + adSection('Trend (Target ' + (isAht ? '<= ' + target + 's' : '>= ' + target + '%') + ')', '', chart)
+    return stripHtml + stats + adSection('Trend (Target ' + (isAht ? '<= ' + target + 's' : '>= ' + target + '%') + ')', '', chart)
       + adSection('Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Table', 'Source: ORT Day wise sheet. Chronological order (1st onward).', adTable(['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], trs));
   }
 
   function adLogin(a) {
-    const rows = adDayRows(a);
+    const allRows = adDayRows(a);
+    const rows = allRows.filter(r => !r.off);
     if (!rows.length) return adNoDay('login');
+    const stripHtml = adBoxStrip(allRows, {
+      title: 'Day-wise Lag Strip',
+      valueFn: r => { const m = durToMin(r.lag); return isNaN(m) ? null : m; },
+      isGood: v => v <= 0,
+      fmtBox: v => v > 0 ? fmtMin(v) : '0m',
+      goodLabel: 'No Lag', badLabel: 'Lag Present'
+    });
     const lagMins = rows.map(r => durToMin(r.lag));
     const lagDays = lagMins.filter(m => !isNaN(m) && m > 0).length;
     const totalLag = lagMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
@@ -3062,12 +3125,20 @@
         r.login === null || r.login === undefined ? '—' : `<span class="${r.login >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.login}%</span>`],
         ['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], ['num fw-bold', 'num', 'num', 'num', 'num']);
     });
-    return adPartialWarn('login') + stats + adSection('Day-wise Login Hour', 'Target Ready, Ready Time and Lag Time for each day. Chronological order (1st onward).', adTable(['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], trs));
+    return adPartialWarn('login') + stripHtml + stats + adSection('Day-wise Login Hour', 'Target Ready, Ready Time and Lag Time for each day. Chronological order (1st onward).', adTable(['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], trs));
   }
 
   function adAdherence(a) {
-    const rows = adDayRows(a).filter(r => r.adh !== null && r.adh !== undefined);
+    const allRows = adDayRows(a);
+    const rows = allRows.filter(r => r.adh !== null && r.adh !== undefined);
     if (!rows.length) return adNoDay('adherence');
+    const stripHtml = adBoxStrip(allRows, {
+      title: 'Day-wise Adherence Strip',
+      valueFn: r => r.adh,
+      isGood: v => v >= 100,
+      fmtBox: v => v + '%',
+      goodLabel: 'Okay (100%)', badLabel: 'Below Target'
+    });
     const okDays = rows.filter(r => r.adh >= 100).length;
     const halfDays = rows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
     const avg = adAvg(rows.map(r => r.adh));
@@ -3086,12 +3157,20 @@
       return adRow([escHtml(r.d), `<span class="${r.adh >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.adh}%</span>`, `<span class="pill ${cls}">${remark}</span>`],
         ['Date', 'Adherence %', 'Remarks'], ['num fw-bold', 'num', '']);
     });
-    return stats + adSection('Day-wise Adherence', '<b>100%</b> = Okay &nbsp;·&nbsp; <b>50%</b> = Login or Logout missed. Chronological order (1st onward).', adTable(['Date', 'Adherence %', 'Remarks'], trs));
+    return stripHtml + stats + adSection('Day-wise Adherence', '<b>100%</b> = Okay &nbsp;·&nbsp; <b>50%</b> = Login or Logout missed. Chronological order (1st onward).', adTable(['Date', 'Adherence %', 'Remarks'], trs));
   }
 
   function adBreak(a) {
-    const rows = adDayRows(a);
+    const allRows = adDayRows(a);
+    const rows = allRows.filter(r => !r.off);
     if (!rows.length) return adNoDay('break');
+    const stripHtml = adBoxStrip(allRows, {
+      title: 'Day-wise Extra Break Strip',
+      valueFn: r => { const m = durToMin(r.eb); return isNaN(m) ? null : m; },
+      isGood: v => v <= 0,
+      fmtBox: v => v > 0 ? fmtMin(v) : '0m',
+      goodLabel: 'No Extra Break', badLabel: 'Extra Break'
+    });
     const ebMins = rows.map(r => durToMin(r.eb));
     const extraDays = ebMins.filter(m => !isNaN(m) && m > 0).length;
     const totalExtra = ebMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
@@ -3107,7 +3186,52 @@
       return adRow([escHtml(r.d), adDash(r.tb), adDash(r.bt), `<span class="${hasExtra ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.eb)}</span>`],
         ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', 'num', 'num', 'num']);
     });
-    return adPartialWarn('break') + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Chronological order (1st onward).', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
+    return adPartialWarn('break') + stripHtml + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Chronological order (1st onward).', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
+  }
+
+  // Reusable day-wise "box strip" — same visual pattern as the DKB attendance
+  // strip (green/red boxes with the date underneath), for AHT/CFS/Adherence/
+  // Break/Lag. rows must be the FULL (unfiltered) day-wise rows for the agent
+  // so Day Off entries are included. opts: { title, valueFn, isGood, fmtBox, goodLabel, badLabel }.
+  function adBoxStrip(rows, opts) {
+    if (!rows || !rows.length) return '';
+    let goodCount = 0, badCount = 0, offCount = 0;
+    const boxesHtml = rows.map(r => {
+      const shortDate = r.day ? String(r.day) : adShort(r.d);
+      if (r.off) {
+        offCount++;
+        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — Day Off">
+          <div class="dkb-day-code">OFF</div>
+          <div class="dkb-day-date">${escHtml(shortDate)}</div>
+        </div>`;
+      }
+      const v = opts.valueFn(r);
+      if (v === null || v === undefined || isNaN(v)) {
+        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — No Data">
+          <div class="dkb-day-code">—</div>
+          <div class="dkb-day-date">${escHtml(shortDate)}</div>
+        </div>`;
+      }
+      const ok = opts.isGood(v);
+      if (ok) goodCount++; else badCount++;
+      const cls = ok ? 'present' : 'absent';
+      return `<div class="dkb-day-box ${cls}" title="${escHtml(r.d)} — ${escHtml(opts.fmtBox(v))}">
+        <div class="dkb-day-code">${escHtml(opts.fmtBox(v))}</div>
+        <div class="dkb-day-date">${escHtml(shortDate)}</div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="dkb-strip-card">
+        <div class="dkb-strip-head">
+          <div class="dkb-strip-title"><i class="bi bi-calendar2-week-fill text-success"></i> ${escHtml(opts.title)} (1st Onward)</div>
+          <div class="dkb-legend">
+            <span><i class="dkb-dot p"></i> ${escHtml(opts.goodLabel)} (${goodCount})</span>
+            <span><i class="dkb-dot a"></i> ${escHtml(opts.badLabel)} (${badCount})</span>
+            <span><i class="dkb-dot o"></i> Day Off (${offCount})</span>
+          </div>
+        </div>
+        <div class="dkb-box-grid">${boxesHtml}</div>
+      </div>`;
   }
 
   function adDkbRows(a) {
@@ -3306,7 +3430,7 @@
   // =========================================================================
   const LOGIN_QUEUE_KEY = 'aw_failed_login_logs_v1';
   const SNAPSHOT_KEY = 'aw_perf_alert_snap_v1';
-  let currentLang = localStorage.getItem('aw_lang') || 'en';
+  let currentLang = 'en';
 
   // --- Reliable Login Logging ---
   function queueFailedLogin(payload) {
