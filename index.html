@@ -3156,7 +3156,7 @@
     if (!meta.sheetFound) return adEmpty('bi-file-earmark-x', 'Sheet "ORT Day wise" not found', 'The sheet must be named exactly <b>ORT Day wise</b>.');
     const missing = adMissingCols(type);
     if (missing.length) return adEmpty('bi-table', 'Column not found in "ORT Day wise"', 'Could not find: <b>' + missing.map(k => AD_COL_NAMES[k] || k).join(', ') + '</b>. Please check the header names in the sheet.');
-    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent's ID / VDI ID / Name.');
+    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent\'s ID / VDI ID / Name.');
   }
   function adPartialWarn(type) {
     const missing = adMissingCols(type);
