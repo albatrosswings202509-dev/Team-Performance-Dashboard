@@ -28,23 +28,23 @@
      CSS VARIABLES: DAY & NIGHT MODES
      ========================================= */
   :root {
-    --bg-main: #F3F5F9; --bg-card: #ffffff; --text-main: #0F1B30; --text-muted: #3B4A63; --text-muted-dim: #6B778C; --border-color: rgba(15, 27, 48, 0.09);
-    --sidebar-bg: #0F1B30; --sidebar-text: #B9B6AA; --sidebar-border: rgba(241, 231, 208, 0.09);
-    --shadow-card: 0 4px 6px -1px rgba(15, 27, 48, 0.05), 0 2px 4px -2px rgba(15, 27, 48, 0.03);
-    --shadow-hover: 0 12px 24px -8px rgba(15, 27, 48, 0.08), 0 0 0 1px rgba(184, 134, 43, 0.18);
-    --color-good: #1E8F7E; --bg-good: rgba(30, 143, 126, 0.12); --color-bad: #C94332; --bg-bad: rgba(201, 67, 50, 0.12);
-    --color-warn: #C58412; --bg-warn: rgba(197, 132, 18, 0.12); --color-blue: #B8862B; --bg-blue: rgba(184, 134, 43, 0.10);
-    --chart-bg: #e9e4d8; --bucket-bg: linear-gradient(135deg, #14233D 0%, #0A1220 100%); --bucket-text: #E3B964;
+    --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --text-muted-dim: #94a3b8; --border-color: #e2e8f0;
+    --sidebar-bg: #101d34; --sidebar-text: #dde3ef; --sidebar-border: rgba(255, 255, 255, 0.1);
+    --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+    --shadow-hover: 0 12px 24px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.15);
+    --color-good: #059669; --bg-good: #d1fae5; --color-bad: #e11d48; --bg-bad: #ffe4e6;
+    --color-warn: #d97706; --bg-warn: #fef3c7; --color-blue: #3b82f6; --bg-blue: #dbeafe;
+    --chart-bg: #e2e8f0; --bucket-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); --bucket-text: #ffffff;
     --focus-bg: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); --focus-border: #ffc9c9; --focus-title: #c92a2a;
     --sans: 'Inter', -apple-system, sans-serif; --mono: 'IBM Plex Mono', monospace;
   }
   [data-theme="dark"] {
-    --bg-main: #0A1220; --bg-card: linear-gradient(145deg, #14233D 0%, #0F1B30 100%); --text-main: #F1E7D0; --text-muted: #B9B6AA; --text-muted-dim: #7F8CA3; --border-color: rgba(241, 231, 208, 0.09);
-    --sidebar-bg: #0A1220; --sidebar-text: #B9B6AA; --sidebar-border: rgba(241, 231, 208, 0.09);
-    --shadow-card: 0 10px 25px -5px rgba(227, 185, 100, 0.10); --shadow-hover: 0 12px 24px -8px rgba(227, 185, 100, 0.22), 0 0 0 1px rgba(227, 185, 100, 0.3);
-    --color-good: #3FB6A8; --bg-good: rgba(63, 182, 168, 0.15); --color-bad: #E5604D; --bg-bad: rgba(229, 96, 77, 0.15);
-    --color-warn: #E8A33A; --bg-warn: rgba(232, 163, 58, 0.15); --color-blue: #E3B964; --bg-blue: rgba(227, 185, 100, 0.12);
-    --chart-bg: #14233D; --bucket-bg: linear-gradient(135deg, #0F1B30 0%, #0A1220 100%); --bucket-text: #E3B964;
+    --bg-main: #0b0f19; --bg-card: linear-gradient(145deg, #111827 0%, #0f172a 100%); --text-main: #f8fafc; --text-muted: #94a3b8; --text-muted-dim: #64748b; --border-color: #1e293b;
+    --sidebar-bg: #0b0f19; --sidebar-text: #94a3b8; --sidebar-border: #1e293b;
+    --shadow-card: 0 10px 25px -5px rgba(6, 182, 212, 0.10); --shadow-hover: 0 12px 24px -8px rgba(6, 182, 212, 0.25), 0 0 0 1px rgba(6, 182, 212, 0.3);
+    --color-good: #10b981; --bg-good: rgba(16, 185, 129, 0.15); --color-bad: #f43f5e; --bg-bad: rgba(244, 63, 94, 0.15);
+    --color-warn: #f59e0b; --bg-warn: rgba(245, 158, 11, 0.15); --color-blue: #22d3ee; --bg-blue: rgba(34, 211, 238, 0.15);
+    --chart-bg: #1e293b; --bucket-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); --bucket-text: #22d3ee;
     --focus-bg: linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%); --focus-border: #450a0a; --focus-title: #f87171;
   }
 
@@ -58,7 +58,7 @@
   body.sidebar-collapsed .sidebar { width: 0; min-width: 0; border: none; }
   .sidebar-inner { width: 240px; }
   .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--sidebar-border); white-space: nowrap; }
-  .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #E3B964, #E07B39); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
+  .sidebar-brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #3b6fd9, #7c5fd6); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
   .sidebar-brand .name { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; }
   .sidebar-nav { padding: 12px 8px; flex: 1; }
   .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 3px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--sidebar-text); white-space: nowrap; transition: all 0.22s; min-height: 44px; }
@@ -112,7 +112,7 @@
   /* KPI CARD SYSTEM */
   .pdf-card-wrapper { background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); max-width: 1000px; margin: 10px auto; box-shadow: 0 20px 40px -15px rgba(0,0,0, 0.15); animation: popupCard 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes popupCard { 0% { opacity: 0; transform: scale(0.96) translateY(12px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-  .pdf-header-bar { background: linear-gradient(135deg, #0F1B30 0%, #14233D 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2); }
+  .pdf-header-bar { background: linear-gradient(135deg, #101d34 0%, #1a2e52 100%); color: #ffffff; padding: 18px 22px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0, 0.2); }
   [data-theme="dark"] .pdf-header-bar { background: linear-gradient(135deg, #0b0f19 0%, #1e293b 100%); border: 1px solid #334155; }
   .pdf-agent-name { font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; }
   .pdf-agent-sub { font-size: 11.5px; color: #94a3b8; }
@@ -259,17 +259,17 @@
      PREMIUM LAYER  — same theme tokens, upgraded surfaces, motion, responsive
      ===================================================================== */
   :root {
-    --glass: rgba(243, 245, 249, 0.78); --glass-border: rgba(15, 27, 48, 0.07);
-    --grad-brand: linear-gradient(135deg, #B8862B 0%, #C85F1F 100%);
-    --ring: 0 0 0 3px rgba(184, 134, 43, 0.35);
+    --glass: rgba(248, 250, 252, 0.78); --glass-border: rgba(15, 23, 42, 0.07);
+    --grad-brand: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --ring: 0 0 0 3px rgba(59, 130, 246, 0.35);
     --radius: 14px; --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --shadow-lg: 0 24px 48px -16px rgba(15, 27, 48, 0.18);
+    --shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
     --safe-b: env(safe-area-inset-bottom, 0px);
   }
   [data-theme="dark"] {
-    --glass: rgba(10, 18, 32, 0.72); --glass-border: rgba(241, 231, 208, 0.13);
-    --grad-brand: linear-gradient(135deg, #E3B964 0%, #E07B39 100%);
-    --ring: 0 0 0 3px rgba(227, 185, 100, 0.35);
+    --glass: rgba(11, 15, 25, 0.72); --glass-border: rgba(148, 163, 184, 0.13);
+    --grad-brand: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+    --ring: 0 0 0 3px rgba(34, 211, 238, 0.35);
     --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
   }
 
@@ -343,7 +343,7 @@
 
   /* ---------- Hero ---------- */
   .hero { position: relative; overflow: hidden; border-radius: 20px; padding: 24px 28px; margin-bottom: 20px; color: #fff;
-    background: linear-gradient(135deg, #0F1B30 0%, #14233D 55%, #27407a 100%); box-shadow: var(--shadow-lg); }
+    background: linear-gradient(135deg, #101d34 0%, #1a2e52 55%, #27407a 100%); box-shadow: var(--shadow-lg); }
   [data-theme="dark"] .hero { background: linear-gradient(135deg, #0b0f19 0%, #0f172a 50%, #1e1b4b 100%); border: 1px solid var(--glass-border); }
   .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(28px); pointer-events: none; }
   .hero::before { width: 320px; height: 320px; right: -80px; top: -140px; background: radial-gradient(circle, rgba(59, 130, 246, 0.55), transparent 65%); animation: floatOrb 9s ease-in-out infinite; }
@@ -507,19 +507,11 @@
      ===================================================================== */
   :root {
     --heading: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
-    --accent-rgb: 184, 134, 43;
+    --accent-rgb: 59, 130, 246;
   }
-  [data-theme="dark"] { --accent-rgb: 227, 185, 100; }
+  [data-theme="dark"] { --accent-rgb: 34, 211, 238; }
 
   /* Accent Colour Switcher Palettes */
-  [data-accent="gold"] {
-    --color-blue: #B8862B; --bg-blue: rgba(184, 134, 43, 0.10); --grad-brand: linear-gradient(135deg, #B8862B 0%, #C85F1F 100%);
-    --ring: 0 0 0 3px rgba(184, 134, 43, 0.35); --accent-rgb: 184, 134, 43;
-  }
-  [data-theme="dark"][data-accent="gold"] {
-    --color-blue: #E3B964; --bg-blue: rgba(227, 185, 100, 0.12); --grad-brand: linear-gradient(135deg, #E3B964 0%, #E07B39 100%);
-    --ring: 0 0 0 3px rgba(227, 185, 100, 0.35); --accent-rgb: 227, 185, 100;
-  }
   [data-accent="indigo"] {
     --color-blue: #6366f1; --bg-blue: #e0e7ff; --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     --ring: 0 0 0 3px rgba(99, 102, 241, 0.35); --accent-rgb: 99, 102, 241;
@@ -640,7 +632,7 @@
   }
   .accent-dot:hover { transform: scale(1.22); }
   .accent-dot.active { border-color: var(--text-main); transform: scale(1.18); box-shadow: 0 0 0 2px var(--bg-card); }
-  .accent-dot[data-set-accent="blue"] { background: linear-gradient(135deg, #E3B964, #E07B39); }
+  .accent-dot[data-set-accent="blue"] { background: linear-gradient(135deg, #3b82f6, #22d3ee); }
   .accent-dot[data-set-accent="indigo"] { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
   .accent-dot[data-set-accent="emerald"] { background: linear-gradient(135deg, #10b981, #14b8a6); }
   .accent-dot[data-set-accent="rose"] { background: linear-gradient(135deg, #f43f5e, #ec4899); }
@@ -941,7 +933,6 @@
   .dkb-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
   .dkb-dot.p { background: #10b981; }
   .dkb-dot.a { background: #e11d48; }
-  .dkb-dot.o { background: var(--text-muted-dim); }
   .dkb-box-grid {
     display: flex; flex-wrap: wrap; gap: 8px;
   }
@@ -953,6 +944,7 @@
   .dkb-day-box:hover { transform: translateY(-2px); }
   .dkb-day-box.present { background: var(--bg-good); border-color: rgba(16, 185, 129, 0.45); color: var(--color-good); }
   .dkb-day-box.absent { background: var(--bg-bad); border-color: rgba(225, 29, 72, 0.45); color: var(--color-bad); }
+  .dkb-day-box.warn-box { background: var(--bg-warn); border-color: rgba(217, 119, 6, 0.55); color: var(--color-warn); }
   .dkb-day-box.other { background: var(--bg-main); border-color: var(--border-color); color: var(--text-muted); }
   .dkb-day-code { font-family: var(--heading); font-size: 15px; font-weight: 800; line-height: 1; }
   .dkb-day-date { font-family: var(--mono); font-size: 9.5px; font-weight: 700; opacity: 0.9; white-space: nowrap; }
@@ -1044,6 +1036,14 @@
     <div class="status-cluster">
       <span class="live-chip" id="liveChip"><span class="live-dot"></span><span id="liveMeta">Connecting…</span></span>
       <button class="theme-btn search-btn" onclick="openPalette()" title="Quick search"><i class="bi bi-search"></i><span class="btn-txt">Search</span><kbd>Ctrl K</kbd></button>
+      <div class="accent-switcher" id="accentSwitcher" title="Accent Colour">
+        <button type="button" class="accent-dot active" data-set-accent="blue" aria-label="Blue accent"></button>
+        <button type="button" class="accent-dot" data-set-accent="indigo" aria-label="Indigo accent"></button>
+        <button type="button" class="accent-dot" data-set-accent="emerald" aria-label="Emerald accent"></button>
+        <button type="button" class="accent-dot" data-set-accent="rose" aria-label="Rose accent"></button>
+      </div>
+      <button id="langToggleBtn" class="theme-btn" onclick="toggleLanguage()" title="Switch Bangla / English"><i class="bi bi-translate"></i><span id="langToggleTxt" style="font-size:11px;font-weight:800;">বাং</span></button>
+      <button id="notifToggleBtn" class="theme-btn" onclick="requestNotificationPermission()" title="Enable Performance Alerts"><i class="bi bi-bell-fill"></i></button>
       <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="bi bi-moon-fill"></i></button>
       <button id="refreshBtn" class="btn-action" onclick="loadDashboard(true)"><i class="bi bi-arrow-repeat"></i><span class="btn-txt"> Refresh now</span></button>
     </div>
@@ -1489,7 +1489,42 @@
 
   // === DUAL-MODE CONFIG (Works on BOTH Apps Script Web App & GitHub Pages) ===
   const LOGIN_TRACKER_URL = "https://script.google.com/macros/s/AKfycbwD_usFFtERll_2gUPEUa-xVrW5ecNYrH-_18dcAybvQkwO2jvXH9Pd-Ap4tH93fm89Lg/exec";
-  const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes auto-logout
+  const SESSION_TIMEOUT_MS = 12 * 60 * 60 * 1000; // 12 hours session persistence across refreshes
+  // === BULLETPROOF SESSION STORAGE (localStorage + sessionStorage + window.name) ===
+  function awSetSession(agentName, tabName) {
+    const payload = {
+      agent: agentName !== undefined ? agentName : (awGetSession().agent || ''),
+      tab: tabName !== undefined ? tabName : (awGetSession().tab || ''),
+      ts: Date.now()
+    };
+    const raw = JSON.stringify(payload);
+    try { localStorage.setItem('aw_session_v2', raw); } catch (e) {}
+    try { sessionStorage.setItem('aw_session_v2', raw); } catch (e) {}
+    try { window.name = 'AW_SESS:' + raw; } catch (e) {}
+  }
+
+  function awGetSession() {
+    let raw = '';
+    try { raw = localStorage.getItem('aw_session_v2') || ''; } catch (e) {}
+    if (!raw) { try { raw = sessionStorage.getItem('aw_session_v2') || ''; } catch (e) {} }
+    if (!raw && typeof window.name === 'string' && window.name.startsWith('AW_SESS:')) {
+      raw = window.name.slice(8);
+    }
+    if (!raw) return { agent: '', tab: '', ts: 0 };
+    try {
+      const obj = JSON.parse(raw);
+      return { agent: obj.agent || '', tab: obj.tab || '', ts: obj.ts || 0 };
+    } catch (e) {
+      return { agent: '', tab: '', ts: 0 };
+    }
+  }
+
+  function awClearSession() {
+    try { localStorage.removeItem('aw_session_v2'); localStorage.removeItem('aw_logged_agent'); localStorage.removeItem('aw_agent_login_time'); } catch (e) {}
+    try { sessionStorage.removeItem('aw_session_v2'); } catch (e) {}
+    try { if (typeof window.name === 'string' && window.name.startsWith('AW_SESS:')) window.name = ''; } catch (e) {}
+  }
+
   const IS_APPS_SCRIPT = (typeof google !== 'undefined' && google.script && google.script.run);
 
   let appData = null; let activeTab = 'Dashboard'; let currentCardAgentName = '';
@@ -1497,33 +1532,14 @@
   let detailState = null, detailPushed = false, detailBusy = false, detailChartInstance = null;
 
   function checkSessionTimeout() {
-    const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
+    const sess = awGetSession();
     const personalArea = document.getElementById('agentPersonalArea');
     const isLoggedIn = personalArea && personalArea.style.display === 'block';
-    if (isLoggedIn && (!loginTime || (Date.now() - loginTime >= SESSION_TIMEOUT_MS))) {
+    if (isLoggedIn && sess.agent && sess.ts && (Date.now() - sess.ts >= SESSION_TIMEOUT_MS)) {
       logoutAgent(true);
+    } else if (isLoggedIn && sess.agent) {
+      awSetSession(sess.agent, activeTab);
     }
-  }
-
-  // Refreshing the page (or GitHub Pages' 30s auto-refresh) used to drop the
-  // agent back to the login screen even though their session was still
-  // valid, because nothing ever re-opened "My Performance" after reload.
-  // This restores it once, as soon as appData (and so the agent list) is
-  // available, if a valid un-expired session + identity are still saved.
-  let sessionRestoreAttempted = false;
-  function restoreAgentSession() {
-    if (sessionRestoreAttempted) return;
-    const identity = localStorage.getItem('aw_agent_identity');
-    const loginTime = parseInt(localStorage.getItem('aw_agent_login_time') || '0', 10);
-    if (!identity || !loginTime || (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) return;
-    if (!appData || !appData.sheets || !appData.sheets['Alignment']) return;
-    sessionRestoreAttempted = true;
-    const activeAgents = appData.sheets['Alignment'] || [];
-    const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === identity || String(a['ID']||'').toLowerCase() === identity || String(a['Name']||'').toLowerCase() === identity);
-    if (!agent) { logoutAgent(true); return; }
-    document.getElementById('agentLoginArea').style.display = 'none';
-    document.getElementById('agentPersonalArea').style.display = 'block';
-    renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true);
   }
 
   document.addEventListener('visibilitychange', () => {
@@ -1551,9 +1567,6 @@
   // BUCKET CHART, WHATSAPP SUMMARY & AGENT PORTAL SUB-TABS
   // =========================================================================
   const CACHE_STORAGE_KEY = 'aw_dashboard_cache_v1';
-  // GitHub Pages only: paste your deployed Apps Script Web App URL (ends with /exec)
-  // here for instant sheet->webpage updates. Leave '' to use data.json.
-  const APPS_SCRIPT_LIVE_URL = '';
   let currentTenureFilter = 'all'; // 'all' | 'regular' | 'ojt'
   let currentAgentSubTab = 'scorecard'; // 'scorecard' | 'trends' | 'simulator'
   let bucketDistChartInstance = null;
@@ -1576,20 +1589,28 @@
   }
   window.setTenureFilter = setTenureFilter;
 
-  function switchAgentSubTab(tabKey) {
-    currentAgentSubTab = tabKey || 'scorecard';
-    document.querySelectorAll('.agent-subtab-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.subtab === currentAgentSubTab);
-    });
-    document.querySelectorAll('.agent-subpanel').forEach(p => {
-      p.classList.toggle('active', p.dataset.subpanel === currentAgentSubTab);
-    });
-    if (currentAgentSubTab === 'trends' && currentCardAgentName && appData) {
-      const ag = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
-      if (ag) setTimeout(() => renderDailyTrendChart(ag, String(ag.tenure).toLowerCase() === 'ojt'), 60);
-    }
-    if (currentAgentSubTab === 'scorecard') {
-      animateScoreGauges(document.getElementById('myPerfCardBox'));
+  function switchAgentSubTab(tabKey, skipAnim = false) {
+    const runSub = () => {
+      currentAgentSubTab = tabKey || 'scorecard';
+      document.querySelectorAll('.agent-subtab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.subtab === currentAgentSubTab);
+      });
+      document.querySelectorAll('.agent-subpanel').forEach(p => {
+        p.classList.toggle('active', p.dataset.subpanel === currentAgentSubTab);
+      });
+      if (currentAgentSubTab === 'trends' && currentCardAgentName && appData) {
+        const ag = (appData.sheets['KPI'] || []).find(a => String(a.name) === String(currentCardAgentName));
+        if (ag) setTimeout(() => renderDailyTrendChart(ag, String(ag.tenure).toLowerCase() === 'ojt'), 60);
+      }
+      if (currentAgentSubTab === 'scorecard') {
+        animateScoreGauges(document.getElementById('myPerfCardBox'));
+      }
+    };
+    if (!skipAnim && typeof awLogoFlash === 'function') {
+      const subNames = { scorecard: 'My Scorecard', trends: 'Trends & Errors', simulator: 'Bonus Simulator' };
+      awLogoFlash('Loading ' + (subNames[tabKey] || 'View') + '...', runSub, 340);
+    } else {
+      runSub();
     }
   }
   window.switchAgentSubTab = switchAgentSubTab;
@@ -1781,7 +1802,7 @@
     const savedTheme = localStorage.getItem('aw_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     if(savedTheme === 'dark') document.querySelector('#themeToggle i').className = 'bi bi-sun-fill';
-    const savedAccent = 'blue'; try { localStorage.removeItem('aw_accent'); localStorage.removeItem('aw_lang'); } catch (e) {}
+    const savedAccent = localStorage.getItem('aw_accent') || 'blue';
     document.documentElement.setAttribute('data-accent', savedAccent);
     document.querySelectorAll('.accent-dot').forEach(d => d.classList.toggle('active', d.dataset.setAccent === savedAccent));
     try {
@@ -1790,43 +1811,50 @@
         const parsed = JSON.parse(cached);
         if (parsed && (parsed.tlSummary || parsed.sheets)) {
           applyDashboardData(parsed);
-          // Cached data is on screen already -> no splash/loading at all
-          const sp = document.getElementById('awSplash'); if (sp) sp.classList.add('is-hidden');
-          splashBootDone = true;
+          if (window.awToast) awToast('Showing cached data · syncing live...', 'bi-lightning-charge-fill', 1800);
         }
       }
     } catch (e) {}
+    restoreSavedAgentSession(false);
     setTimeout(finishInitialSplash, 3200); // Hard safety fallback if offline
     loadDashboard(false);
   });
 
   function toggleMobileSidebar() { document.body.classList.toggle('sidebar-open'); }
-  function navTo(tabName) {
-    if (detailState) adCleanup();
-    awTopBarRun();
-    awLogoFlash('Loading ' + (tabName === 'My Performance' ? 'Agent Portal' : tabName) + '...', () => {
+  function navTo(tabName, skipLogoAnim = false) {
+    const doSwitch = () => {
+      if (detailState) adCleanup();
+      awTopBarRun();
       activeTab = tabName;
-      if (tabName === 'My Performance') checkSessionTimeout();
+      const curSess = awGetSession();
+      awSetSession(currentCardAgentName || curSess.agent || '', tabName);
+      if (tabName === 'My Performance') {
+        restoreSavedAgentSession(true);
+      }
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('page-' + tabName).classList.add('active');
+      const pageEl = document.getElementById('page-' + tabName);
+      if (pageEl) pageEl.classList.add('active');
       const activeNav = document.querySelector(`.nav-item[data-page="${tabName}"]`);
-      if(activeNav) activeNav.classList.add('active');
+      if (activeNav) activeNav.classList.add('active');
       document.getElementById('pageTitle').innerText = tabName === 'My Performance' ? 'Agent Portal' : tabName;
-      document.body.classList.remove('sidebar-open'); renderView(tabName);
-    }, 380);
+      document.body.classList.remove('sidebar-open');
+      renderView(tabName);
+    };
+    if (!skipLogoAnim) {
+      const label = tabName === 'My Performance' ? 'Agent Portal' : tabName;
+      awLogoFlash('Loading ' + label + '...', doSwitch, 520);
+    } else {
+      doSwitch();
+    }
   }
 
   function applyDashboardData(data) {
-    const rawSig = (typeof data === 'string') ? data : JSON.stringify(data);
     if (typeof data === 'string') {
       data = JSON.parse(data);
     }
-    // Nothing changed since the last render -> skip (no flicker, no re-render)
-    if (window.__awLastSig === rawSig && appData) { finishInitialSplash(); return; }
-    window.__awLastSig = rawSig;
     appData = data;
-    try { localStorage.setItem(CACHE_STORAGE_KEY, rawSig); } catch (e) {}
+    try { localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
     const dt = new Date(appData.lastUpdated);
     document.getElementById('liveMeta').innerText = `Live · ${dt.toLocaleTimeString()} (${appData.activeAgentsCount || 0} Active Agents)`;
     document.getElementById('liveChip').classList.remove('stale');
@@ -1842,8 +1870,22 @@
         timeText.innerText = sheetDt.toLocaleString('en-GB', options);
       } else { timeText.innerText = globalDateStr; }
     });
-    renderView(activeTab);
-    try { restoreAgentSession(); } catch (e) {}
+    if (!currentCardAgentName) {
+      const sess = awGetSession();
+      if (sess.agent) currentCardAgentName = sess.agent;
+    }
+    if (detailState && currentCardAgentName) {
+      adRender();
+    } else if (activeTab === 'My Performance' && currentCardAgentName) {
+      const loginArea = document.getElementById('agentLoginArea');
+      const personalArea = document.getElementById('agentPersonalArea');
+      if (loginArea) loginArea.style.display = 'none';
+      if (personalArea) personalArea.style.display = 'block';
+      renderAgentCardSafe(currentCardAgentName, 'myPerfCardBox', true);
+    } else {
+      renderView(activeTab);
+    }
+    try { checkPerformanceAlerts(data); } catch (e) {}
     finishInitialSplash();
   }
 
@@ -1870,19 +1912,9 @@
     }
 
     try {
-      let live = null;
-      if (APPS_SCRIPT_LIVE_URL) {
-        try {
-          const r1 = await fetch(APPS_SCRIPT_LIVE_URL + (APPS_SCRIPT_LIVE_URL.indexOf('?') > -1 ? '&' : '?') + 'data=1&t=' + Date.now());
-          if (r1.ok) live = await r1.text();
-        } catch (e) { live = null; }
-      }
-      if (live) { applyDashboardData(live); }
-      else {
-        const res = await fetch('./data.json?t=' + new Date().getTime());
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        applyDashboardData(await res.text());
-      }
+      const res = await fetch('./data.json?t=' + new Date().getTime());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      applyDashboardData(await res.json());
     } catch (err) {
       console.error(err); document.getElementById('liveChip').classList.add('stale'); document.getElementById('liveMeta').innerText = 'Connection Error';
       if (window.showConnError) window.showConnError(); finishInitialSplash();
@@ -1891,11 +1923,8 @@
     }
   }
 
-  // Silent background refresh (served from cache, so it is cheap) + instant
-  // refresh whenever the person returns to the tab.
-  setInterval(() => { if (!document.hidden) loadDashboard(false); }, 8000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) loadDashboard(false); });
-  window.addEventListener('focus', () => loadDashboard(false));
+  // Auto-refresh every 30s on GitHub Pages, every 2 mins on Apps Script
+  setInterval(() => { loadDashboard(false); }, IS_APPS_SCRIPT ? 120000 : 30000);
 
   function downloadKpiPdf() {
     const el = document.getElementById('pdfCardTarget');
@@ -1986,8 +2015,9 @@
     const activeAgents = appData.sheets['Alignment'] || [];
     const agent = activeAgents.find(a => String(a['VDI ID']||'').toLowerCase() === input || String(a['ID']||'').toLowerCase() === input || String(a['Name']||'').toLowerCase() === input);
     if(agent) {
-      localStorage.setItem('aw_agent_login_time', String(Date.now()));
-      localStorage.setItem('aw_agent_identity', input);
+      const agName = String(agent['Name'] || '');
+      currentCardAgentName = agName;
+      awSetSession(agName, 'My Performance');
       document.getElementById('loginError').style.display = 'none';
       const expiredMsg = document.getElementById('sessionExpiredMsg');
       if (expiredMsg) expiredMsg.style.display = 'none';
@@ -1995,7 +2025,7 @@
       document.getElementById('agentPersonalArea').style.display = 'block';
 
       const loginPayload = {
-        name: agent['Name'] || '',
+        name: agName,
         vdiId: agent['VDI ID'] || '',
         id: agent['ID'] || ''
       };
@@ -2003,15 +2033,40 @@
       // Reliable Login Logging with status verification & offline retry queue
       sendReliableLoginLog(loginPayload);
 
-      awLogoFlash('Loading your scorecard...', () => renderAgentCardSafe(agent['Name'], 'myPerfCardBox', true), 750);
+      awLogoFlash('Loading your scorecard...', () => renderAgentCardSafe(agName, 'myPerfCardBox', true), 750);
     } else { document.getElementById('loginError').style.display = 'block'; }
+  }
+
+  function restoreSavedAgentSession(stayOnCurrentTab = false) {
+    try {
+      const sess = awGetSession();
+      const savedAgent = sess.agent || '';
+      if (!savedAgent) return;
+      if (sess.ts && (Date.now() - sess.ts >= SESSION_TIMEOUT_MS)) {
+        awClearSession();
+        return;
+      }
+      // Refresh active session timestamp on page reload so user stays logged in
+      currentCardAgentName = savedAgent;
+      const targetTab = (!stayOnCurrentTab && sess.tab) ? sess.tab : activeTab;
+      awSetSession(savedAgent, targetTab);
+      const loginArea = document.getElementById('agentLoginArea');
+      const personalArea = document.getElementById('agentPersonalArea');
+      if (loginArea) loginArea.style.display = 'none';
+      if (personalArea) personalArea.style.display = 'block';
+      if (appData && appData.sheets && appData.sheets['KPI']) {
+        renderAgentCardSafe(savedAgent, 'myPerfCardBox', true);
+      }
+      if (!stayOnCurrentTab && sess.tab && sess.tab !== activeTab) {
+        navTo(sess.tab, true);
+      }
+    } catch (e) {}
   }
 
   function logoutAgent(isExpired = false) {
     const wasOnDetail = !!detailState;
     if (wasOnDetail) adCleanup();
-    localStorage.removeItem('aw_agent_login_time');
-    localStorage.removeItem('aw_agent_identity');
+    awClearSession();
     currentCardAgentName = '';
     document.getElementById('agentLoginInput').value = '';
     document.getElementById('agentLoginArea').style.display = 'block';
@@ -2020,7 +2075,7 @@
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
     const expiredMsg = document.getElementById('sessionExpiredMsg');
     if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
-    if (wasOnDetail) navTo('My Performance');
+    if (wasOnDetail) navTo('My Performance', true);
   }
 
   // DAILY PROGRESSION BAR CHART (Last 7 Days from ORT Day wise)
@@ -2941,9 +2996,108 @@
     return list.find(a => String(a.name) === String(currentCardAgentName));
   }
   function adAgentKey(a) { return String(a.key || a.id || a.vdiId || a.name || '').trim().toLowerCase(); }
+  function parseDetailDate(str) {
+    const s = String(str || '').trim();
+    if (!s) return null;
+    const months = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
+    const m1 = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+    if (m1) {
+      const mo = months[m1[2].slice(0, 3).toLowerCase()];
+      if (mo !== undefined) return new Date(parseInt(m1[3], 10), mo, parseInt(m1[1], 10));
+    }
+    const m2 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m2) {
+      // Handle MM/DD/YYYY or DD/MM/YYYY safely
+      const a = parseInt(m2[1], 10), b = parseInt(m2[2], 10), y = parseInt(m2[3], 10);
+      if (a > 12) return new Date(y, b - 1, a);
+      return new Date(y, a - 1, b);
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function fmtDetailDate(dt) {
+    const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dd = String(dt.getDate()).padStart(2, '0');
+    return `${dd} ${mNames[dt.getMonth()]} ${dt.getFullYear()}`;
+  }
+
+  function getGlobalLatestDate(mapObj, fallbackRows) {
+    let maxTime = -1, maxDate = null;
+    const scan = rows => {
+      (rows || []).forEach(r => {
+        const dt = parseDetailDate(r.d);
+        if (dt && dt.getTime() > maxTime) { maxTime = dt.getTime(); maxDate = dt; }
+      });
+    };
+    if (mapObj && typeof mapObj === 'object') {
+      Object.values(mapObj).forEach(scan);
+    }
+    scan(fallbackRows);
+    return maxDate;
+  }
+
+  // Fills missing dates from the 1st of the month up to the latest date as Dayoff
+  function fillDayoffGaps(rows, globalMap) {
+    if (!rows || !rows.length) return [];
+    const byYmd = {};
+    let earliest = null;
+    rows.forEach(r => {
+      const dt = parseDetailDate(r.d);
+      if (!dt) return;
+      const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+      byYmd[key] = Object.assign({}, r, { day: String(dt.getDate()), isDayoff: false });
+      if (!earliest || dt.getTime() < earliest.getTime()) earliest = dt;
+    });
+    const latest = getGlobalLatestDate(globalMap, rows);
+    if (!earliest || !latest || latest.getTime() < earliest.getTime()) {
+      return rows.map(r => Object.assign({}, r, { isDayoff: false }));
+    }
+    // Start from the 1st of the earliest month up to the latest date
+    const start = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+    const filled = [];
+    for (let cur = new Date(start.getTime()); cur.getTime() <= latest.getTime(); cur.setDate(cur.getDate() + 1)) {
+      const key = `${cur.getFullYear()}-${cur.getMonth()}-${cur.getDate()}`;
+      if (byYmd[key]) {
+        filled.push(byYmd[key]);
+      } else {
+        filled.push({
+          d: fmtDetailDate(cur),
+          day: String(cur.getDate()),
+          isDayoff: true
+        });
+      }
+    }
+    return filled;
+  }
+
+  function buildDayStripHtml(title, goodLabel, badLabel, boxes, extraLegendHtml = '') {
+    const boxesHtml = boxes.map(b => {
+      const cls = b.tone === 'good' ? 'present' : (b.tone === 'bad' ? 'absent' : (b.tone === 'warn' ? 'warn-box' : 'other'));
+      return `<div class="dkb-day-box ${cls}" title="${escHtml(b.tip || '')}">
+        <div class="dkb-day-code" style="${b.smallCode ? 'font-size:11px;' : ''}">${escHtml(b.code)}</div>
+        <div class="dkb-day-date">${escHtml(b.date)}</div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="dkb-strip-card">
+        <div class="dkb-strip-head">
+          <div class="dkb-strip-title"><i class="bi bi-calendar2-week-fill text-primary"></i> ${escHtml(title)}</div>
+          <div class="dkb-legend">
+            <span><i class="dkb-dot p"></i> ${escHtml(goodLabel)}</span>
+            ${extraLegendHtml}
+            <span><i class="dkb-dot a"></i> ${escHtml(badLabel)}</span>
+            <span><i class="dkb-dot" style="background:var(--text-muted-dim);"></i> Dayoff</span>
+          </div>
+        </div>
+        <div class="dkb-box-grid">${boxesHtml}</div>
+      </div>`;
+  }
+
   function adDayRows(a) {
     const dw = (appData && appData.dayWise) || {};
-    return dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    const raw = dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, dw);
   }
   function adCalls(a) {
     const key = adAgentKey(a);
@@ -3002,7 +3156,7 @@
     if (!meta.sheetFound) return adEmpty('bi-file-earmark-x', 'Sheet "ORT Day wise" not found', 'The sheet must be named exactly <b>ORT Day wise</b>.');
     const missing = adMissingCols(type);
     if (missing.length) return adEmpty('bi-table', 'Column not found in "ORT Day wise"', 'Could not find: <b>' + missing.map(k => AD_COL_NAMES[k] || k).join(', ') + '</b>. Please check the header names in the sheet.');
-    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent\'s ID / VDI ID / Name.');
+    return adEmpty('bi-inbox', 'No day-wise rows for this agent', 'No rows in "ORT Day wise" matched this agent's ID / VDI ID / Name.');
   }
   function adPartialWarn(type) {
     const missing = adMissingCols(type);
@@ -3056,70 +3210,173 @@
     return stats + adSection('N-CE Calls & Remarks (' + withNce.length + ')', note, body);
   }
 
+  function adCsatDayRows(a) {
+    const cd = (appData && appData.cfsDayWise) || {};
+    const raw = cd[adAgentKey(a)] || cd[String(a.id || '').trim().toLowerCase()] || cd[String(a.vdiId || '').trim().toLowerCase()] || cd[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, cd);
+  }
+
   function adAhtCfs(a, type) {
     const isAht = type === 'aht';
     const T = a.targets || {};
-    const target = isAht ? adNum(T.aht, 170) : adNum(T.csat, 90);
+
+    if (!isAht) {
+      const target = adNum(T.csat, 90);
+      const allRows = adCsatDayRows(a);
+      const activeRows = allRows.filter(r => !r.isDayoff && r.cfsPct !== null && r.cfsPct !== undefined && !isNaN(parseFloat(r.cfsPct)));
+      if (!activeRows.length) {
+        return adEmpty('bi-emoji-neutral', 'No CSAT Q1 records found', 'No valid Q1 responses (excluding 3) were found for this agent in the CSAT sheet.');
+      }
+      const vals = activeRows.map(r => parseFloat(r.cfsPct));
+      const totCalls = activeRows.reduce((s, r) => s + (parseInt(r.totalCalls, 10) || 0), 0);
+      const totCsat = activeRows.reduce((s, r) => s + (parseInt(r.csatCalls, 10) || 0), 0);
+      const totDsat = activeRows.reduce((s, r) => s + (parseInt(r.dsatCalls, 10) || 0), 0);
+      const overallPct = totCalls > 0 ? (totCsat / totCalls) * 100 : adAvg(vals);
+      const bestIdx = vals.indexOf(Math.max.apply(null, vals));
+      const worstIdx = vals.indexOf(Math.min.apply(null, vals));
+      const bestRow = activeRows[bestIdx], worstRow = activeRows[worstIdx];
+      const fPct = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
+
+      const boxes = allRows.map(r => {
+        if (r.isDayoff || r.cfsPct === null || r.cfsPct === undefined || isNaN(parseFloat(r.cfsPct))) {
+          return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+        }
+        const v = parseFloat(r.cfsPct);
+        let tone = 'bad';
+        if (v >= target) tone = 'good';
+        else if (v >= 89.0) tone = 'warn';
+        const scoreOnly = (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + '%';
+        return {
+          code: scoreOnly,
+          date: r.day || adShort(r.d),
+          tone: tone,
+          smallCode: true,
+          tip: `${r.d} — CFS: ${fPct(v)} (Total: ${r.totalCalls}, CSAT: ${r.csatCalls}, DSAT: ${r.dsatCalls})`
+        };
+      });
+
+      const stripHtml = buildDayStripHtml(
+        `Day-wise CFS Strip (1st Onward)`,
+        `>= ${target}% (Target Meet)`,
+        `< 89% (Not Meet)`,
+        boxes,
+        `<span><i class="dkb-dot" style="background:#f59e0b;"></i> 89–90%</span>`
+      );
+
+      const stats = `<div class="ad-stats">
+        ${adStat('Overall CFS %', fPct(overallPct), overallPct >= target ? 'good' : (overallPct >= 89 ? 'warn' : 'bad'), 'bi-emoji-smile-fill')}
+        ${adStat('Total / CSAT / DSAT', `${totCalls} / ${totCsat} / ${totDsat}`, '', 'bi-telephone-inbound-fill')}
+        ${adStat('Best Day · ' + escHtml(adShort(bestRow.d)), fPct(vals[bestIdx]), 'good', 'bi-trophy-fill')}
+        ${adStat('Lowest Day · ' + escHtml(adShort(worstRow.d)), fPct(vals[worstIdx]), 'bad', 'bi-graph-down-arrow')}
+      </div>`;
+
+      const trs = allRows.map(r => {
+        if (r.isDayoff || r.cfsPct === null || r.cfsPct === undefined || isNaN(parseFloat(r.cfsPct))) {
+          return adRow([escHtml(r.d), '—', '—', '—', '<span class="pill">Dayoff</span>'],
+            ['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], ['num fw-bold', 'num', 'num', 'num', '']);
+        }
+        const v = parseFloat(r.cfsPct);
+        let pillCls = 'bad', statusTxt = 'Not Meet';
+        if (v >= target) { pillCls = 'good'; statusTxt = fPct(v) + ' · Meet'; }
+        else if (v >= 89.0) { pillCls = 'warn'; statusTxt = fPct(v) + ' · 89–90%'; }
+        else { statusTxt = fPct(v) + ' · Not Meet'; }
+        return adRow(
+          [
+            escHtml(r.d),
+            String(r.totalCalls || 0),
+            `<span class="text-success fw-bold">${r.csatCalls || 0}</span>`,
+            `<span class="text-danger fw-bold">${r.dsatCalls || 0}</span>`,
+            `<span class="pill ${pillCls}">${escHtml(statusTxt)}</span>`
+          ],
+          ['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'],
+          ['num fw-bold', 'num', 'num', 'num', '']
+        );
+      });
+
+      return stripHtml + stats + adSection('Day-wise CFS Table (CSAT Q1, Excl. 3)', 'Chronological order (1st onward). Q1 score 3 excluded; >3 = CSAT, <3 = DSAT.', adTable(['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], trs));
+    }
+
+    const target = adNum(T.aht, 170);
     const allRows = adDayRows(a);
-    const rows = allRows.filter(r => (isAht ? r.aht : r.cfs) !== null && (isAht ? r.aht : r.cfs) !== undefined);
-    if (!rows.length) return adNoDay(type);
-    const stripHtml = adBoxStrip(allRows, {
-      title: 'Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Strip',
-      valueFn: r => isAht ? r.aht : r.cfs,
-      isGood: v => isAht ? v <= target : v >= target,
-      fmtBox: v => isAht ? Math.round(v) + 's' : (Math.round(v * 10) / 10) + '%',
-      goodLabel: 'Target Met', badLabel: 'Below Target'
-    });
-    const vals = rows.map(r => isAht ? r.aht : r.cfs);
+    const activeRows = allRows.filter(r => !r.isDayoff && r.aht !== null && r.aht !== undefined);
+    if (!activeRows.length) return adNoDay('aht');
+    const vals = activeRows.map(r => r.aht);
     const avg = adAvg(vals);
-    const best = isAht ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
-    const worst = isAht ? Math.max.apply(null, vals) : Math.min.apply(null, vals);
-    const bestRow = rows[vals.indexOf(best)], worstRow = rows[vals.indexOf(worst)];
-    const meets = v => isAht ? v <= target : v >= target;
+    const best = Math.min.apply(null, vals);
+    const worst = Math.max.apply(null, vals);
+    const bestRow = activeRows[vals.indexOf(best)], worstRow = activeRows[vals.indexOf(worst)];
+    const meets = v => v <= target;
     const metDays = vals.filter(meets).length;
-    const unit = isAht ? 's' : '%';
-    const f = v => isAht ? Math.round(v) + 's' : (Math.round(v * 10) / 10) + '%';
+    const f = v => Math.round(v) + 's';
+
+    const boxes = allRows.map(r => {
+      const val = r.aht;
+      const isOff = r.isDayoff || val === null || val === undefined;
+      if (isOff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const ok = meets(val);
+      return { code: Math.round(val) + 's', date: r.day || adShort(r.d), tone: ok ? 'good' : 'bad', smallCode: true, tip: `${r.d} — ${f(val)} (${ok ? 'Target Meet' : 'Missed'})` };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise AHT Strip (1st Onward)', `<= ${target}s`, `> ${target}s`, boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Average ' + (isAht ? 'AHT' : 'CFS'), f(avg), meets(avg) ? 'good' : 'bad', 'bi-speedometer2')}
+      ${adStat('Average AHT', f(avg), meets(avg) ? 'good' : 'bad', 'bi-speedometer2')}
       ${adStat('Best Day · ' + escHtml(adShort(bestRow.d)), f(best), 'good', 'bi-trophy-fill')}
       ${adStat('Weakest Day · ' + escHtml(adShort(worstRow.d)), f(worst), 'bad', 'bi-graph-down-arrow')}
-      ${adStat('Days On Target', metDays + ' / ' + rows.length, metDays === rows.length ? 'good' : 'warn', 'bi-bullseye')}
+      ${adStat('Days On Target', metDays + ' / ' + activeRows.length, metDays === activeRows.length ? 'good' : 'warn', 'bi-bullseye')}
     </div>`;
-    const chart = `<div class="chart-container ad-chart-box"><canvas id="adChart"></canvas></div>`;
-    const trs = rows.map(r => {
-      const v = isAht ? r.aht : r.cfs; const ok = meets(v);
-      const diff = isAht ? (ok ? 'Target Meet' : '+' + Math.round(v - target) + 's over') : (ok ? 'Target Meet' : Math.round((target - v) * 10) / 10 + '% below');
+
+    const trs = allRows.map(r => {
+      const v = r.aht;
+      if (r.isDayoff || v === null || v === undefined) {
+        return adRow([escHtml(r.d), '<span class="text-muted fw-bold">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'AHT (Sec)', 'vs Target'], ['num fw-bold', '', '']);
+      }
+      const ok = meets(v);
+      const diff = ok ? 'Target Meet' : '+' + Math.round(v - target) + 's over';
       return adRow([escHtml(r.d), `<span class="${ok ? 'text-success' : 'text-danger'} fw-bold">${f(v)}</span>`, `<span class="pill ${ok ? 'good' : 'bad'}">${diff}</span>`],
-        ['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], ['num fw-bold', 'num', '']);
+        ['Date', 'AHT (Sec)', 'vs Target'], ['num fw-bold', 'num', '']);
     });
-    window.__adChartPayload = { type: type, rows: rows.slice(-31), target: target, unit: unit };
-    return stripHtml + stats + adSection('Trend (Target ' + (isAht ? '<= ' + target + 's' : '>= ' + target + '%') + ')', '', chart)
-      + adSection('Day-wise ' + (isAht ? 'AHT' : 'CFS') + ' Table', 'Source: ORT Day wise sheet. Chronological order (1st onward).', adTable(['Date', isAht ? 'AHT (Sec)' : 'CFS %', 'vs Target'], trs));
+
+    return stripHtml + stats + adSection('Day-wise AHT Table', 'Source: ORT Day wise sheet. Chronological order (1st onward).', adTable(['Date', 'AHT (Sec)', 'vs Target'], trs));
   }
 
   function adLogin(a) {
-    const allRows = adDayRows(a);
-    const rows = allRows.filter(r => !r.off);
-    if (!rows.length) return adNoDay('login');
-    const stripHtml = adBoxStrip(allRows, {
-      title: 'Day-wise Lag Strip',
-      valueFn: r => { const m = durToMin(r.lag); return isNaN(m) ? null : m; },
-      isGood: v => v <= 0,
-      fmtBox: v => v > 0 ? fmtMin(v) : '0m',
-      goodLabel: 'No Lag', badLabel: 'Lag Present'
-    });
-    const lagMins = rows.map(r => durToMin(r.lag));
+    const rows = adDayRows(a);
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) return adNoDay('login');
+
+    const lagMins = activeRows.map(r => durToMin(r.lag));
     const lagDays = lagMins.filter(m => !isNaN(m) && m > 0).length;
     const totalLag = lagMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
-    const logins = rows.map(r => r.login).filter(v => v !== null && v !== undefined);
+    const logins = activeRows.map(r => r.login).filter(v => v !== null && v !== undefined);
     const avgLogin = adAvg(logins);
+
+    const boxes = rows.map(r => {
+      if (r.isDayoff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const lagM = durToMin(r.lag);
+      const hasLag = !isNaN(lagM) && lagM > 0;
+      return {
+        code: hasLag ? fmtMin(lagM) : 'OK',
+        date: r.day || adShort(r.d),
+        tone: hasLag ? 'bad' : 'good',
+        smallCode: true,
+        tip: `${r.d} — ${hasLag ? 'Lag: ' + fmtMin(lagM) : 'No Lag'}`
+      };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise Login & Lag Strip (1st Onward)', 'No Lag', 'Lag Found', boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Days With Lag', lagDays, lagDays > 0 ? 'bad' : 'good', 'bi-hourglass-split')}
       ${adStat('Total Lag Time', fmtMin(totalLag), totalLag > 0 ? 'bad' : 'good', 'bi-clock-history')}
       ${adStat('Avg Login %', isNaN(avgLogin) ? '—' : (Math.round(avgLogin * 10) / 10) + '%', !isNaN(avgLogin) && avgLogin >= 100 ? 'good' : 'warn', 'bi-percent')}
     </div>`;
+
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="text-muted">Dayoff</span>', '<span class="text-muted">Dayoff</span>', '<span class="pill">Dayoff</span>', '<span class="text-muted">Dayoff</span>'],
+          ['Date', 'Target Ready', 'Ready Time', 'Lag Time', 'Login %'], ['num fw-bold', '', '', '', '']);
+      }
       const lagM = durToMin(r.lag); const hasLag = !isNaN(lagM) && lagM > 0;
       return adRow([escHtml(r.d), adDash(r.tr), adDash(r.rt), `<span class="${hasLag ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.lag)}</span>`,
         r.login === null || r.login === undefined ? '—' : `<span class="${r.login >= 100 ? 'text-success' : 'text-danger'} fw-bold">${r.login}%</span>`],
@@ -3130,25 +3387,40 @@
 
   function adAdherence(a) {
     const allRows = adDayRows(a);
-    const rows = allRows.filter(r => r.adh !== null && r.adh !== undefined);
-    if (!rows.length) return adNoDay('adherence');
-    const stripHtml = adBoxStrip(allRows, {
-      title: 'Day-wise Adherence Strip',
-      valueFn: r => r.adh,
-      isGood: v => v >= 100,
-      fmtBox: v => v + '%',
-      goodLabel: 'Okay (100%)', badLabel: 'Below Target'
+    const activeRows = allRows.filter(r => !r.isDayoff && r.adh !== null && r.adh !== undefined);
+    if (!activeRows.length) return adNoDay('adherence');
+
+    const okDays = activeRows.filter(r => r.adh >= 100).length;
+    const halfDays = activeRows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
+    const avg = adAvg(activeRows.map(r => r.adh));
+
+    const boxes = allRows.map(r => {
+      if (r.isDayoff || r.adh === null || r.adh === undefined) {
+        return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      }
+      const ok = r.adh >= 100;
+      return {
+        code: Math.round(r.adh) + '%',
+        date: r.day || adShort(r.d),
+        tone: ok ? 'good' : 'bad',
+        smallCode: true,
+        tip: `${r.d} — Adherence: ${r.adh}%`
+      };
     });
-    const okDays = rows.filter(r => r.adh >= 100).length;
-    const halfDays = rows.filter(r => Math.abs(r.adh - 50) < 0.5).length;
-    const avg = adAvg(rows.map(r => r.adh));
+    const stripHtml = buildDayStripHtml('Day-wise Adherence Strip (1st Onward)', '100% Okay', '< 100% Missed', boxes);
+
     const stats = `<div class="ad-stats">
       ${adStat('Days Okay (100%)', okDays, 'good', 'bi-check-circle-fill')}
       ${adStat('Login / Logout Missed (50%)', halfDays, halfDays > 0 ? 'bad' : 'good', 'bi-exclamation-triangle-fill')}
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Average Adherence', (Math.round(avg * 10) / 10) + '%', avg >= 100 ? 'good' : 'warn', 'bi-percent')}
     </div>`;
-    const trs = rows.map(r => {
+
+    const trs = allRows.map(r => {
+      if (r.isDayoff || r.adh === null || r.adh === undefined) {
+        return adRow([escHtml(r.d), '<span class="text-muted fw-bold">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'Adherence %', 'Remarks'], ['num fw-bold', '', '']);
+      }
       let remark, cls;
       if (r.adh >= 100) { remark = 'Okay'; cls = 'good'; }
       else if (Math.abs(r.adh - 50) < 0.5) { remark = 'Login or Logout Missed'; cls = 'bad'; }
@@ -3161,27 +3433,41 @@
   }
 
   function adBreak(a) {
-    const allRows = adDayRows(a);
-    const rows = allRows.filter(r => !r.off);
-    if (!rows.length) return adNoDay('break');
-    const stripHtml = adBoxStrip(allRows, {
-      title: 'Day-wise Extra Break Strip',
-      valueFn: r => { const m = durToMin(r.eb); return isNaN(m) ? null : m; },
-      isGood: v => v <= 0,
-      fmtBox: v => v > 0 ? fmtMin(v) : '0m',
-      goodLabel: 'No Extra Break', badLabel: 'Extra Break'
-    });
-    const ebMins = rows.map(r => durToMin(r.eb));
+    const rows = adDayRows(a);
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) return adNoDay('break');
+
+    const ebMins = activeRows.map(r => durToMin(r.eb));
     const extraDays = ebMins.filter(m => !isNaN(m) && m > 0).length;
     const totalExtra = ebMins.reduce((s, m) => s + (isNaN(m) ? 0 : m), 0);
     const longest = ebMins.reduce((s, m) => Math.max(s, isNaN(m) ? 0 : m), 0);
+
+    const boxes = rows.map(r => {
+      if (r.isDayoff) return { code: 'OFF', date: r.day || adShort(r.d), tone: 'off', smallCode: true, tip: `${r.d} — Dayoff` };
+      const m = durToMin(r.eb);
+      const hasExtra = !isNaN(m) && m > 0;
+      return {
+        code: hasExtra ? fmtMin(m) : 'OK',
+        date: r.day || adShort(r.d),
+        tone: hasExtra ? 'bad' : 'good',
+        smallCode: true,
+        tip: `${r.d} — ${hasExtra ? 'Extra Break: ' + fmtMin(m) : 'No Extra Break'}`
+      };
+    });
+    const stripHtml = buildDayStripHtml('Day-wise Over Break Strip (1st Onward)', 'No Extra Break', 'Extra Break', boxes);
+
     const stats = `<div class="ad-stats">
-      ${adStat('Days Tracked', rows.length, '', 'bi-calendar3')}
+      ${adStat('Days Tracked', activeRows.length, '', 'bi-calendar3')}
       ${adStat('Days With Extra Break', extraDays, extraDays > 0 ? 'bad' : 'good', 'bi-cup-hot-fill')}
       ${adStat('Total Extra Break', fmtMin(totalExtra), totalExtra > 0 ? 'bad' : 'good', 'bi-clock-history')}
       ${adStat('Longest Extra Break', fmtMin(longest), longest > 0 ? 'warn' : 'good', 'bi-alarm-fill')}
     </div>`;
+
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="text-muted">Dayoff</span>', '<span class="text-muted">Dayoff</span>', '<span class="pill">Dayoff</span>'],
+          ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', '', '', '']);
+      }
       const m = durToMin(r.eb); const hasExtra = !isNaN(m) && m > 0;
       return adRow([escHtml(r.d), adDash(r.tb), adDash(r.bt), `<span class="${hasExtra ? 'text-danger fw-bold' : 'text-success'}">${adPrettyDur(r.eb)}</span>`],
         ['Date', 'Target Break', 'Break Time', 'Extra Break'], ['num fw-bold', 'num', 'num', 'num']);
@@ -3189,69 +3475,32 @@
     return adPartialWarn('break') + stripHtml + stats + adSection('Day-wise Break', 'Target Break, actual Break Time and Extra Break for each day. Chronological order (1st onward).', adTable(['Date', 'Target Break', 'Break Time', 'Extra Break'], trs));
   }
 
-  // Reusable day-wise "box strip" — same visual pattern as the DKB attendance
-  // strip (green/red boxes with the date underneath), for AHT/CFS/Adherence/
-  // Break/Lag. rows must be the FULL (unfiltered) day-wise rows for the agent
-  // so Day Off entries are included. opts: { title, valueFn, isGood, fmtBox, goodLabel, badLabel }.
-  function adBoxStrip(rows, opts) {
-    if (!rows || !rows.length) return '';
-    let goodCount = 0, badCount = 0, offCount = 0;
-    const boxesHtml = rows.map(r => {
-      const shortDate = r.day ? String(r.day) : adShort(r.d);
-      if (r.off) {
-        offCount++;
-        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — Day Off">
-          <div class="dkb-day-code">OFF</div>
-          <div class="dkb-day-date">${escHtml(shortDate)}</div>
-        </div>`;
-      }
-      const v = opts.valueFn(r);
-      if (v === null || v === undefined || isNaN(v)) {
-        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — No Data">
-          <div class="dkb-day-code">—</div>
-          <div class="dkb-day-date">${escHtml(shortDate)}</div>
-        </div>`;
-      }
-      const ok = opts.isGood(v);
-      if (ok) goodCount++; else badCount++;
-      const cls = ok ? 'present' : 'absent';
-      return `<div class="dkb-day-box ${cls}" title="${escHtml(r.d)} — ${escHtml(opts.fmtBox(v))}">
-        <div class="dkb-day-code">${escHtml(opts.fmtBox(v))}</div>
-        <div class="dkb-day-date">${escHtml(shortDate)}</div>
-      </div>`;
-    }).join('');
-    return `
-      <div class="dkb-strip-card">
-        <div class="dkb-strip-head">
-          <div class="dkb-strip-title"><i class="bi bi-calendar2-week-fill text-success"></i> ${escHtml(opts.title)} (1st Onward)</div>
-          <div class="dkb-legend">
-            <span><i class="dkb-dot p"></i> ${escHtml(opts.goodLabel)} (${goodCount})</span>
-            <span><i class="dkb-dot a"></i> ${escHtml(opts.badLabel)} (${badCount})</span>
-            <span><i class="dkb-dot o"></i> Day Off (${offCount})</span>
-          </div>
-        </div>
-        <div class="dkb-box-grid">${boxesHtml}</div>
-      </div>`;
-  }
-
   function adDkbRows(a) {
     const dw = (appData && appData.dkbDayWise) || {};
-    return dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    const raw = dw[adAgentKey(a)] || dw[String(a.id || '').trim().toLowerCase()] || dw[String(a.vdiId || '').trim().toLowerCase()] || dw[String(a.name || '').trim().toLowerCase()] || [];
+    return fillDayoffGaps(raw, dw);
   }
 
   function adDkb(a) {
     const rows = adDkbRows(a);
-    if (!rows.length) {
+    const activeRows = rows.filter(r => !r.isDayoff);
+    if (!activeRows.length) {
       return adEmpty('bi-calendar-x', 'No DKB day-wise records', 'No date-wise Present/Absent entries were found for this agent in the DKB sheet.');
     }
-    const presentCnt = rows.filter(r => r.code === 'P').length;
-    const absentCnt = rows.filter(r => r.code === 'A').length;
+    const presentCnt = activeRows.filter(r => r.code === 'P').length;
+    const absentCnt = activeRows.filter(r => r.code === 'A').length;
     const totalValid = presentCnt + absentCnt;
     const pct = totalValid > 0 ? ((presentCnt / totalValid) * 100) : NaN;
     const pctStr = !isNaN(pct) ? pct.toFixed(1) + '%' : (a.dkbPct || 'N/A');
 
-    // Top small day-wise boxes (P = green + date below, A = red + date below), ordered 1st -> onward
+    // Top small day-wise boxes (P = green + date below, A = red + date below, OFF = Dayoff), ordered 1st -> onward
     const boxesHtml = rows.map(r => {
+      if (r.isDayoff) {
+        return `<div class="dkb-day-box other" title="${escHtml(r.d)} — Dayoff">
+          <div class="dkb-day-code" style="font-size:11px;">OFF</div>
+          <div class="dkb-day-date">${escHtml(r.day || adShort(r.d))}</div>
+        </div>`;
+      }
       const cls = r.code === 'P' ? 'present' : (r.code === 'A' ? 'absent' : 'other');
       const shortDate = r.day ? String(r.day) : adShort(r.d);
       return `<div class="dkb-day-box ${cls}" title="${escHtml(r.d)} — ${escHtml(r.status)}">
@@ -3267,6 +3516,7 @@
           <div class="dkb-legend">
             <span><i class="dkb-dot p"></i> P = Present (${presentCnt})</span>
             <span><i class="dkb-dot a"></i> A = Absent (${absentCnt})</span>
+            <span><i class="dkb-dot" style="background:var(--text-muted-dim);"></i> Dayoff</span>
           </div>
         </div>
         <div class="dkb-box-grid">${boxesHtml}</div>
@@ -3275,11 +3525,15 @@
     const stats = `<div class="ad-stats">
       ${adStat('Present Days', presentCnt, 'good', 'bi-check-circle-fill')}
       ${adStat('Absent Days', absentCnt, absentCnt > 0 ? 'bad' : 'good', 'bi-x-circle-fill')}
-      ${adStat('Total Tracked', totalValid || rows.length, '', 'bi-calendar3')}
+      ${adStat('Total Tracked', totalValid || activeRows.length, '', 'bi-calendar3')}
       ${adStat('DKB Present %', escHtml(pctStr), (!isNaN(pct) && pct >= 95) ? 'good' : 'warn', 'bi-percent')}
     </div>`;
 
     const trs = rows.map(r => {
+      if (r.isDayoff) {
+        return adRow([escHtml(r.d), '<span class="pill">Dayoff</span>', '<span class="text-muted">Dayoff</span>'],
+          ['Date', 'Status', 'Category'], ['num fw-bold', '', '']);
+      }
       const pillCls = r.code === 'P' ? 'good' : (r.code === 'A' ? 'bad' : 'warn');
       return adRow(
         [escHtml(r.d), `<span class="pill ${pillCls}">${escHtml(r.code === 'P' ? 'P · Present' : (r.code === 'A' ? 'A · Absent' : r.status))}</span>`, escHtml(r.category || '—')],
@@ -3405,8 +3659,8 @@
     detailBusy = true;
     awLogoFlash('Back to your scorecard...', () => {
       adCleanup();
-      navTo('My Performance');
-      if (currentCardAgentName) { try { switchAgentSubTab(currentAgentSubTab); } catch (e) {} }
+      navTo('My Performance', true);
+      if (currentCardAgentName) { try { switchAgentSubTab(currentAgentSubTab, true); } catch (e) {} }
     }, 450);
     setTimeout(() => { detailBusy = false; }, 800);
   }
@@ -3430,7 +3684,7 @@
   // =========================================================================
   const LOGIN_QUEUE_KEY = 'aw_failed_login_logs_v1';
   const SNAPSHOT_KEY = 'aw_perf_alert_snap_v1';
-  let currentLang = 'en';
+  let currentLang = localStorage.getItem('aw_lang') || 'en';
 
   // --- Reliable Login Logging ---
   function queueFailedLogin(payload) {
@@ -3575,7 +3829,7 @@
 
   // --- Weekly Report Card (Auto-generated every Sunday + live 7-day breakdown) ---
   function buildWeeklyReportCardHtml(agent, isOjtAgent) {
-    const dayRows = adDayRows(agent).slice(-7);
+    const dayRows = adDayRows(agent).filter(r => !r.isDayoff).slice(-7);
     if (dayRows.length < 2) return '';
     const isSunday = new Date().getDay() === 0;
     const validAht = dayRows.filter(r => r.aht !== null && r.aht !== undefined && r.aht > 0);
