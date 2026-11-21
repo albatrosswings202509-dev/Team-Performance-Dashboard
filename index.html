@@ -3212,8 +3212,28 @@
 
   function adCsatDayRows(a) {
     const cd = (appData && appData.cfsDayWise) || {};
-    const raw = cd[adAgentKey(a)] || cd[String(a.id || '').trim().toLowerCase()] || cd[String(a.vdiId || '').trim().toLowerCase()] || cd[String(a.name || '').trim().toLowerCase()] || [];
-    return fillDayoffGaps(raw, cd);
+    const candidates = [adAgentKey(a), a.id, a.vdiId, a.name]
+      .map(x => String(x || '').trim().toLowerCase())
+      .filter(Boolean);
+    let raw = null;
+    for (let i = 0; i < candidates.length; i++) {
+      if (Array.isArray(cd[candidates[i]]) && cd[candidates[i]].length > 0) {
+        raw = cd[candidates[i]];
+        break;
+      }
+    }
+    if (!raw) {
+      const normCandidates = candidates.map(c => c.replace(/[^a-z0-9]/g, ''));
+      const keys = Object.keys(cd);
+      for (let k = 0; k < keys.length; k++) {
+        const nk = keys[k].replace(/[^a-z0-9]/g, '');
+        if (nk && normCandidates.includes(nk) && Array.isArray(cd[keys[k]]) && cd[keys[k]].length > 0) {
+          raw = cd[keys[k]];
+          break;
+        }
+      }
+    }
+    return fillDayoffGaps(raw || [], cd);
   }
 
   function adAhtCfs(a, type) {
@@ -3293,7 +3313,7 @@
         );
       });
 
-      return stripHtml + stats + adSection('Day-wise CFS Table (CSAT Q1, Excl. 3)', 'Chronological order (1st onward). Q1 score 3 excluded; >3 = CSAT, <3 = DSAT.', adTable(['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], trs));
+      return stripHtml + stats + adSection('Day-wise CFS Table (CSAT Q1, Excl. 3)', 'Chronological order (1st onward). CSAT Q1: 1 = CSAT, 2 = DSAT (3 excluded).', adTable(['Date', 'Total call', 'Csat call', 'Dsat call', 'CFS%'], trs));
     }
 
     const target = adNum(T.aht, 170);
