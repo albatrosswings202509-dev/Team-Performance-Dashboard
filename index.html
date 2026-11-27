@@ -921,6 +921,165 @@ body::before {
   .btn-txt { display: inline !important; }
   .topbar .btn-txt { display: none !important; }
 }
+
+  .session-timer-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); background: var(--bg-surface-2); border: 1px solid var(--border-color); padding: 7px 12px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .session-timer-chip i { color: var(--aw-gold); }
+  .session-timer-chip strong { color: var(--text-main); font-weight: 700; }
+
+  @media (max-width: 820px) {
+    /* Hidden Sheet (Agent Detail) compact 2-column side-by-side stat boxes on mobile */
+    #page-Agent\ Detail .ad-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+      margin-bottom: 14px !important;
+    }
+    #page-Agent\ Detail .ad-stat {
+      padding: 10px 10px !important;
+      gap: 8px !important;
+      border-radius: 12px !important;
+      min-width: 0;
+    }
+    #page-Agent\ Detail .ad-stat-ic {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 8px !important;
+      font-size: 13px !important;
+    }
+    #page-Agent\ Detail .ad-stat > div:last-child {
+      min-width: 0;
+      flex: 1;
+    }
+    #page-Agent\ Detail .ad-stat-val {
+      font-size: 14.5px !important;
+      line-height: 1.15 !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #page-Agent\ Detail .ad-stat-lbl {
+      font-size: 9px !important;
+      letter-spacing: 0.03em !important;
+      margin-top: 2px !important;
+      line-height: 1.25 !important;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* Compact Day-wise strip boxes inside Hidden Sheet on mobile */
+    #page-Agent\ Detail .dkb-strip-card {
+      padding: 12px !important;
+      margin-bottom: 12px !important;
+      border-radius: 14px !important;
+    }
+    #page-Agent\ Detail .dkb-strip-title {
+      font-size: 12.5px !important;
+    }
+    #page-Agent\ Detail .dkb-legend {
+      font-size: 10px !important;
+      gap: 8px !important;
+    }
+    #page-Agent\ Detail .dkb-box-grid {
+      display: grid !important;
+      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      gap: 5px !important;
+    }
+    #page-Agent\ Detail .dkb-day-box {
+      width: 100% !important;
+      min-height: 40px !important;
+      padding: 4px 2px !important;
+      border-radius: 8px !important;
+      gap: 2px !important;
+    }
+    #page-Agent\ Detail .dkb-day-code {
+      font-size: 11px !important;
+    }
+    #page-Agent\ Detail .dkb-day-date {
+      font-size: 8.5px !important;
+    }
+    /* Compact Hero & Table inside Hidden Sheet on mobile */
+    #page-Agent\ Detail .ad-hero {
+      padding: 14px 16px !important;
+      gap: 10px !important;
+      border-radius: 14px !important;
+      margin-bottom: 12px !important;
+    }
+    #page-Agent\ Detail .ad-hero-ic {
+      width: 38px !important;
+      height: 38px !important;
+      font-size: 17px !important;
+      border-radius: 10px !important;
+    }
+    #page-Agent\ Detail .ad-hero-title {
+      font-size: 17px !important;
+    }
+    #page-Agent\ Detail .ad-hero-sub {
+      font-size: 11px !important;
+    }
+    #page-Agent\ Detail .ad-hero-kpi-val {
+      font-size: 24px !important;
+    }
+    #page-Agent\ Detail .ad-top {
+      margin-bottom: 10px !important;
+    }
+    #page-Agent\ Detail .ad-crumb {
+      font-size: 11px !important;
+    }
+    #page-Agent\ Detail .table-wrap {
+      max-height: 420px !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    #page-Agent\ Detail table {
+      font-size: 11.5px !important;
+    }
+    #page-Agent\ Detail thead th,
+    #page-Agent\ Detail tbody td {
+      padding: 8px 8px !important;
+      white-space: nowrap;
+    }
+    #page-Agent\ Detail tbody td.text-start {
+      white-space: normal;
+      min-width: 140px;
+    }
+    /* Mobile Agent Portal action bar & sub-tabs */
+    .agent-action-bar {
+      flex-direction: row !important;
+      gap: 8px !important;
+      margin-bottom: 14px !important;
+    }
+    .agent-action-btns {
+      flex: 1;
+      justify-content: flex-end;
+    }
+    .agent-action-btns .btn-action,
+    .agent-action-btns .btn-pdf {
+      padding: 7px 11px !important;
+      font-size: 12px !important;
+      min-height: 36px !important;
+    }
+    .agent-subtabs {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 4px !important;
+    }
+    .agent-subtab-btn {
+      padding: 8px 6px !important;
+      font-size: 11px !important;
+      gap: 4px !important;
+    }
+    .sim-row {
+      gap: 8px !important;
+    }
+    .sim-label {
+      width: 88px !important;
+      font-size: 11px !important;
+    }
+    .sim-val {
+      width: 40px !important;
+      font-size: 11px !important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1060,13 +1219,16 @@ body::before {
           <input type="text" id="agentLoginInput" class="login-input" placeholder="e.g., genex.name or 20301111" onkeypress="if(event.key === 'Enter') handleAgentLogin()">
           <button class="btn-login" onclick="handleAgentLogin()"><i class="bi bi-unlock-fill"></i> Access My Dashboard</button>
           <div id="loginError" style="color:var(--color-bad); margin-top:10px; font-weight:600; font-size:12px; display:none;">Agent not found. Try your exact VDI or ID.</div>
-          <div id="sessionExpiredMsg" style="color:var(--color-warn); margin-top:10px; font-weight:600; font-size:12px; display:none;">Session expired (10 mins). Please enter your ID again.</div>
+          <div id="sessionExpiredMsg" style="color:var(--color-warn); margin-top:10px; font-weight:600; font-size:12px; display:none;">Session expired after 05 minutes. Please enter your ID again.</div>
         </div>
       </div>
       <div id="agentPersonalArea" style="display:none;">
-        <div class="filterbar" style="justify-content: flex-end;">
-          <button class="btn-action" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);" onclick="logoutAgent()"><i class="bi bi-box-arrow-right"></i> Logout</button>
-          <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download My Report</button>
+        <div class="filterbar agent-action-bar" style="justify-content: space-between; align-items: center;">
+          <span class="session-timer-chip" title="Auto logout after 05 minutes"><i class="bi bi-hourglass-split"></i> Auto Logout: <strong id="sessionCountdownTxt">05:00</strong></span>
+          <div class="agent-action-btns" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-action" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);" onclick="logoutAgent()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            <button class="btn-pdf" onclick="downloadKpiPdf()"><i class="bi bi-download"></i> Download My Report</button>
+          </div>
         </div>
         <div id="myPerfCardBox"></div>
       </div>
@@ -1441,13 +1603,16 @@ body::before {
 
   // === DUAL-MODE CONFIG (Works on BOTH Apps Script Web App & GitHub Pages) ===
   const LOGIN_TRACKER_URL = "https://script.google.com/macros/s/AKfycbwD_usFFtERll_2gUPEUa-xVrW5ecNYrH-_18dcAybvQkwO2jvXH9Pd-Ap4tH93fm89Lg/exec";
-  const SESSION_TIMEOUT_MS = 12 * 60 * 60 * 1000; // 12 hours session persistence across refreshes
+  const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 05 minutes auto-logout session timeout
   // === BULLETPROOF SESSION STORAGE (localStorage + sessionStorage + window.name) ===
-  function awSetSession(agentName, tabName) {
+  function awSetSession(agentName, tabName, resetTimer = false) {
+    const prev = awGetSession();
+    const nextAgent = agentName !== undefined ? agentName : (prev.agent || '');
+    const ts = (resetTimer || !prev.ts || prev.agent !== nextAgent) ? (nextAgent ? Date.now() : 0) : prev.ts;
     const payload = {
-      agent: agentName !== undefined ? agentName : (awGetSession().agent || ''),
-      tab: tabName !== undefined ? tabName : (awGetSession().tab || ''),
-      ts: Date.now()
+      agent: nextAgent,
+      tab: tabName !== undefined ? tabName : (prev.tab || ''),
+      ts: ts
     };
     const raw = JSON.stringify(payload);
     try { localStorage.setItem('aw_session_v2', raw); } catch (e) {}
@@ -1483,14 +1648,30 @@ body::before {
   let rootCauseChartInstance = null; let dailyTrendChartInstance = null;
   let detailState = null, detailPushed = false, detailBusy = false, detailChartInstance = null;
 
+  function updateSessionCountdown(remainingMs) {
+    const el = document.getElementById('sessionCountdownTxt');
+    if (!el) return;
+    const totalSec = Math.max(0, Math.ceil(remainingMs / 1000));
+    const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    el.textContent = `${m}:${s}`;
+  }
+
   function checkSessionTimeout() {
     const sess = awGetSession();
     const personalArea = document.getElementById('agentPersonalArea');
-    const isLoggedIn = personalArea && personalArea.style.display === 'block';
-    if (isLoggedIn && sess.agent && sess.ts && (Date.now() - sess.ts >= SESSION_TIMEOUT_MS)) {
+    const isLoggedIn = (personalArea && personalArea.style.display === 'block') || !!currentCardAgentName || !!sess.agent;
+    if (!isLoggedIn || !sess.agent) return;
+    if (!sess.ts) {
+      awSetSession(sess.agent, activeTab, true);
+      updateSessionCountdown(SESSION_TIMEOUT_MS);
+      return;
+    }
+    const elapsed = Date.now() - sess.ts;
+    if (elapsed >= SESSION_TIMEOUT_MS) {
       logoutAgent(true);
-    } else if (isLoggedIn && sess.agent) {
-      awSetSession(sess.agent, activeTab);
+    } else {
+      updateSessionCountdown(SESSION_TIMEOUT_MS - elapsed);
     }
   }
 
@@ -1498,7 +1679,7 @@ body::before {
     if (document.visibilityState === 'visible') checkSessionTimeout();
   });
   window.addEventListener('focus', checkSessionTimeout);
-  setInterval(checkSessionTimeout, 15000);
+  setInterval(checkSessionTimeout, 1000);
 
   function toggleTheme() {
     const body = document.documentElement;
@@ -1975,7 +2156,7 @@ body::before {
     if(agent) {
       const agName = String(agent['Name'] || '');
       currentCardAgentName = agName;
-      awSetSession(agName, 'My Performance');
+      awSetSession(agName, 'My Performance', true);
       document.getElementById('loginError').style.display = 'none';
       const expiredMsg = document.getElementById('sessionExpiredMsg');
       if (expiredMsg) expiredMsg.style.display = 'none';
@@ -2033,6 +2214,7 @@ body::before {
     if (dailyTrendChartInstance) { dailyTrendChartInstance.destroy(); dailyTrendChartInstance = null; }
     const expiredMsg = document.getElementById('sessionExpiredMsg');
     if (expiredMsg) expiredMsg.style.display = isExpired ? 'block' : 'none';
+    if (isExpired && window.awToast) awToast('Session expired after 05 minutes. Please log in again.', 'bi-clock-history', 3500);
     if (wasOnDetail) navTo('My Performance', true);
   }
 
